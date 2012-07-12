@@ -4,9 +4,11 @@
  */
 
 var express = require('express')
-  , routes = require('./routes');
+  , db = require('./database')
+  , routes = require('./routes')(db);
 
 var app = module.exports = express.createServer();
+
 
 // Configuration
 
@@ -29,6 +31,8 @@ app.configure('development', function(){
 app.configure('production', function(){
   app.use(express.errorHandler());
 });
+
+GLOBAL.models = db.models;
 
 // Routes
 
