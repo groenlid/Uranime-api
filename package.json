@@ -9,5 +9,8 @@
     "express": "3.0.5",
     "sequelize": "1.6.0-beta4",
     "jade": "*"
+  },
+  "engines": {
+      "node": "0.8.2"
   }
 }
