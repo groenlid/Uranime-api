@@ -16,24 +16,24 @@ exports.getById = function(req, res){
     ret.episodes = anime.episodes;
     res.send(ret);
   });*/
-
-
-  orm.connect("", function (err, db) {
+/*
+Database=uranime;Data Source=eu-cdbr-azure-north-a.cloudapp.net;User Id=bf11d1e3cb93a7;Password=0783be81
+  orm.connect("mysql://anime-api:test@10.0.0.201/groenlid_anime", function (err, db) {
       if (err) throw err;
 
       var Anime = db.define('anime', {
           title      : String
       });
 
-      Anime.get(req.params.id, function (err, anime) {
+      Person.get(req.params.id, function (err, anime) {
           // SQL: "SELECT * FROM person WHERE surname = 'Doe'"
 
           console.log("anime found: %d", anime);
           res.send(anime);
       });
-  });
+  });*/
 
-  /*
+  
   var r = db.models.Anime.find(req.params.id).success(function(anime){
     anime.getEpisodes().success(function(episodes){
       anime.getGenres().success(function(genres){
@@ -78,7 +78,7 @@ exports.getById = function(req, res){
         })
       });
     })
-  });*/
+  });
 
 
 };

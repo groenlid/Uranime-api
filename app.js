@@ -15,7 +15,7 @@ var express = require('express')
   , path = require('path');
 
 GLOBAL.app = express();
-//GLOBAL.db = require('./database')(config.db);
+GLOBAL.db = require('./database')(config.db);
 
 app.use(function(req, res, next) {
     var oneof = false;

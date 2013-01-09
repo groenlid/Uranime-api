@@ -12,7 +12,7 @@
           port: options.port,
           logging: options.logging,
           dialect: 'mysql',
-          maxConcurrentQueries: 100,
+          maxConcurrentQueries: 4,
           define: {
             timestamps: false,
             freezeTableName: true,
