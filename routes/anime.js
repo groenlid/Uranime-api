@@ -17,7 +17,6 @@ exports.getById = function(req, res){
     res.send(ret);
   });*/
 /*
-Database=uranime;Data Source=eu-cdbr-azure-north-a.cloudapp.net;User Id=bf11d1e3cb93a7;Password=0783be81
   orm.connect("mysql://anime-api:test@10.0.0.201/groenlid_anime", function (err, db) {
       if (err) throw err;
 
