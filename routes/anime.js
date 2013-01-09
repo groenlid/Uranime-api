@@ -1,4 +1,5 @@
 var crypto = require('crypto');
+var orm = require('orm');
 
 /*
  * GET anime listing.
@@ -15,7 +16,24 @@ exports.getById = function(req, res){
     ret.episodes = anime.episodes;
     res.send(ret);
   });*/
-  
+
+
+  orm.connect("", function (err, db) {
+      if (err) throw err;
+
+      var Anime = db.define('anime', {
+          title      : String
+      });
+
+      Anime.get(req.params.id, function (err, anime) {
+          // SQL: "SELECT * FROM person WHERE surname = 'Doe'"
+
+          console.log("anime found: %d", anime);
+          res.send(anime);
+      });
+  });
+
+  /*
   var r = db.models.Anime.find(req.params.id).success(function(anime){
     anime.getEpisodes().success(function(episodes){
       anime.getGenres().success(function(genres){
@@ -60,7 +78,7 @@ exports.getById = function(req, res){
         })
       });
     })
-  });
+  });*/
 
 
 };
