@@ -63,9 +63,10 @@ app.configure('development', function(){
 app.get('/', routes.index);
 app.get('/anime/:id', anime.getById);
 app.get('/episodes/:id', episode.getById);
+app.get('/users/:id', user.getById);
 app.get('/users', user.list);
 app.get('/search', search.doSearch);
-app.get('/userepisodes', seenEpisode.getFeed);
+app.get('/user_episodes', seenEpisode.getFeed);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

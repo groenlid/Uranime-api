@@ -13,6 +13,7 @@
           logging: options.logging,
           dialect: 'mysql',
           maxConcurrentQueries: 4,
+          pool: { maxConnections: 4, maxIdleTime: 5000 },
           define: {
             timestamps: false,
             freezeTableName: true,
