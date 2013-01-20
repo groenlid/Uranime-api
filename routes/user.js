@@ -17,17 +17,12 @@ function addGravatarAndRemovePasswordEmail(user, json){
 function getUserById(res, id, includeLibrary){
   var userJSON;
   db.models.User.find(id).success(function(user){
-      
       userJSON = addGravatarAndRemovePasswordEmail(user, user.toJSON()); 
-
-      if(includeLibrary)
-        getUserLibrary(res, id, userJSON);
-      else
-        sendReponse(res, userJSON);
+      res.send(userJSON);
   });
 };
 
-function getUserLibrary(res, id, includeInJson){
+function getUserLibrary(res, id){
   //console.log(db);
   var sql = "SELECT ue.user_id as user_id, "+
               "ep.anime_id as anime_id, "+
@@ -52,13 +47,12 @@ exports.list = function(req, res){
   res.send("respond with a resource");
 };
 
-exports.getById = function(req, res){
-  var includeLibrary = false;
-  
-  if(typeof req.query.library !== "undefined" && req.query.library === "true")
-    includeLibrary = true;
+exports.getLibrary = function(req, res){
+  getUserLibrary(res, req.params.id);
+};
 
-  getUserById(res, req.params.id, includeLibrary);
+exports.getById = function(req, res){
+  getUserById(res, req.params.id);
 };
 
 /*
