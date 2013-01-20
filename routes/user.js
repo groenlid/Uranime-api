@@ -48,7 +48,10 @@ exports.list = function(req, res){
 };
 
 exports.getLibrary = function(req, res){
-  getUserLibrary(res, req.params.id);
+  var userid = (req.query.user_id != null) ? 
+      req.query.user_id :
+      req.params.id;
+  getUserLibrary(res, userid);
 };
 
 exports.getById = function(req, res){

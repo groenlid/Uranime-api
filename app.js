@@ -65,6 +65,7 @@ app.get('/anime/:id', anime.getById);
 app.get('/episodes/:id', episode.getById);
 app.get('/users/:id', user.getById);
 app.get('/library/:id', user.getLibrary);
+app.get('/library', user.getLibrary);
 app.get('/users', user.list);
 app.get('/search', search.doSearch);
 app.get('/user_episodes', seenEpisode.getFeed);
