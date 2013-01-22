@@ -38,10 +38,35 @@ function getUserLibrary(res, id){
               "AND ue.user_id = " + id + " " +
             "GROUP BY ue.user_id, ep.anime_id;";
   db.client.query(sql,null, {raw:true}).success(function(result){
-    res.send(result);
-  });
+    // Fetch all the ids
+    var ids = [], ret = [];
+    result.forEach(function(r){
+      ids.push(r.anime_id);
+    });
 
+    db.models.Anime.findAll({where: {id: ids }}).success(function(animeList){
+
+      result.forEach(function(value, index){
+        ret[index] = combineLibraryAnime(value, animeList);
+      });
+    
+      res.send(ret);
+
+    });
+
+  });
 }
+
+function combineLibraryAnime(libraryItem, animeList) {
+  var anime;
+  animeList.forEach(function(a, index){
+    if(a.id == libraryItem.anime_id)
+      anime = a;
+  });
+  libraryItem.anime = anime;
+  return libraryItem;
+}
+
 
 exports.list = function(req, res){
   res.send("respond with a resource");
