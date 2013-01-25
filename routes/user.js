@@ -18,8 +18,20 @@ function getUserById(res, id, includeLibrary){
   var userJSON;
   db.models.User.find(id).success(function(user){
       userJSON = addGravatarAndRemovePasswordEmail(user, user.toJSON()); 
-      res.send(userJSON);
+      db.models.SeenEpisode.findAll({where: {user_id:id}, limit:10, order: 'id DESC', include:['Episode']}).success(function(seen){
+        
+        userJSON.user_episodes = [];
+        
+        seen.forEach(function(item){
+          itemJSON = item.toJSON();
+          itemJSON.episode = item.episode;
+          userJSON.user_episodes.push(itemJSON);
+        });
+        res.send(userJSON);
+      });
   });
+
+  db.models.User.find
 };
 
 function getUserLibrary(res, id){
