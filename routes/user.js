@@ -20,12 +20,12 @@ function getUserById(res, id, includeLibrary){
       userJSON = addGravatarAndRemovePasswordEmail(user, user.toJSON()); 
       db.models.SeenEpisode.findAll({where: {user_id:id}, limit:10, order: 'id DESC', include:['Episode']}).success(function(seen){
         
-        userJSON.user_episodes = [];
+        userJSON.userepisodes = [];
         
         seen.forEach(function(item){
           itemJSON = item.toJSON();
           itemJSON.episode = item.episode;
-          userJSON.user_episodes.push(itemJSON);
+          userJSON.userepisodes.push(itemJSON);
         });
         res.send(userJSON);
       });
