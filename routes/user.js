@@ -24,7 +24,7 @@ function getUserById(res, id, includeLibrary){
         
         seen.forEach(function(item){
           itemJSON = item.toJSON();
-          itemJSON.episode = item.episode;
+          itemJSON.episode = item.episode; // Removed episode for test
           userJSON.userepisodes.push(itemJSON);
         });
         res.send(userJSON);

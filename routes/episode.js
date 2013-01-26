@@ -17,7 +17,7 @@ exports.getById = function(req, res){
         userJSON.gravatar = gravatar;
 
         ret.userepisodes[i] = e.toJSON();
-        ret.userepisodes[i].user = userJSON;
+        //ret.userepisodes[i].user = userJSON; // removed
 
       }
       res.send(ret);
