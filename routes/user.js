@@ -39,6 +39,7 @@ function getUserLibrary(res, id){
   var sql = "SELECT ue.user_id as user_id, "+
               "ep.anime_id as anime_id, "+
               "ep2.tot as total, "+
+              "MAX(ue.timestamp) as last_seen, " +
               "COUNT(ep.id) as progress " +
             "FROM episodes ep, user_episodes ue, ( "+
               "SELECT e.anime_id as anime_id, COUNT(e.id) as tot " +
