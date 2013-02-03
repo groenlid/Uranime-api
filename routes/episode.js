@@ -28,7 +28,7 @@ exports.getById = function(req, res){
 
 function getEpisodeByWeek(date, res){
   var query = "episodes.aired BETWEEN DATE_ADD(?, INTERVAL(1 - DAYOFWEEK(?)) DAY) " +
-              " AND DATE_ADD(?, INTERVAL(7 - DAYOFWEEK(?)) DAY)" 
+              " AND DATE_ADD(?, INTERVAL(7 - DAYOFWEEK(?)) DAY) AND episodes.aired IS NOT NULL" 
 
   var r = db.models.Episode.findAll({where: [query, date, date, date, date]}).success(function(episodes){
     res.send(episodes);
