@@ -25,3 +25,18 @@ exports.getById = function(req, res){
   });
 
 };
+
+function getEpisodeByWeek(date, res){
+  var query = "episodes.aired BETWEEN DATE_ADD(?, INTERVAL(1 - DAYOFWEEK(?)) DAY) " +
+              " AND DATE_ADD(?, INTERVAL(7 - DAYOFWEEK(?)) DAY)" 
+
+  var r = db.models.Episode.findAll({where: [query, date, date, date, date]}).success(function(episodes){
+    res.send(episodes);
+  });
+}
+
+exports.getByParams = function(req, res){
+  if(req.query.week){
+    getEpisodeByWeek(req.query.week, res);
+  }
+}

@@ -10,7 +10,8 @@
     "sequelize": "1.6.0-beta4",
     "orm": "2.0.0-alpha6",
     "mysql": "2.0.0-alpha4",
-    "jade": "*"
+    "jade": "*",
+    "async": "0.1.22"
   },
   "engines": {
       "node": "0.8.2"

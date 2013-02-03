@@ -63,6 +63,7 @@ app.configure('development', function(){
 app.get('/', routes.index);
 app.get('/anime/:id', anime.getById);
 app.get('/episodes/:id', episode.getById);
+app.get('/episodes', episode.getByParams);
 app.get('/users/:id', user.getById);
 app.get('/library/:id', user.getLibrary);
 app.get('/library', user.getLibrary);

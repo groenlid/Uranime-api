@@ -1,38 +1,93 @@
 var crypto = require('crypto');
-var orm = require('orm');
+var async = require('async');
+/*
+function fetchAnime(id, callback){
+  db.models.Anime.find(id).success(function(anime){
+    callback(null, anime);
+  });
+};
 
+function fetchAssocEpisodes(anime, callback){
+  anime.getEpisodes().success(function(episodes){
+    callback(null, episodes);
+  });
+};
+
+function fetchAssocGenres(anime, callback){
+  anime.getGenres().success(function(genres){
+    callback(null, genres);
+  })
+};
+
+function fetchAssocSynonyms(anime, callback){
+  anime.getSynonyms().success(function(synonyms){
+    callback(null, synonyms);
+  });
+}
+
+function fetchAssocLatestSeen(episodes, callback){
+  var query, ids = function(array){
+    var r = [];
+    for(var i = 0; i < array.length; i++)
+      r.push(array[i].id);
+    return r;
+  };
+  query = "SELECT count(*) as amount, MAX(timestamp) as last, user_id, u.id, nick, email " +
+                  "FROM user_episodes " +
+                  "LEFT JOIN users u ON(user_id = u.id) " +
+                  "WHERE episode_id IN (" + ids(episodes) + ") " +
+                  "GROUP BY user_id " +
+                  "ORDER BY last DESC " +
+                  "LIMIT 0,10";
+
+  db.client.query(query).success(function(seen){
+    callback(seen);
+  });
+};
+*/
 /*
  * GET anime listing.
  */
 
 exports.getById = function(req, res){
-  /*var r = db.models.Anime.find({
-    where:{'anime.id':req.params.id},
-    include: ['Episodes', 'Synonyms']
-  }).success(function(anime){
-    var ret = anime.toJSON();
-    ret.genres = anime.genres;
-    ret.synonyms = anime.synonyms;
-    ret.episodes = anime.episodes;
-    res.send(ret);
-  });*/
-/*
-  orm.connect("mysql://anime-api:test@10.0.0.201/groenlid_anime", function (err, db) {
-      if (err) throw err;
+/*var anime;
+ async.waterfall([
+  function(callback){
+    callback(null, req.params.id);
+  },
+  fetchAnime
+  ], 
+  function(err, result){
+    anime = result;
+    console.log(result);
 
-      var Anime = db.define('anime', {
-          title      : String
+    // Fetch anime episodes, genres, synonyms
+    async.parallel([
+      function(callback){
+        fetchAssocGenres(anime, callback);
+      },
+      function(callback){
+        fetchAssocEpisodes(anime, callback);
+      },
+      function(callback){
+        fetchAssocSynonyms(anime, callback);
+      },
+      function(callback){
+        fetchAssocLatestSeen(episodes, callback);
+      }],
+      function(err, result){
+        // Fetch the 
+        // Stitch the thing together
+
+
+
+        console.log(result);
+        res.send(result);
       });
 
-      Person.get(req.params.id, function (err, anime) {
-          // SQL: "SELECT * FROM person WHERE surname = 'Doe'"
-
-          console.log("anime found: %d", anime);
-          res.send(anime);
-      });
   });*/
 
-  
+
   var r = db.models.Anime.find(req.params.id).success(function(anime){
     anime.getEpisodes().success(function(episodes){
       anime.getGenres().success(function(genres){
@@ -40,7 +95,6 @@ exports.getById = function(req, res){
           var ids, query;
           ids = function(array){
               var r = [];
-              console.log(array.length);
               for(var i = 0; i < array.length; i++)
                 r.push(array[i].id);
               return r;
