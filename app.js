@@ -11,6 +11,7 @@ var express = require('express')
   , episode = require('./routes/episode')
   , search = require('./routes/search')
   , seenEpisode = require('./routes/userepisodes')
+  , request = require('./routes/request')
   , http = require('http')
   , path = require('path');
 
@@ -70,6 +71,7 @@ app.get('/library', user.getLibrary);
 app.get('/users', user.list);
 app.get('/search', search.doSearch);
 app.get('/user_episodes', seenEpisode.getFeed);
+app.get('/requests', request.getRequests);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

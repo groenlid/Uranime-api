@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "express": "3.0.0",
-    "sequelize": "1.6.0-beta4",
+    "sequelize": "git://github.com/sdepold/sequelize.git",
     "orm": "2.0.0-alpha6",
     "mysql": "2.0.0-alpha4",
     "jade": "*",

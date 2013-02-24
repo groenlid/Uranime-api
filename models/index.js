@@ -2,7 +2,10 @@ var Sequelize = require('sequelize');
 var crypto = require('crypto');
 
 module.exports = function(db){
-  var Anime, Episode, Genre, Synonym, anime_db_options, self;
+  var Anime, Episode, Genre, Synonym, SeenEpisode, User, 
+      Request, RequestAttribute, RequestInfo, ScrapeType,
+      Site, anime_db_options, self;
+
     Anime = {
       title: Sequelize.STRING,
       desc: Sequelize.TEXT,
@@ -46,6 +49,36 @@ module.exports = function(db){
       password: Sequelize.STRING,
     };
 
+    // Request
+    Request = {
+      title: Sequelize.STRING,
+      comment: Sequelize.TEXT,
+      ip_adress: Sequelize.TEXT,
+      poster: Sequelize.TEXT,
+      fanart: Sequelize.TEXT,
+    };
+
+    RequestInfo = {
+      scrape_id: Sequelize.INTEGER,
+      scrape_comment: Sequelize.TEXT,
+    };
+
+    RequestAttribute = {
+      value: Sequelize.STRING,
+    };
+
+    ScrapeType = {
+      type: Sequelize.STRING,
+      description: Sequelize.TEXT,
+    };
+
+    Site = {
+      name: Sequelize.STRING,
+      description: Sequelize.TEXT,
+      url: Sequelize.STRING,
+      link_id: Sequelize.STRING,
+    };
+
     self = self || {};
     // Methods
 
@@ -65,7 +98,12 @@ module.exports = function(db){
       Genre: db.define('genre', Genre),
       Synonym: db.define('anime_synonyms', Synonym),
       SeenEpisode: db.define('user_episodes', SeenEpisode),
-      User: db.define('users', User, user_db_options)
+      User: db.define('users', User, user_db_options),
+      Site: db.define('sites', Site),
+      Request: db.define('anime_request', Request),
+      RequestAttribute: db.define('anime_request_scrape_attributes', RequestAttribute),
+      RequestInfo: db.define('anime_request_scrape_info', RequestInfo),
+      ScrapeType: db.define('scrape_types', ScrapeType),
     };
 
 
@@ -91,9 +129,17 @@ module.exports = function(db){
     self.User.hasMany(self.SeenEpisode, {as: 'SeenEpisodes'});
     self.SeenEpisode.belongsTo(self.User, {as: 'User'});
 
-    // SeenEPisode - Episode
+    // SeenEpisode - Episode
     self.SeenEpisode.belongsTo(self.Episode, {as: 'Episode'});
     self.Episode.hasMany(self.SeenEpisode, {as: 'SeenEpisodes'});
     
+    // Request - RequestInfo
+    self.Request.hasMany(self.RequestInfo, {as: 'RequestInfo'});
+    self.RequestInfo.belongsTo(self.Request, {as: 'Request'});
+
+    // RequestInfo - Attribute
+    self.RequestInfo.hasMany(self.RequestAttribute, {as: 'RequestAttributes', foreignKey: 'anime_request_scrape_info_id'});
+    self.RequestAttribute.belongsTo(self.RequestInfo, {as: 'RequestInfo'});
+
   return self;
 }
