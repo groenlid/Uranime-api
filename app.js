@@ -72,6 +72,7 @@ app.get('/users', user.list);
 app.get('/search', search.doSearch);
 app.get('/user_episodes', seenEpisode.getFeed);
 app.get('/requests', request.getRequests);
+app.get('/requestTypes/:id', request.getRequestTypeById);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

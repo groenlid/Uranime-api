@@ -1,5 +1,13 @@
 var async = require('async');
 
+exports.getRequestTypeById = function(req, res){
+	var id = req.params.id;
+
+	db.models.ScrapeType.find(id).success(function(type){
+		res.send(type);
+	});
+};
+
 exports.getRequests = function(req, res){
 	var ret = [], infoIds = [];
 

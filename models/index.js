@@ -65,6 +65,7 @@ module.exports = function(db){
 
     RequestAttribute = {
       value: Sequelize.STRING,
+      type_id: Sequelize.INTEGER
     };
 
     ScrapeType = {
@@ -137,9 +138,10 @@ module.exports = function(db){
     self.Request.hasMany(self.RequestInfo, {as: 'RequestInfo'});
     self.RequestInfo.belongsTo(self.Request, {as: 'Request'});
 
-    // RequestInfo - Attribute
+    // RequestInfo - RequestAttribute
     self.RequestInfo.hasMany(self.RequestAttribute, {as: 'RequestAttributes', foreignKey: 'anime_request_scrape_info_id'});
     self.RequestAttribute.belongsTo(self.RequestInfo, {as: 'RequestInfo'});
+
 
   return self;
 }
