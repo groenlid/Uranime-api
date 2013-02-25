@@ -6,6 +6,14 @@ exports.getRequestTypeById = function(req, res){
 	db.models.ScrapeType.find(id).success(function(type){
 		res.send(type);
 	});
+};	
+
+exports.getSiteById = function(req, res){
+	var id = req.params.id;
+	
+	db.models.Site.find(id).success(function(site){
+		res.send(site);
+	});
 };
 
 exports.getRequests = function(req, res){
@@ -62,7 +70,7 @@ function fetchRequestInfo(requests, callback){
 	//Create the queue	
 	queue = async.queue(function(request, done){
 		console.log("Started queue for id: " + request.id);
-		request.getRequestInfo().success(function(info){
+		request.getRequestInfo({include:['Site']}).success(function(info){
 			console.log("Success queue for id: " + request.id);
 			done();
 		});

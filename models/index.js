@@ -142,6 +142,5 @@ module.exports = function(db){
     self.RequestInfo.hasMany(self.RequestAttribute, {as: 'RequestAttributes', foreignKey: 'anime_request_scrape_info_id'});
     self.RequestAttribute.belongsTo(self.RequestInfo, {as: 'RequestInfo'});
 
-
   return self;
 }
