@@ -61,6 +61,7 @@ module.exports = function(db){
     RequestInfo = {
       scrape_id: Sequelize.INTEGER,
       scrape_comment: Sequelize.TEXT,
+      site_id: Sequelize.INTEGER
     };
 
     RequestAttribute = {
