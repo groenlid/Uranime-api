@@ -7,13 +7,16 @@
   },
   "dependencies": {
     "express": "3.0.0",
-    "sequelize": "https://github.com/sdepold/sequelize/tarball/master",
+    "sequelize": "https://github.com/sequelize/sequelize/tarball/master",
     "orm": "2.0.0-alpha6",
     "mysql": "2.0.0-alpha4",
     "jade": "*",
-    "async": "0.1.22"
+    "rsvp": "https://github.com/tildeio/rsvp.js/tarball/master",
+    "passport": "0.1.16",
+    "passport-http": "0.2.1",
+    "bcrypt": "0.7.5"
   },
   "engines": {
-      "node": "0.8.2"
+      "node": "0.10.4"
   }
 }

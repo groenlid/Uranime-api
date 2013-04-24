@@ -59,11 +59,51 @@ module.exports = (function() {
       , isRelNameQuery   = (this.sql.indexOf('SELECT relname FROM pg_class WHERE oid IN') === 0)
 
     if (isTableNameQuery || isRelNameQuery) {
-      return this.emit('success', rows.map(function(row) { return Utils._.values(row) }))
+      if (isRelNameQuery) {
+        results = rows.map(function(row) {
+          return {
+            name:       row.relname,
+            tableName:  row.relname.split('_')[0]
+          }
+        })
+      } else {
+         results = rows.map(function(row) { return Utils._.values(row) })
+      }
+      return this.emit('success', results)
     }
 
     if (this.send('isSelectQuery')) {
-      this.emit('success', this.send('handleSelectQuery', rows))
+      if (this.sql.toLowerCase().indexOf('select column_name') === 0) {
+        var result = {}
+
+        rows.forEach(function(_result) {
+          result[_result.Field] = {
+            type:         _result.Type.toUpperCase(),
+            allowNull:    (_result.Null === 'YES'),
+            defaultValue: _result.Default
+          }
+
+          if (result[_result.Field].type === 'BOOLEAN') {
+            result[_result.Field].defaultValue = { 'false': false, 'true': true }[result[_result.Field].defaultValue]
+
+            if (result[_result.Field].defaultValue === undefined) {
+              result[_result.Field].defaultValue = null
+            }
+          }
+
+          if (typeof result[_result.Field].defaultValue === 'string') {
+            result[_result.Field].defaultValue = result[_result.Field].defaultValue.replace(/'/g, "")
+
+            if (result[_result.Field].defaultValue.indexOf('::') > -1) {
+              result[_result.Field].defaultValue = result[_result.Field].defaultValue.split('::')[0]
+            }
+          }
+        })
+
+        this.emit('success', result)
+      } else {
+        this.emit('success', this.send('handleSelectQuery', rows))
+      }
     } else if (this.send('isShowOrDescribeQuery')) {
       this.emit('success', results)
     } else if (this.send('isInsertQuery')) {

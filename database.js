@@ -21,7 +21,6 @@
             syncOnAssociation: false // to not automaticly create tables.. Can be a bitch..
           }
         });
-
      /*
       @type {Object}
       Map all attributes of the registry

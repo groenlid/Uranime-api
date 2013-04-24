@@ -6,6 +6,7 @@
 var express = require('express')
   , routes = require('./routes')
   , config = require('./config')
+  , auth = require('./auth')
   , user = require('./routes/user')
   , anime = require('./routes/anime')
   , episode = require('./routes/episode')
@@ -15,8 +16,13 @@ var express = require('express')
   , http = require('http')
   , path = require('path');
 
+/**
+ * Database and authorization setup.
+ */
+
 GLOBAL.app = express();
 GLOBAL.db = require('./database')(config.db);
+GLOBAL.passport = auth.passport;
 
 app.use(function(req, res, next) {
     var oneof = false;
@@ -46,15 +52,16 @@ app.use(function(req, res, next) {
 });
 
 app.configure(function(){
-  app.set('port', process.env.PORT || 3000);
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
-  app.use(express.favicon());
-  app.use(express.logger('dev'));
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(app.router);
-  app.use(express.static(path.join(__dirname, 'public')));
+    app.set('port', process.env.PORT || 3000);
+    app.set('views', __dirname + '/views');
+    app.set('view engine', 'jade');
+    app.use(express.favicon());
+    app.use(express.logger('dev'));
+    app.use(express.bodyParser());
+    app.use(express.methodOverride());
+    app.use(passport.initialize());
+    app.use(app.router);
+    app.use(express.static(path.join(__dirname, 'public')));
 });
 
 app.configure('development', function(){
@@ -62,8 +69,8 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
-app.get('/anime/:id', anime.getById);
-app.get('/episodes/:id', episode.getById);
+app.get('/anime/:id', auth.notLimitUser, anime.getById);
+app.get('/episodes/:id', passport.authenticate('basic', { session: false }), episode.getById);
 app.get('/episodes', episode.getByParams);
 app.get('/users/:id', user.getById);
 app.get('/library/:id', user.getLibrary);

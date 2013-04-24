@@ -8,7 +8,7 @@ if(typeof require === 'function') {
 }
 
 buster.spec.expose()
-buster.testRunner.timeout = 1000
+buster.testRunner.timeout = 10000
 
 describe(Helpers.getTestDialectTeaser("Migrator"), function() {
   before(function(done) {
@@ -121,9 +121,9 @@ describe(Helpers.getTestDialectTeaser("Migrator"), function() {
         })
       })
 
-      ;(dialect === 'sqlite' ? itEventually : it)("executes migration #20111117063700 and correctly adds isBetaMember", function(done) {
+      it("executes migration #20111117063700 and correctly adds isBetaMember", function(done) {
         this.sequelize.getQueryInterface().describeTable('Person').success(function(data) {
-          var fields = data.map(function(d) { return d.Field }).sort()
+          var fields = Helpers.Sequelize.Utils._.keys(data).sort()
           expect(fields).toEqual([ 'isBetaMember', 'name' ])
           done()
         })
@@ -167,10 +167,10 @@ describe(Helpers.getTestDialectTeaser("Migrator"), function() {
         }.bind(this))
       })
 
-      ;(dialect === 'sqlite' ? itEventually : it)("executes migration #20111205064000 and renames a table", function(done) {
+      it("executes migration #20111205064000 and renames a table", function(done) {
         this.sequelize.getQueryInterface().showAllTables().success(function(tableNames) {
           tableNames = tableNames.filter(function(e){ return e != 'SequelizeMeta' })
-          expect(tableNames).toEqual([ 'Person' ])
+          expect(tableNames).toContain('Person')
 
           this.init({ from: 20111205064000, to: 20111205064000 }, function(migrator) {
             migrator.migrate().success(function() {
@@ -186,24 +186,18 @@ describe(Helpers.getTestDialectTeaser("Migrator"), function() {
     })
 
     describe('addColumn', function() {
-      it('//adds a column to the user table', function(done) {
+      it('adds a column to the user table', function(done) {
         this.init({ from: 20111117063700, to: 20111205162700 }, function(migrator) {
-          migrator.migrate().success(function() {
-            this.sequelize.getQueryInterface().describeTable('User').success(function(data) {
-              console.log(data)
-              var signature = data.filter(function(hash){ return hash.Field == 'signature' })[0]
-                , isAdmin   = data.filter(function(hash){ return hash.Field == 'isAdmin' })[0]
-                , shopId    = data.filter(function(hash){ return hash.Field == 'shopId' })[0]
+          migrator.migrate().complete(function(err) {
+            this.sequelize.getQueryInterface().describeTable('User').complete(function(err, data) {
+              var signature = data.signature
+                , isAdmin   = data.isAdmin
+                , shopId    = data.shopId
 
-              expect(signature.Field).toEqual('signature')
-              expect(signature.Null).toEqual('NO')
-
-              expect(isAdmin.Field).toEqual('isAdmin')
-              expect(isAdmin.Null).toEqual('NO')
-              expect(isAdmin.Default).toEqual('0')
-
-              expect(shopId.Field).toEqual('shopId')
-              expect(shopId.Null).toEqual('YES')
+              expect(signature.allowNull).toEqual(true)
+              expect(isAdmin.allowNull).toEqual(false)
+              expect(isAdmin.defaultValue).toEqual(false)
+              expect(shopId.allowNull).toEqual(true)
 
               done()
             })
@@ -213,20 +207,17 @@ describe(Helpers.getTestDialectTeaser("Migrator"), function() {
     })
 
     describe('removeColumn', function() {
-      (dialect === 'mysql' ? it : itEventually)('removes the shopId column from user', function(done) {
+      it('removes the shopId column from user', function(done) {
         this.init({ to: 20111206061400 }, function(migrator) {
           migrator.migrate().success(function(){
             this.sequelize.getQueryInterface().describeTable('User').success(function(data) {
-              var signature = data.filter(function(hash){ return hash.Field == 'signature' })[0]
-                , isAdmin   = data.filter(function(hash){ return hash.Field == 'isAdmin' })[0]
-                , shopId    = data.filter(function(hash){ return hash.Field == 'shopId' })[0]
+              var signature = data.signature
+                , isAdmin   = data.isAdmin
+                , shopId    = data.shopId
 
-              expect(signature.Field).toEqual('signature')
-              expect(signature.Null).toEqual('NO')
-
-              expect(isAdmin.Field).toEqual('isAdmin')
-              expect(isAdmin.Null).toEqual('NO')
-              expect(isAdmin.Default).toEqual('0')
+              expect(signature.allowNull).toEqual(true)
+              expect(isAdmin.allowNull).toEqual(false)
+              expect(isAdmin.defaultValue).toEqual(false)
 
               expect(shopId).toBeFalsy()
 
@@ -238,16 +229,19 @@ describe(Helpers.getTestDialectTeaser("Migrator"), function() {
     })
 
     describe('changeColumn', function() {
-      (dialect === 'mysql' ? it : itEventually)('changes the signature column from user to default "signature" + notNull', function(done) {
+      it('changes the signature column from user to default "signature" + notNull', function(done) {
         this.init({ to: 20111206063000 }, function(migrator) {
           migrator.migrate().success(function() {
             this.sequelize.getQueryInterface().describeTable('User').success(function(data) {
-              var signature = data.filter(function(hash){ return hash.Field == 'signature' })[0]
+              var signature = data.signature
 
-              expect(signature.Field).toEqual('signature')
-              expect(signature.Type).toEqual('varchar(255)')
-              expect(signature.Null).toEqual('NO')
-              expect(signature.Default).toEqual('Signature')
+              if (dialect === 'postgres') {
+                expect(signature.type).toEqual('CHARACTER VARYING')
+              } else {
+                expect(signature.type).toEqual('VARCHAR(255)')
+              }
+              expect(signature.allowNull).toEqual(false)
+              expect(signature.defaultValue).toEqual('Signature')
 
               done()
             })
@@ -258,12 +252,12 @@ describe(Helpers.getTestDialectTeaser("Migrator"), function() {
   })
 
   describe('renameColumn', function() {
-    (dialect === 'mysql' ? it : itEventually)("renames the signature column from user to sig", function(done) {
+    it("renames the signature column from user to sig", function(done) {
       this.init({ to: 20111206163300 }, function(migrator) {
         migrator.migrate().success(function(){
           this.sequelize.getQueryInterface().describeTable('User').success(function(data) {
-            var signature = data.filter(function(hash){ return hash.Field == 'signature' })[0]
-              , sig       = data.filter(function(hash){ return hash.Field == 'sig' })[0]
+            var signature = data.signature
+              , sig       = data.sig
 
             expect(signature).toBeFalsy()
             expect(sig).toBeTruthy()
