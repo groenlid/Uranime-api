@@ -17,7 +17,22 @@ exports.getSiteById = function(req, res){
 };
 
 exports.getRequests = function(req, res){
+    var includeQuery = [
+        {model: db.models.RequestInfo, as:'RequestInfo'},
+        {model: db.models.RequestAttribute, as: 'RequestAttributes'}
+    ];
+    // Fetch requests
+    // Fetch associated attribute types
+    db.models.Request.findAll({include:includeQuery}).success(function(requests){
+        res.send(requests);
+    });
+
+};
+
+exports.getRequests_old = function(req, res){
 	var ret = [], infoIds = [];
+
+
 
 	async.waterfall([
     	fetchRequests,
