@@ -1,4 +1,4 @@
-var async = require('async');
+var async = null;//require('async');
 
 exports.getRequestTypeById = function(req, res){
 	var id = req.params.id;

@@ -4,20 +4,13 @@
 
 exports.getById = function(req, res){
   
-  var r = db.models.Episode.find(req.params.id).success(function(episode){
-    db.models.SeenEpisode.findAll({where:{episode_id:req.params.id}}).success(function(SeenEpisodes){
+  var id = req.params.id,
+      includeQuery = [
+        {model: db.models.SeenEpisode, as:'SeenEpisodes'},
+    ];
 
-        var ret = episode.toJSON();
-        ret.userepisodes = [];
-        for(var i = 0; i < SeenEpisodes.length; i++)
-        {
-            var e = SeenEpisodes[i], user = e.user;
-
-            ret.userepisodes[i] = e.toJSON();
-
-        }
-        res.send(ret);
-     });
+  db.models.Episode.find({where: {id:id}, include:includeQuery}).success(function(episode){
+    res.send(episode);
   });
 
 };

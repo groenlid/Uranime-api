@@ -3,35 +3,18 @@
  * GET users listing.
  */
 
-function addGravatarAndRemovePasswordEmail(user, json){
-  var gravatar = user.gravatar(),
-      userJSON = json;
-
-  delete userJSON.password;
-  delete userJSON.email;
-
-  userJSON.gravatar = gravatar;
-  return userJSON;
-}
-
 function getUserById(res, id, includeLibrary){
-  var userJSON;
+  var includeQuery = [
+        {model: db.models.Episode, as:'Episode'},
+    ];
   db.models.User.find(id).success(function(user){
-      userJSON = addGravatarAndRemovePasswordEmail(user, user.toJSON()); 
-      db.models.SeenEpisode.findAll({where: {user_id:id}, limit:10, order: 'id DESC', include:['Episode']}).success(function(seen){
-        
-        userJSON.userepisodes = [];
-        
-        seen.forEach(function(item){
-          itemJSON = item.toJSON();
-          itemJSON.episode = item.episode; // Removed episode for test
-          userJSON.userepisodes.push(itemJSON);
-        });
-        res.send(userJSON);
-      });
+    user.getSeenEpisodes({limit:10, order: 'id DESC', include: includeQuery}).success(function(seen){
+      var ret = user.prepared();
+      ret.userepisodes = seen;
+      res.send(ret);
+    });
   });
 
-  db.models.User.find
 };
 
 function getUserLibrary(res, id){

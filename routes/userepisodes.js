@@ -3,21 +3,18 @@
  */
 
 exports.getFeed = function(req, res){
-  // Simple first.. Get last 10 seen episodes..
-  var ret = [];
-  db.models.SeenEpisode.findAll({limit:10, order: 'id DESC', include: ['User','Episode']}).success(function(seenEpisodes){
-    seenEpisodes.forEach(function(s){
-      
-      var json = s.toJSON();
-      json.user = s.user.toJSON();
-      json.user.gravatar = s.user.gravatar();
-      delete json.user.password;
-      delete json.user.email;
-      json.episode = s.episode;
+    var includeQuery = [
+        {model: db.models.User, as:'User'},
+        {model: db.models.Episode, as: 'Episode'}
+    ];
 
-      ret.push(json);
-    });
-    res.send(ret);
+  // Simple first.. Get last 10 seen episodes..
+  db.models.SeenEpisode.findAll({limit:10, order: 'id DESC', include: includeQuery}).success(function(seenEpisodes){
+    
+    for(var i = 0; i < seenEpisodes.length; i++)
+      seenEpisodes[i].user = seenEpisodes[i].user.prepared();
+    res.send(seenEpisodes);
+    
   });
 };
 

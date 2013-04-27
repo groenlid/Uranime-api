@@ -3,21 +3,23 @@ var passport = require('passport')
     , BasicStrategy = require('passport-http').BasicStrategy
     , crypto = require('crypto')
     , bcrypt = require('bcrypt')
-    , async = require('async')
+    , Q = require('q')
     , loginFailureMessage = "Wrong username or password";
 
-function findUser(username, clearText, callback){
+var findUser = function findUser(username){
+    var deferred = Q.defer();
     db.models.User.find({where: {email: username} }).success(function (user) {
         if(user == null)
-            callback(loginFailureMessage);
+            deferred.reject(loginFailureMessage);
         else
-            callback(null, user, clearText)
+            deferred.resolve(user);
     });
+    return deferred.promise;
 };
 
-function checkPassword(user, clearText, callback){
+var checkPassword = function checkPassword(user, clearText){
     var clearSalt = db.options.salt + clearText,
-        shasum;
+        shasum, deferred = Q.defer();;
 
     // Check if the user uses the old password format
     switch(user.pw_version){
@@ -26,9 +28,9 @@ function checkPassword(user, clearText, callback){
                 if(err)
                     console.log("something went wrong here... Should log");
                 if(err || !res)
-                    callback(loginFailureMessage);
+                    deferred.reject(loginFailureMessage);
                 else
-                    callback(null, user);
+                    deferred.resolve(user);
             });
             break;
         case 1:
@@ -38,11 +40,12 @@ function checkPassword(user, clearText, callback){
             shasum.update(clearSalt);
             var hashed = shasum.digest('hex');
             if(hashed === user.password)
-                callback(null, user, clearText);
+                deferred.resolve(user);
             else
-                callback(loginFailureMessage);
+                deferred.reject(loginFailureMessage);
             break;
     }
+    return deferred.promise;
 };
 
 /**
@@ -51,41 +54,50 @@ function checkPassword(user, clearText, callback){
  * @param clearText the user's cleartext password
  * @param callback the callback function for use with async
  */
-function convertPassword(user, clearText, callback){
-    var salt_rounds = db.options.salt_rounds;
-
-    if(typeof clearText === "function"){
-        callback = clearText;
-        return callback(null, user);
-    }
-
+var convertPassword = function convertPassword(user, clearText){
+    var salt_rounds = db.options.salt_rounds, deferred = Q.defer();
+console.log("Resolving the stuff...", user);
     bcrypt.hash(clearText, salt_rounds, function(err, hash) {
         // Store hash in your password DB.
         if(err)
-            return callback(err);
+             deferred.reject(err);
         user.password = hash;
         user.pw_version = 2;
         user.save().success(function() {
-            return callback(null, user);
+            console.log("Resolving the stuff...", user);
+            deferred.resolve(user);
         });
     });
+    return deferred.promise;
+
 };
 
 passport.use(new BasicStrategy(
     function(username, password, done) {
-
-        async.waterfall([
-            function(callback){
-                callback(null, username, password);
-            },
-            findUser,
-            checkPassword,
-            convertPassword
-        ],
-        function(err, result){
-            if(err)
-                return done(null, false);
-            done(null, result);
+        var deferred = Q.defer();
+        // check username
+        findUser(username)
+        // check password
+        .then(function(user){
+            return checkPassword(user, password);
+        }, function(error){
+            return done(null, false);
+        })
+        // convert password if needed,
+        // else return user.
+        .then(function(user){
+            if(user.pw_version == 2){
+                deferred.resolve(user);
+                return deferred.promise;
+            }
+            return convertPassword(user, password);
+        }, function(error){
+            return done(null, false);
+        })
+        .then(function(user){
+            return done(null, user);
+        }, function(error){
+            return done(null, false);
         });
     }
 ));

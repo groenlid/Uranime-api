@@ -1,10 +1,9 @@
 var crypto = require('crypto')
-    , RSVP = require('rsvp');
+    , Q = require('q');
 
 /*
  * GET anime listing.
  */
-
 exports.getById = function(req, res){
     var id = req.params.id;
     var includeQuery = [
@@ -16,24 +15,25 @@ exports.getById = function(req, res){
     db.models.Anime.find({where: {id:id}, include:includeQuery}).success(function(anime){
 
         // This can be replaced when https://github.com/sequelize/sequelize/issues/515 is fixed
+        // https://github.com/sequelize/sequelize/issues/388
         var getGenres = function(anime){
-            var promise = new RSVP.Promise();
+            var deferred = Q.defer();
             anime.getGenres().success(function(genres){
-                promise.resolve(genres);
+                deferred.resolve(genres);
             });
-            return promise;
+            return deferred.promise;
         };
 
         var getSeenEpisodes = function(anime){
-            var promise = new RSVP.Promise();
+            var deferred = Q.defer();
                 db.models.SeenEpisode.getByEpisodesWithUser(anime.episodes).success(function(seen){
                     var seenProper = db.models.SeenEpisode.removePasswordEmailAddGravatarByArray(seen);
-                    promise.resolve(seenProper);
+                    deferred.resolve(seenProper);
                 });
-            return promise;
+            return deferred.promise;
         };
-
-        RSVP.all([getGenres(anime), getSeenEpisodes(anime)]).then(function(results){
+        
+        Q.all([getGenres(anime), getSeenEpisodes(anime)]).then(function(results){
             var ret = anime.toJSON();
             ret.genres = results[0];
             ret.seen = results[1];
