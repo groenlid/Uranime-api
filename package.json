@@ -15,6 +15,7 @@
     "jade": "*",
     "passport": "0.1.16",
     "passport-http": "0.2.1",
+    "passport-anonymous": "*",
     "bcrypt": "0.7.5"
   },
   "engines": {

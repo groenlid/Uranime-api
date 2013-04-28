@@ -1,6 +1,7 @@
 
 var passport = require('passport')
     , BasicStrategy = require('passport-http').BasicStrategy
+    , AnonymousStrategy = require('passport-anonymous').Strategy
     , crypto = require('crypto')
     , bcrypt = require('bcrypt')
     , Q = require('q')
@@ -72,8 +73,12 @@ console.log("Resolving the stuff...", user);
 
 };
 
+//////////////////////////////////////////////
+// Define the basic authentication strategy //
+//////////////////////////////////////////////
 passport.use(new BasicStrategy(
     function(username, password, done) {
+        console.dir("TESTS",arguments);
         var deferred = Q.defer();
         // check username
         findUser(username)
@@ -102,15 +107,11 @@ passport.use(new BasicStrategy(
     }
 ));
 
-function notLimitUser(req, res, next){
-    passport.authenticate('basic', { session: false }, function(err, user, info) {
-        if (err) { return next(err); }
-        next();
-    })(req, res, next);
-};
-
+///////////////////////////////////
+// Define the fallback solution. //
+///////////////////////////////////
+passport.use(new AnonymousStrategy());
 
 module.exports = {
-    passport: passport,
-    notLimitUser: notLimitUser
+    passport: passport
 };

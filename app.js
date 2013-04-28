@@ -69,8 +69,8 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
-app.get('/anime/:id', auth.notLimitUser, anime.getById);
-app.get('/episodes/:id', passport.authenticate('basic', { session: false }), episode.getById);
+app.get('/anime/:id', passport.authenticate(['basic','anonymous'], { session: false }), anime.getById);
+app.get('/episodes/:id', passport.authenticate(['basic','anonymous'], { session: false }), episode.getById);
 app.get('/episodes', episode.getByParams);
 app.get('/users/:id', user.getById);
 app.get('/library/:id', user.getLibrary);

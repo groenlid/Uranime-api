@@ -12,6 +12,7 @@ exports.getById = function(req, res){
         {model: db.models.Synonym, as: 'Synonyms'}
     ];
 
+
     db.models.Anime.find({where: {id:id}, include:includeQuery}).success(function(anime){
 
         // This can be replaced when https://github.com/sequelize/sequelize/issues/515 is fixed
@@ -37,6 +38,11 @@ exports.getById = function(req, res){
             var ret = anime.toJSON();
             ret.genres = results[0];
             ret.seen = results[1];
+
+
+            if(typeof(req.user) !== "undefined")
+                ret.loggedIn = "YEAH!!!";
+
             res.send(ret);
         });
     });
