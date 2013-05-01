@@ -6,9 +6,9 @@ exports.getById = function(req, res){
   
   var id = req.params.id,
       includeQuery = [
-        {model: db.models.SeenEpisode, as:'SeenEpisodes'},
+        db.models.SeenEpisode,
     ];
-
+    
   db.models.Episode.find({where: {id:id}, include:includeQuery}).success(function(episode){
     res.send(episode);
   });
