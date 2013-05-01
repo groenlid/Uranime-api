@@ -5,10 +5,10 @@
 
 function getUserById(res, id, includeLibrary){
   var includeQuery = [
-        {model: db.models.Episode, as:'Episode'},
+        db.models.Episode,
     ];
   db.models.User.find(id).success(function(user){
-    user.getSeenEpisodes({limit:10, order: 'id DESC', include: includeQuery}).success(function(seen){
+    user.getUserEpisodes({limit:10, order: 'id DESC', include: includeQuery}).success(function(seen){
       var ret = user.prepared();
       ret.userepisodes = seen;
       res.send(ret);

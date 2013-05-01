@@ -15,13 +15,11 @@ exports.getById = function(req, res){
 
     db.models.Anime.find({where: {id:id}, include:includeQuery}).success(function(anime){
 
-        console.log("Amount of episodes:" + anime.episodes.length);
         // This can be replaced when https://github.com/sequelize/sequelize/issues/515 is fixed
         // https://github.com/sequelize/sequelize/issues/388
         
         var getSynonyms = function(anime){
             var deferred = Q.defer();
-            console.dir(anime);
             anime.getAnimeSynonyms().success(function(synonyms){
                 deferred.resolve(synonyms);
             });

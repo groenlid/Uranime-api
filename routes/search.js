@@ -10,12 +10,12 @@ exports.doSearch = function(req, res){
 };
 
 exports.getBySearchQuery = function(req, res){
-  var includeQuery = [{model: db.models.Synonym, as: 'Synonyms'}],
+  var includeQuery = [db.models.Synonym],
       q = req.query.q, 
       qLower = q.toLowerCase();
 
   db.models.Anime.findAll({
-    where: ["lower(Synonyms.title) like ?", '%' + qLower + '%'], 
+    where: ["lower(anime_synonyms.title) like ?", '%' + qLower + '%'], 
     include:includeQuery
   }).success(function(anime){
       res.send(anime);

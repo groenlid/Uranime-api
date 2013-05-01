@@ -4,8 +4,8 @@
 
 exports.getFeed = function(req, res){
     var includeQuery = [
-        {model: db.models.User, as:'User'},
-        {model: db.models.Episode, as: 'Episode'}
+        db.models.User,
+        db.models.Episode
     ];
 
   // Simple first.. Get last 10 seen episodes..
