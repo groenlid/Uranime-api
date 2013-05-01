@@ -17,36 +17,36 @@ module.exports = function(db){
     // Relationships
 
     // Anime - Episode
-    self.Anime.hasMany(self.Episode, {as: 'Episodes'});
-    self.Episode.belongsTo(self.Anime, {as: 'Anime'});
+    self.Anime.hasMany(self.Episode);
+    self.Episode.belongsTo(self.Anime);
 
     // Anime - Genre/Tags
-    self.Genre.hasMany(self.Anime, {as: 'Anime', joinTableName:'anime_genre'});
-    self.Anime.hasMany(self.Genre, {as: 'Genres', joinTableName:'anime_genre'});
+    self.Genre.hasMany(self.Anime, {joinTableName:'anime_genre'});
+    self.Anime.hasMany(self.Genre, {joinTableName:'anime_genre'});
 
     // Anime - Synonyms
-    self.Anime.hasMany(self.Synonym, {as: 'Synonyms'});
-    self.Synonym.belongsTo(self.Anime, {as: 'Anime'});
+    self.Anime.hasMany(self.Synonym);
+    self.Synonym.belongsTo(self.Anime);
 
     // Episode - User
-    self.Episode.hasMany(self.User, {as: 'Users', joinTableName:'user_episodes'});
-    self.User.hasMany(self.Episode, {as: 'Episodes', joinTableName:'user_episodes'});
+    self.Episode.hasMany(self.User, {joinTableName:'user_episodes'});
+    self.User.hasMany(self.Episode, {joinTableName:'user_episodes'});
 
     // SeenEpisode - User
-    self.User.hasMany(self.SeenEpisode, {as: 'SeenEpisodes'});
-    self.SeenEpisode.belongsTo(self.User, {as: 'User'});
+    self.User.hasMany(self.SeenEpisode);
+    self.SeenEpisode.belongsTo(self.User);
 
     // SeenEpisode - Episode
-    self.SeenEpisode.belongsTo(self.Episode, {as: 'Episode'});
-    self.Episode.hasMany(self.SeenEpisode, {as: 'SeenEpisodes'});
+    self.SeenEpisode.belongsTo(self.Episode);
+    self.Episode.hasMany(self.SeenEpisode);
     
     // Request - RequestInfo
-    self.Request.hasMany(self.RequestInfo, {as: 'RequestInfo'});
-    self.RequestInfo.belongsTo(self.Request, {as: 'Request'});
+    self.Request.hasMany(self.RequestInfo);
+    self.RequestInfo.belongsTo(self.Request);
 
     // RequestInfo - RequestAttribute
-    self.RequestInfo.hasMany(self.RequestAttribute, {as: 'RequestAttributes', foreignKey: 'anime_request_scrape_info_id'});
-    self.RequestAttribute.belongsTo(self.RequestInfo, {as: 'RequestInfo'});
+    self.RequestInfo.hasMany(self.RequestAttribute, {foreignKey: 'anime_request_scrape_info_id'});
+    self.RequestAttribute.belongsTo(self.RequestInfo);
 
   return self;
 }
