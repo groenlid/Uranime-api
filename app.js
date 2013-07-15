@@ -68,18 +68,18 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/anime/:id', passport.authenticate(['basic','anonymous'], { session: false }), anime.getById);
-app.get('/episodes/:id', passport.authenticate(['basic','anonymous'], { session: false }), episode.getById);
-app.get('/episodes', episode.getByParams);
-app.get('/users/:id', user.getById);
-app.get('/library/:id', user.getLibrary);
-app.get('/library', user.getLibrary);
-app.get('/users', user.list);
-app.get('/search', search.doSearch);
-app.get('/user_episodes', seenEpisode.getFeed);
-app.get('/requests', request.getRequests);
-app.get('/request_types/:id', request.getRequestTypeById);
-app.get('/sites/:id', request.getSiteById);
+app.get('/api/anime/:id', passport.authenticate(['basic','anonymous'], { session: false }), anime.getById);
+app.get('/api/episodes/:id', passport.authenticate(['basic','anonymous'], { session: false }), episode.getById);
+app.get('/api/episodes', episode.getByParams);
+app.get('/api/users/:id', user.getById);
+app.get('/api/library/:id', user.getLibrary);
+app.get('/api/library', user.getLibrary);
+app.get('/api/users', user.list);
+app.get('/api/search', search.doSearch);
+app.get('/api/user_episodes', seenEpisode.getFeed);
+app.get('/api/requests', request.getRequests);
+app.get('/api/request_types/:id', request.getRequestTypeById);
+app.get('/api/sites/:id', request.getSiteById);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
