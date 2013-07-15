@@ -7,11 +7,11 @@
       options: options
     }
     database.module = Sequelize;
-    database.client = new Sequelize(options.table, options.username, options.password, {
+    database.client = new Sequelize(options.database, options.username, options.password, {
           host: options.host,
           port: options.port,
           logging: options.logging,
-          dialect: 'postgres',
+          dialect: 'mysql',
           maxConcurrentQueries: 4,
           pool: { maxConnections: 4, maxIdleTime: 5000 },
           define: {
