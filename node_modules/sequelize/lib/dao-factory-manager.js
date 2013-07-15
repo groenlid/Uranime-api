@@ -1,3 +1,6 @@
+var Toposort   = require('toposort-class')
+  , DaoFactory = require('./dao-factory')
+
 module.exports = (function() {
   var DAOFactoryManager = function(sequelize) {
     this.daos = []
@@ -30,6 +33,36 @@ module.exports = (function() {
   DAOFactoryManager.prototype.__defineGetter__('all', function() {
     return this.daos
   })
+
+  /**
+   * Iterate over DAOs in an order suitable for e.g. creating tables. Will
+   * take foreign key constraints into account so that dependencies are visited
+   * before dependents.
+   */
+  DAOFactoryManager.prototype.forEachDAO = function(iterator) {
+    var daos   = {}
+      , sorter = new Toposort()
+
+    this.daos.forEach(function(dao) {
+      var deps = []
+
+      daos[dao.tableName] = dao
+
+      for (var attrName in dao.rawAttributes) {
+        if (dao.rawAttributes.hasOwnProperty(attrName)) {
+          if (dao.rawAttributes[attrName].references) {
+            deps.push(dao.rawAttributes[attrName].references)
+          }
+        }
+      }
+
+      sorter.add(dao.tableName, deps)
+    })
+
+    sorter.sort().reverse().forEach(function(name) {
+      iterator(daos[name])
+    })
+  }
 
   return DAOFactoryManager
 })()
