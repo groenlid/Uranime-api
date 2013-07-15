@@ -11,7 +11,7 @@
           host: options.host,
           port: options.port,
           logging: options.logging,
-          dialect: 'mysql',
+          dialect: 'postgres',
           maxConcurrentQueries: 4,
           pool: { maxConnections: 4, maxIdleTime: 5000 },
           define: {
