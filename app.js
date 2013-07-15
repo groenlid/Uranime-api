@@ -61,14 +61,13 @@ app.configure(function(){
     app.use(express.methodOverride());
     app.use(passport.initialize());
     app.use(app.router);
-    app.use(express.static(path.join(__dirname, 'public')));
+    app.use(express.static(path.join(__dirname, 'client/build')));
 });
 
 app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/', routes.index);
 app.get('/anime/:id', passport.authenticate(['basic','anonymous'], { session: false }), anime.getById);
 app.get('/episodes/:id', passport.authenticate(['basic','anonymous'], { session: false }), episode.getById);
 app.get('/episodes', episode.getByParams);
