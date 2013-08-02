@@ -10,7 +10,7 @@
     "rsvp": "git://github.com/tildeio/rsvp.js.git",
     "jade": "*",    
     "q": "*",
-    "sequelize": "https://github.com/sequelize/sequelize/tarball/master",
+    "sequelize": "latest",
     "mysql": "~2.0.0-alpha8",
     "passport": "0.1.16",
     "passport-http": "0.2.1",
