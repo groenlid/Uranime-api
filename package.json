@@ -6,7 +6,7 @@
     "start": "node app"
   },
   "dependencies": {
-    "express": "3.3.4",
+    "express": "latest",
     "rsvp": "git://github.com/tildeio/rsvp.js.git",
     "jade": "*",    
     "q": "*",

@@ -1,4 +1,5 @@
-# THIS IS NOT DONE.
+
+//# THIS IS NOT DONE.
 module.exports = {
   up: function(migration, DataTypes, done) {
     // add altering commands here, calling 'done' when finished
@@ -136,68 +137,12 @@ module.exports = {
     	});
 	};
 
-	var removeWatchlist = function(){
-		migration.dropTable('user_watchlist');
-	};
-
-
-
-	// Migrate over the old data.
-	var migrateData = function(db){
-		db.query("SELECT * FROM user_watchlist").success(function(data){
-
-			var users = [];
-			
-			var fillWithEntries = function(db, user_id, list_id){
-				data.forEach(function(item){
-					if(item.user_id !== user_id) return;
-
-					db.query(
-						'INSERT INTO listEntries (`anime_id`, `list_id`, `createdAt`) VALUES (?,?,?)', 
-						null, 
-						{raw:true}, 
-						[item.anime_id, list_id, item.time]
-					);
-
-				});
-			};
-
-			var createWatchlistAndFill = function(db, user_id){
-				db.query(
-						'INSERT INTO lists (`user_id`, `title`,`createdAt`) VALUES (?,?,NOW())', 
-						null, 
-						{raw:true}, 
-						[user_id,'watchlist']
-					).success(function(){
-						db.query(
-							'SELECT id FROM lists WHERE `user_id`=? AND `title`=?', 
-							null, 
-							{raw:true},
-							[user_id,'watchlist']
-						).success(function(id){
-							fillWithEntries(db,user_id, id[0].id);
-						});
-					});
-			};
-
-
-			data.forEach(function(item){
-				// Iterate through the data once, to find all the user id's.
-				if(users.indexOf(item.user_id) !== -1) return;
-				
-				users.push(item.user_id);
-
-				createWatchlistAndFill(db, item.user_id);
-
-			});
-
-		});
-	}
-
-	createLists();
-	createListEntries();
-	migrateData(db);
-    removeWatchlist();
+    var dropTable = function(){
+        return migration.dropTable('anime_request');
+    };
+      
+    createTables();
+    dropTable();
     done()
   },
   down: function(migration, DataTypes, done) {

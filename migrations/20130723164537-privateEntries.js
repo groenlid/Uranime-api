@@ -38,7 +38,7 @@ module.exports = {
 	};
 
 	var createUniqueIndex = function(){
-		migration.addIndex(
+		return migration.addIndex(
 	  		'privateEntries',
 	  		['user_id', 'anime_id'],
 	  		{
@@ -47,10 +47,10 @@ module.exports = {
 		);
 	}
 
-	createLists().success(
-		createUniqueIndex
-		);
-    done()
+	createLists().success(function(){
+        createUniqueIndex().success(done)
+        }
+    );
   },
   down: function(migration, DataTypes, done) {
     // add reverting commands here, calling 'done' when finished

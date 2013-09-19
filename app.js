@@ -5,7 +5,7 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , config = require('./config')
+  , config = require('./config/config.json')
   , auth = require('./auth')
   , user = require('./routes/user')
   , anime = require('./routes/anime')
@@ -21,7 +21,7 @@ var express = require('express')
  */
 
 GLOBAL.app = express();
-GLOBAL.db = require('./database')(config.db);
+GLOBAL.db = require('./database')(config.development);
 GLOBAL.passport = auth.passport;
 
 app.use(function(req, res, next) {
@@ -76,7 +76,7 @@ app.get('/api/library/:id', user.getLibrary);
 app.get('/api/library', user.getLibrary);
 app.get('/api/users', user.list);
 app.get('/api/search', search.doSearch);
-app.get('/api/user_episodes', seenEpisode.getFeed);
+app.get('/api/userEpisodes', seenEpisode.getFeed);
 app.get('/api/requests', request.getRequests);
 app.get('/api/request_types/:id', request.getRequestTypeById);
 app.get('/api/sites/:id', request.getSiteById);

@@ -20,8 +20,7 @@ var findUser = function findUser(username){
 
 var checkPassword = function checkPassword(user, clearText){
     var clearSalt = db.options.salt + clearText,
-        shasum, deferred = Q.defer();;
-
+        shasum, deferred = Q.defer();
     // Check if the user uses the old password format
     switch(user.pw_version){
         case 2:
@@ -35,7 +34,6 @@ var checkPassword = function checkPassword(user, clearText){
             });
             break;
         case 1:
-        default:
             // Pepper, hash and compare.
             shasum = crypto.createHash('sha1');
             shasum.update(clearSalt);
@@ -57,7 +55,6 @@ var checkPassword = function checkPassword(user, clearText){
  */
 var convertPassword = function convertPassword(user, clearText){
     var salt_rounds = db.options.salt_rounds, deferred = Q.defer();
-console.log("Resolving the stuff...", user);
     bcrypt.hash(clearText, salt_rounds, function(err, hash) {
         // Store hash in your password DB.
         if(err)
@@ -65,12 +62,10 @@ console.log("Resolving the stuff...", user);
         user.password = hash;
         user.pw_version = 2;
         user.save().success(function() {
-            console.log("Resolving the stuff...", user);
             deferred.resolve(user);
         });
     });
     return deferred.promise;
-
 };
 
 //////////////////////////////////////////////
@@ -78,7 +73,6 @@ console.log("Resolving the stuff...", user);
 //////////////////////////////////////////////
 passport.use(new BasicStrategy(
     function(username, password, done) {
-        console.dir("TESTS",arguments);
         var deferred = Q.defer();
         // check username
         findUser(username)
@@ -100,8 +94,10 @@ passport.use(new BasicStrategy(
             return done(null, false);
         })
         .then(function(user){
+           console.log("============================== DEBUG====== Logged inn:", user);
             return done(null, user);
         }, function(error){
+            console.log("============================== DEBUG====== Not logged inn:", error);
             return done(null, false);
         });
     }

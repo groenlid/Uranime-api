@@ -7,9 +7,11 @@
       options: options
     }
     database.module = Sequelize;
-    database.client = new Sequelize(options.database, options.username, options.password, {
+    options.logging = options.logging === true ? console.log : null;
+    
+      database.client = new Sequelize(options.database, options.username, options.password, {
           host: options.host,
-          port: options.port,
+          port: '3306',
           logging: options.logging,
           dialect: 'mysql',
           maxConcurrentQueries: 4,
