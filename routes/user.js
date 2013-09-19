@@ -4,11 +4,8 @@
  */
 
 function getUserById(res, id, includeLibrary){
-  var includeQuery = [
-        db.models.Episode,
-    ];
   db.models.User.find(id).success(function(user){
-    user.getUserEpisodes({limit:10, order: 'id DESC', include: includeQuery}).success(function(seen){
+    user.getUserEpisodes({limit:10, order: 'id DESC'}).success(function(seen){
       var ret = user.prepared();
       ret.userepisodes = seen;
       res.send(ret);
@@ -18,7 +15,6 @@ function getUserById(res, id, includeLibrary){
 };
 
 function getUserLibrary(res, id){
-  //console.log(db);
   var sql = "SELECT ue.user_id as user_id, "+
               "ep.anime_id as anime_id, "+
               "ep2.tot as total, "+
@@ -31,38 +27,12 @@ function getUserLibrary(res, id){
             ") as ep2 " +
             "WHERE ep.id = ue.episode_id " +
               "AND ep2.anime_id = ep.anime_id " +
-              "AND ue.user_id = " + id + " " +
+              "AND ue.user_id = ? " +
             "GROUP BY ue.user_id, ep.anime_id;";
-  db.client.query(sql,null, {raw:true}).success(function(result){
-    // Fetch all the ids
-    var ids = [], ret = [];
-    result.forEach(function(r){
-      ids.push(r.anime_id);
-    });
-
-    db.models.Anime.findAll({where: {id: ids }}).success(function(animeList){
-
-      result.forEach(function(value, index){
-        ret[index] = combineLibraryAnime(value, animeList);
-      });
-    
-      res.send(ret);
-
-    });
-
+  db.client.query(sql, null, {raw:true}, [id]).success(function(result){
+      res.send(result);
   });
 }
-
-function combineLibraryAnime(libraryItem, animeList) {
-  var anime;
-  animeList.forEach(function(a, index){
-    if(a.id == libraryItem.anime_id)
-      anime = a;
-  });
-  libraryItem.anime = anime;
-  return libraryItem;
-}
-
 
 exports.list = function(req, res){
   res.send("respond with a resource");
