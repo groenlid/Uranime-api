@@ -7,7 +7,18 @@ function getUserById(res, id, includeLibrary){
   db.models.User.find(id).success(function(user){
     user.getUserEpisodes({limit:10, order: 'id DESC'}).success(function(seen){
       var ret = user.prepared();
-      ret.userepisodes = seen;
+
+      ret.userEpisodes = seen.map(function(item){
+        var item = item.toJSON();  
+        
+        item.user       = item.user_id;
+        item.episode    = item.episode_id;
+
+        delete item.user_id;
+        delete item.episode_id;
+        
+        return item;
+      });
       res.send(ret);
     });
   });
@@ -29,8 +40,18 @@ function getUserLibrary(res, id){
               "AND ep2.anime_id = ep.anime_id " +
               "AND ue.user_id = ? " +
             "GROUP BY ue.user_id, ep.anime_id;";
-  db.client.query(sql, null, {raw:true}, [id]).success(function(result){
-      res.send(result);
+    db.client.query(sql, null, {raw:true}, [id]).success(function(result){
+        var ret = result.map(function(item){
+            item.id     = item.user_id + '-' + item.anime_id;
+            item.anime  = item.anime_id;
+            item.user   = item.user_id;
+
+            delete item.anime_id;
+            delete item.user_id;
+
+            return item; 
+        });
+      res.send(ret);
   });
 }
 

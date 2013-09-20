@@ -72,8 +72,8 @@ app.get('/api/anime/:id', passport.authenticate(['basic','anonymous'], { session
 app.get('/api/episodes/:id', passport.authenticate(['basic','anonymous'], { session: false }), episode.getById);
 app.get('/api/episodes', episode.getByParams);
 app.get('/api/users/:id', user.getById);
-app.get('/api/library/:id', user.getLibrary);
-app.get('/api/library', user.getLibrary);
+app.get('/api/libraries/:id', user.getLibrary);
+app.get('/api/libraries', user.getLibrary);
 app.get('/api/users', user.list);
 app.get('/api/search', search.doSearch);
 app.get('/api/userEpisodes', seenEpisode.getFeed);
