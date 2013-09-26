@@ -10,11 +10,7 @@ exports.getFeed = function(req, res){
 
         seenEpisodes.forEach(function(seenEpisode, i){
             seenEpisode = seenEpisode.toJSON();
-            seenEpisode.user    = seenEpisode.user_id;
-            seenEpisode.episode = seenEpisode.episode_id;
 
-            delete seenEpisode.user_id;
-            delete seenEpisode.episode_id;
             ret.push(seenEpisode);
         });
         

@@ -12,17 +12,11 @@ exports.getById = function(req, res){
   db.models.Episode.find({where: {id:id}, include:includeQuery}).success(function(episode){
     var ret = episode.toJSON();
     
-    ret.anime = ret.anime_id;
-    delete ret.anime_id;
-
     ret.userEpisodes = ret.userEpisodes.map(function(userEpisode){
         userEpisode = userEpisode.toJSON();
 
-        userEpisode.episode = userEpisode.episode_id;
-        userEpisode.user    = userEpisode.user_id;
-
-        delete userEpisode.episode_id;
-        delete userEpisode.user_id;
+        userEpisode.episode_id;
+        userEpisode.user_id;
         
         return userEpisode;
     });
