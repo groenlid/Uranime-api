@@ -12,7 +12,7 @@
       database.client = new Sequelize(options.database, options.username, options.password, {
           host: options.host,
           port: '3306',
-          logging: options.logging,
+          logging: options.logging ? console.log : null,
           dialect: 'mysql',
           maxConcurrentQueries: 4,
           pool: { maxConnections: 4, maxIdleTime: 5000 },
