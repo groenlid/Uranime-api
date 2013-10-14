@@ -69,6 +69,7 @@ app.configure('development', function(){
 });
 
 app.get('/api/anime/:id', passport.authenticate(['basic','anonymous'], { session: false }), anime.getById);
+app.get('/api/animeDetails/:id', anime.getDetailsById);
 app.get('/api/episodes/:id', passport.authenticate(['basic','anonymous'], { session: false }), episode.getById);
 app.get('/api/episodes', episode.getByParams);
 app.get('/api/users/:id', user.getById);

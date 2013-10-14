@@ -6,6 +6,14 @@ var crypto = require('crypto')
  */
 exports.getById = function(req, res){
     var id = req.params.id;
+    db.models.Anime.find(id).success(function(anime){
+        var ret = anime.toJSON();
+        ret.details_id = anime.id;
+        res.send(ret);
+    });
+};
+exports.getDetailsById = function(req, res){
+    var id = req.params.id;
     var includeQuery = [
         db.models.Episode,
         //db.models.Genre,
@@ -48,10 +56,19 @@ exports.getById = function(req, res){
             ret.genres = results[0];
             ret.seen = results[1];
             ret.synonyms = results[2];
+            
+            delete ret.title;
+            delete ret.desc;
+            delete ret.image;
+            delete ret.fanart;
+            delete ret.status;
+            delete ret.runtime;
+            delete ret.classification;
+            delete ret.type;
 
             if(typeof(req.user) !== "undefined")
                 ret.loggedIn = "YEAH!!!";
-
+            
             res.send(ret);
         });
     });
