@@ -4,7 +4,8 @@ module.exports = {
       {
         user_id: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            primaryKey: true
         },
         token: {
             type: DataTypes.STRING,

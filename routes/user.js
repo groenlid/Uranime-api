@@ -59,6 +59,7 @@ exports.getById = function(req, res){
   getUserById(res, req.params.id);
 };
 
+
 /*
 {
   user_id: 1,

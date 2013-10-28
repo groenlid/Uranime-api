@@ -1,15 +1,20 @@
 var crypto = require('crypto')
     , Q = require('q');
 
+var addDetailsId = function(model){
+    var json = model.toJSON();
+    json.details_id = model.id;
+    return json;
+}
 /*
  * GET anime listing.
  */
 exports.getById = function(req, res){
     var id = req.params.id;
     db.models.Anime.find(id).success(function(anime){
-        var ret = anime.toJSON();
-        ret.details_id = anime.id;
-        res.send(ret);
+        console.log("REQ USER");    
+        console.log(req.user);
+        res.send(addDetailsId(anime));
     });
 };
 exports.getDetailsById = function(req, res){
@@ -56,6 +61,7 @@ exports.getDetailsById = function(req, res){
             ret.genres = results[0];
             ret.seen = results[1];
             ret.synonyms = results[2];
+            ret.episodes = anime.episodes.map(addDetailsId);
             
             delete ret.title;
             delete ret.desc;

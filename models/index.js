@@ -10,6 +10,7 @@ module.exports = function(db){
         Request = require('./request')(db),
         RequestAttribute = require('./requestAttribute')(db),
         RequestInfo = require('./requestInfo')(db),
+        Token = require('./token')(db),
         ScrapeType = require('./scrapeType')(db);
 
 
@@ -46,10 +47,12 @@ module.exports = function(db){
       .belongsTo(Anime);
 
     User
-      .hasMany(SeenEpisode);
+      .hasMany(SeenEpisode)
       //.hasMany(Episode, {joinTableName:'user_episodes'});
+      .hasOne(Token, { foreignKey: 'user_id'});
 
-
+    Token
+      .belongsTo(User);   
   return {
     Anime: Anime,
     Episode: Episode,
@@ -61,6 +64,7 @@ module.exports = function(db){
     Request: Request,
     RequestAttribute: RequestAttribute,
     RequestInfo: RequestInfo,
-    ScrapeType: ScrapeType
+    ScrapeType: ScrapeType,
+    Token: Token
   };
 }

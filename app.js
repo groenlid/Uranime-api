@@ -22,7 +22,6 @@ var express = require('express')
 
 GLOBAL.app = express();
 GLOBAL.db = require('./database')(config.development);
-GLOBAL.passport = auth.passport;
 
 app.use(function(req, res, next) {
     var oneof = false;
@@ -51,6 +50,7 @@ app.use(function(req, res, next) {
     }
 });
 
+
 app.configure(function(){
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/views');
@@ -59,7 +59,6 @@ app.configure(function(){
     app.use(express.logger('dev'));
     app.use(express.bodyParser());
     app.use(express.methodOverride());
-    app.use(passport.initialize());
     app.use(app.router);
     app.use(express.static(path.join(__dirname, 'client/build')));
 });
@@ -68,9 +67,10 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/api/anime/:id', passport.authenticate(['basic','anonymous'], { session: false }), anime.getById);
+app.get('/api/anime/:id', auth.token, anime.getById);
 app.get('/api/animeDetails/:id', anime.getDetailsById);
-app.get('/api/episodes/:id', passport.authenticate(['basic','anonymous'], { session: false }), episode.getById);
+app.get('/api/episodes/:id', episode.getById);
+app.get('/api/episodeDetails/:id', episode.getDetailsById);
 app.get('/api/episodes', episode.getByParams);
 app.get('/api/users/:id', user.getById);
 app.get('/api/libraries/:id', user.getLibrary);
@@ -81,6 +81,7 @@ app.get('/api/userEpisodes', seenEpisode.getFeed);
 app.get('/api/requests', request.getRequests);
 app.get('/api/request_types/:id', request.getRequestTypeById);
 app.get('/api/sites/:id', request.getSiteById);
+app.post('/api/signin', auth.signin);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

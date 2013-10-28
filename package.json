@@ -12,10 +12,7 @@
     "q": "*",
     "sequelize": "latest",
     "mysql": "~2.0.0-alpha8",
-    "passport": "0.1.16",
-    "passport-http": "0.2.1",
-    "passport-anonymous": "*",
-    "bcrypt": "0.7.5"
+    "bcrypt": "0.7.7"
   },
   "engines": {
       "node": "0.10.13"
