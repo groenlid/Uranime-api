@@ -1,11 +1,8 @@
 
-var passport = require('passport')
-    , BasicStrategy = require('passport-http').BasicStrategy
-    , AnonymousStrategy = require('passport-anonymous').Strategy
-    , crypto = require('crypto')
+var   crypto = require('crypto')
     , bcrypt = require('bcrypt')
     , Q = require('q')
-    , loginFailureMessage = "Wrong username or password";
+    , loginFailureMessage = {Error: "Wrong username or password"};
 
 var findUser = function findUser(username){
     var deferred = Q.defer();
@@ -70,33 +67,64 @@ var convertPassword = function convertPassword(user, clearText){
 
 var login = function(username, password) {
     var deferred = Q.defer();
-    // check username
-    findUser(username)
-    // check password
-    .then(function(user){
-        return checkPassword(user, password);
-    })
-    // convert password if needed,
-    // else return user.
-    .then(function(user){
-        if(user.pw_version == 2){
-            deferred.resolve(user);
-            return deferred.promise;
-        }
-        return convertPassword(user, password);
+    // Find the user
+    findUser(username).then(function(user){
+        // Check the password
+        checkPassword(user, password).then(function(user){
+            // convert password if needed,
+            if(user.pw_version == 2){
+                deferred.resolve(user);
+                return deferred.promise;
+            }
+            convertPassword(user, password).then(function(user){
+                deferred.resolve(user);
+            }, function(){
+                deferred.reject();
+            });
+        }, function(){
+            deferred.reject();
+        });
+    }, function(){
+        deferred.reject();
     });
+    // else return user.
     return deferred.promise;
+}
+
+var makeTokenResponse = function(token){
+    var user_id = token.get('user_id'),
+        token   = token.get('token'),
+        sep     = ':';
+    console.log(user_id, token, sep);
+    return {
+        user_id: user_id,
+        auth_token: new Buffer(user_id + sep + token).toString('base64') 
+    }
 }
 
 var signin = function(req, res){
     var email = req.param('email'),
         pass = req.param('password');
     
-    login(email, pass, function(error, user){
-        if(user === false || error !== null)
-            res.send(401, loginFailureMessage);
-    }).then(function(user){
-        res.send("YOUR'E LOGGED IN MISTER!");
+    login(email, pass).then(function(user){
+        // Generate or send user the old token
+        user.getToken().then(function(dbtoken){
+            // TODO:Check date of token
+            res.send(makeTokenResponse(dbtoken));
+        }, function(err){
+            // Token does not exists
+            crypto.randomBytes(48, function(ex, buf) {
+                var userToken = buf.toString('hex');
+                Token.create({
+                    user_id: user.id,
+                    token: userToken
+                }).then(function(newtoken){
+                    res.send(makeTokenResponse(newtoken));
+                });
+            });
+        })
+    }, function(error){
+        res.send(401, loginFailureMessage);
     });  
     
 };
@@ -105,7 +133,7 @@ var signin = function(req, res){
 
 var checkToken = function(req){
     var deferred = Q.defer(),
-        tokenPrepend = 'AUTH-TOKEN ';
+        tokenPrepend = 'Auth-Token ';
     
     // Check if the authentication header is correct formatted
     var auth = req.headers.authorization;
