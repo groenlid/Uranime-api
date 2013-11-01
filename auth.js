@@ -109,19 +109,22 @@ var signin = function(req, res){
     login(email, pass).then(function(user){
         // Generate or send user the old token
         user.getToken().then(function(dbtoken){
-            // TODO:Check date of token
-            res.send(makeTokenResponse(dbtoken));
-        }, function(err){
-            // Token does not exists
-            crypto.randomBytes(48, function(ex, buf) {
-                var userToken = buf.toString('hex');
-                Token.create({
-                    user_id: user.id,
-                    token: userToken
-                }).then(function(newtoken){
-                    res.send(makeTokenResponse(newtoken));
+            if(dbtoken !== null)
+                // TODO:Check date of token
+                res.send(makeTokenResponse(dbtoken));
+            else
+                // Token does not exists
+                crypto.randomBytes(48, function(ex, buf) {
+                    var userToken = buf.toString('hex');
+                    db.models.Token.create({
+                        user_id: user.id,
+                        token: userToken
+                    }).then(function(newtoken){
+                        res.send(makeTokenResponse(newtoken));
+                    });
                 });
-            });
+        }, function(err){
+            res.send(500);
         })
     }, function(error){
         res.send(401, loginFailureMessage);

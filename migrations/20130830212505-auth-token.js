@@ -5,11 +5,15 @@ module.exports = {
         user_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            primaryKey: true
         },
         token: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true
         },
         createdAt: {
           type: DataTypes.DATE,

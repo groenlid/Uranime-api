@@ -6,7 +6,8 @@ var Sequelize = require('sequelize');
 self = {
     def: {
         token: Sequelize.STRING,
-        createdAt: Sequelize.DATE
+        createdAt: Sequelize.DATE,
+
     }
 };
 
