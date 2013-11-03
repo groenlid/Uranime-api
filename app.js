@@ -69,6 +69,7 @@ app.configure('development', function(){
 
 app.get('/api/anime/:id', auth.token, anime.getById);
 app.get('/api/animeDetails/:id', anime.getDetailsById);
+app.get('/api/anime', anime.getBeetweenDates);
 app.get('/api/episodes/:id', episode.getById);
 app.get('/api/episodeDetails/:id', episode.getDetailsById);
 app.get('/api/episodes', episode.getByParams);

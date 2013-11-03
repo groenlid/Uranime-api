@@ -1,22 +1,62 @@
 var crypto = require('crypto')
     , Q = require('q');
 
+
+// Add as a sequelize instance method
 var addDetailsId = function(model){
     var json = model.toJSON();
     json.details_id = model.id;
     return json;
-}
+};
+
+// Prototype the date object instead..
+var getDateThrowIfInvalid = function(param){
+    var date = new Date(param);
+    if(date.toString() === 'Invalid Date') return new Error('Invalid Date');
+    return date;
+};
 /*
  * GET anime listing.
  */
 exports.getById = function(req, res){
     var id = req.params.id;
     db.models.Anime.find(id).success(function(anime){
-        console.log("REQ USER");    
-        console.log(req.user);
         res.send(addDetailsId(anime));
     });
 };
+
+exports.getBeetweenDates = function(req, res){
+    var after  = req.query.after,
+        before = req.query.before;   
+    
+    console.log(req.params);
+
+    db.models.Episode.findAll({
+        attributes: ['anime_id'],
+        where: {
+            aired: {
+                between: [after, before]
+            }
+        },
+        group: 'anime_id'
+    }).then(function(episodes){
+        var ids = episodes.map(function(e){
+            return e.anime_id;
+        });
+        db.models.Anime.findAll({
+            where: {
+                id: ids
+            }
+        }).then(function(anime){
+            res.send(anime.map(addDetailsId));
+        }, function(){
+            res.send(400);
+        });
+    }, function(error){
+        res.send(400);
+    });
+};
+
 exports.getDetailsById = function(req, res){
     var id = req.params.id;
     var includeQuery = [
