@@ -13,6 +13,7 @@ var express = require('express')
   , search = require('./routes/search')
   , seenEpisode = require('./routes/userepisodes')
   , request = require('./routes/request')
+  , options = require('./middleware/options')
   , http = require('http')
   , path = require('path');
 
@@ -23,33 +24,8 @@ var express = require('express')
 GLOBAL.app = express();
 GLOBAL.db = require('./database')(config.development);
 
-app.use(function(req, res, next) {
-    var oneof = false;
-    if(req.headers.origin) {
-        res.header('Access-Control-Allow-Origin', req.headers.origin);
-        oneof = true;
-    }
-    if(req.headers['access-control-request-method']) {
-        res.header('Access-Control-Allow-Methods', req.headers['access-control-request-method']);
-        oneof = true;
-    }
-    if(req.headers['access-control-request-headers']) {
-        res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
-        oneof = true;
-    }
-    if(oneof) {
-        res.header('Access-Control-Max-Age', 60 * 60 * 24 * 365);
-    }
-
-    // intercept OPTIONS method
-    if (oneof && req.method == 'OPTIONS') {
-        res.send(200);
-    }
-    else {
-        next();
-    }
-});
-
+// Middlewares
+app.use(options);
 
 app.configure(function(){
     app.set('port', process.env.PORT || 3000);
