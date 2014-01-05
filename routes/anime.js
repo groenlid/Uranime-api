@@ -105,15 +105,6 @@ module.exports = {
                 ret.synonyms = results[2];
                 ret.episodes = anime.episodes.map(addDetailsId);
                 
-                delete ret.title;
-                delete ret.desc;
-                delete ret.image;
-                delete ret.fanart;
-                delete ret.status;
-                delete ret.runtime;
-                delete ret.classification;
-                delete ret.type;
-
                 if(typeof(req.user) !== "undefined")
                     ret.loggedIn = "YEAH!!!";
                 
