@@ -10,7 +10,6 @@ var express = require('express')
   , user = require('./routes/user')
   , anime = require('./routes/anime')
   , episode = require('./routes/episode')
-  , search = require('./routes/search')
   , seenEpisode = require('./routes/userepisodes')
   , request = require('./routes/request')
   , options = require('./middleware/options')
@@ -45,7 +44,7 @@ app.configure('development', function(){
 
 app.get('/api/anime/:id', auth.token, anime.getById);
 app.get('/api/animeDetails/:id', anime.getDetailsById);
-app.get('/api/anime', anime.getBeetweenDates);
+app.get('/api/anime', anime.doSearch);
 app.get('/api/episodes/:id', episode.getById);
 app.get('/api/episodeDetails/:id', episode.getDetailsById);
 app.get('/api/episodes', episode.getByParams);
@@ -53,7 +52,6 @@ app.get('/api/users/:id', user.getById);
 app.get('/api/libraries/:id', user.getLibrary);
 app.get('/api/libraries', user.getLibrary);
 app.get('/api/users', user.list);
-app.get('/api/search', search.doSearch);
 app.get('/api/userEpisodes', seenEpisode.getFeed);
 app.get('/api/requests', request.getRequests);
 app.get('/api/request_types/:id', request.getRequestTypeById);
