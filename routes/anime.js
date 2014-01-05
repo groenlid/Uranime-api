@@ -23,6 +23,8 @@ module.exports = {
     getById: function(req, res){
         var id = req.params.id;
         db.models.Anime.find(id).success(function(anime){
+            if(anime == null)
+                return res.send(404, 'Sorry, we cannot find that!');
             res.send(addDetailsId(anime));
         });
     },
@@ -69,7 +71,10 @@ module.exports = {
 
 
         db.models.Anime.find({where: {id:id}, include:includeQuery}).success(function(anime){
-
+            
+            if(anime == null)
+                return res.send(404, 'Sorry, we cannot find that!');
+            
             // This can be replaced when https://github.com/sequelize/sequelize/issues/515 is fixed
             // https://github.com/sequelize/sequelize/issues/388
             
@@ -91,10 +96,10 @@ module.exports = {
 
             var getSeenEpisodes = function(anime){
                 var deferred = Q.defer();
-                    db.models.SeenEpisode.getByEpisodesWithUser(anime.episodes).success(function(seen){
-                        var seenProper = db.models.SeenEpisode.removePasswordEmailAddGravatarByArray(seen);
-                        deferred.resolve(seenProper);
-                    });
+                db.models.SeenEpisode.getByEpisodesWithUser(anime.episodes).success(function(seen){
+                    var seenProper = db.models.SeenEpisode.removePasswordEmailAddGravatarByArray(seen);
+                    deferred.resolve(seenProper);
+                });
                 return deferred.promise;
             };
             
@@ -109,6 +114,8 @@ module.exports = {
                     ret.loggedIn = "YEAH!!!";
                 
                 res.send(ret);
+            }, function(){
+                
             });
         });
     },
