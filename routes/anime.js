@@ -9,6 +9,16 @@ var addDetailsId = function(model){
     return json;
 };
 
+var convertConnectionAndSite = function(connection){
+    return {
+        id: connection.id,
+        source_id: connection.source_id,
+        site_id: connection.site_id,
+        site_name: connection.site.name,
+        link: connection.site.show_link_url + connection.source_id 
+    };
+};
+
 // Prototype the date object instead..
 var getDateThrowIfInvalid = function(param){
     var date = new Date(param);
@@ -32,8 +42,6 @@ module.exports = {
     getBetweenDates: function(req, res){
         var after  = req.query.after,
             before = req.query.before;   
-        
-        console.log(req.params);
 
         db.models.Episode.findAll({
             attributes: ['anime_id'],
@@ -94,6 +102,14 @@ module.exports = {
                 return deferred.promise;
             };
 
+            var getConnectionsAndSites = function(anime){
+                var deferred = Q.defer();
+                anime.getConnections({include:[db.models.Site]}).success(function(connections){
+                    deferred.resolve(connections);
+                });
+                return deferred.promise;
+            };
+
             var getSeenEpisodes = function(anime){
                 var deferred = Q.defer();
                 db.models.SeenEpisode.getByEpisodesWithUser(anime.episodes).success(function(seen){
@@ -103,11 +119,12 @@ module.exports = {
                 return deferred.promise;
             };
             
-            Q.all([getGenres(anime), getSeenEpisodes(anime), getSynonyms(anime)]).then(function(results){
+            Q.all([getGenres(anime), getSeenEpisodes(anime), getSynonyms(anime), getConnectionsAndSites(anime)]).then(function(results){
                 var ret = anime.toJSON();
                 ret.genres = results[0];
                 ret.seen = results[1];
                 ret.synonyms = results[2];
+                ret.connections = results[3].map(convertConnectionAndSite);
                 ret.episodes = anime.episodes.map(addDetailsId);
                 
                 if(typeof(req.user) !== "undefined")
@@ -137,13 +154,10 @@ module.exports = {
       var query = req.query, title = query.title, tag = query.tag, 
           after = query.after, before = query.before,
           publicMethods = module.exports;
-     
-      console.log(arguments); 
+      
       if(typeof title !== 'undefined')
         return publicMethods.getBySearchQuery(req,res);
-      console.log("1");
       if(typeof before !== 'undefined' || after !== 'undefined')
          return publicMethods.getBetweenDates(req,res);
-      console.log("2");
     }
 };

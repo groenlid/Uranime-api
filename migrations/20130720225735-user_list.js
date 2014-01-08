@@ -73,7 +73,8 @@ module.exports = {
 
 	// Migrate over the old data.
 	var migrateData = function(db){
-		db.query("SELECT * FROM user_watchlist").success(function(data){
+		var i = db.query("SELECT * FROM user_watchlist");
+        i.success(function(data){
 
 			var users = [];
 			
@@ -121,13 +122,18 @@ module.exports = {
 			});
 
 		});
-	}
+        return i;
+	};
 
-	createLists();
-	createListEntries();
-	migrateData(db);
-    removeWatchlist();
-    done()
+	createLists().success(function(){
+        createListEntries().success(function(){
+            migrateData(db).success(function(){
+                removeWatchlist();
+                done(); 
+            });    
+        });
+    })
+    
   },
   down: function(migration, DataTypes, done) {
   }

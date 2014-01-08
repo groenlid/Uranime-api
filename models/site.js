@@ -8,7 +8,7 @@ self = {
         name: Sequelize.STRING,
         description: Sequelize.TEXT,
         url: Sequelize.STRING,
-        link_id: Sequelize.STRING
+        show_link_url: Sequelize.STRING
     }
 };
 

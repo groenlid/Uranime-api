@@ -9,7 +9,7 @@ module.exports = function(db){
         Site = require('./site')(db),
         Request = require('./request')(db),
         RequestAttribute = require('./requestAttribute')(db),
-        RequestInfo = require('./requestInfo')(db),
+        Connection = require('./connection')(db),
         Token = require('./token')(db),
         ScrapeType = require('./scrapeType')(db);
 
@@ -19,6 +19,7 @@ module.exports = function(db){
     Anime
       .hasMany(Episode)
       .hasMany(Genre, {joinTableName:'anime_genre'})
+      .hasMany(Connection)
       .hasMany(Synonym);
 
     Episode
@@ -30,14 +31,16 @@ module.exports = function(db){
       .hasMany(Anime, {joinTableName:'anime_genre'});
 
     Request
-      .hasMany(RequestInfo);
+      .hasMany(Connection);
 
     RequestAttribute
-      .belongsTo(RequestInfo);
+      .belongsTo(Connection);
 
-    RequestInfo
-      .hasMany(RequestAttribute, {foreignKey: 'anime_request_scrape_info_id'})
-      .belongsTo(Request);
+    Connection
+      //.hasMany(RequestAttribute, {foreignKey: 'anime_request_scrape_info_id'})
+      .belongsTo(Request)
+      .belongsTo(Anime)
+      .belongsTo(Site);
 
     SeenEpisode
       .belongsTo(User)
@@ -63,7 +66,7 @@ module.exports = function(db){
     Site: Site,
     Request: Request,
     RequestAttribute: RequestAttribute,
-    RequestInfo: RequestInfo,
+    Connection: Connection,
     ScrapeType: ScrapeType,
     Token: Token
   };
