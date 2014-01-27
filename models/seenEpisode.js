@@ -32,7 +32,7 @@ self = {
             removePasswordEmailAddGravatarByArray: function(array){
                 var that = this,
                     result = [];
-
+                
                 array.forEach(function(item){
                     result.push(that.removePasswordEmailAddGravatar(item));
                 });

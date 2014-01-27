@@ -72,7 +72,11 @@ module.exports = {
     		request_id: {
     			type: DataTypes.INTEGER,
     			allowNull: true
-    		}
+    		},
+            episode_id: {
+                type: DataTypes.INTEGER,
+                allowNull: true
+            }
     	},{
     		timestamps: true,
     		paranoid: false,
@@ -129,7 +133,11 @@ module.exports = {
     		show_link_url: {
     			type: DataTypes.STRING,
     			allowNull: false
-    		}
+    		},
+            episode_link_url: {
+                type:DataTypes.STRING,
+                allowNull: true
+            }
     	}));
 
     	deferlist.push(migration.createTable('connectionAttributeTypes',
@@ -213,22 +221,24 @@ module.exports = {
                 {raw: true},
                 [siteMapping[row.scrape_source], row.scrape_id, row.anime_id])       
             )});
+            console.log("added row to deferlist");
             Q.all(deferlist).then(function(){
                 defer.resolve();
             })
         });
-        return defer;
+        return defer.promise;
     };
 
     Q.all(createTables()).then(function(){
         Q.all(addDefaultSites(db)).then(function(){
             moveFromScrapeInfoToNew(db).then(function(){
-                dropTable();        
-            })
+                dropTable();
+                done();     
+            });
         });
     });
     
-    //done()
+    
   },
   down: function(migration, DataTypes, done) {
     // add reverting commands here, calling 'done' when finished

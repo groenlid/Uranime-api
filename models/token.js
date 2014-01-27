@@ -7,7 +7,7 @@ self = {
     def: {
         token: Sequelize.STRING,
         createdAt: Sequelize.DATE,
-
+        user_id: Sequelize.INTEGER
     }
 };
 

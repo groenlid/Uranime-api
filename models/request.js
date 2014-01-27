@@ -14,5 +14,5 @@ self = {
 };
 
 module.exports = function(db){
-    return db.define('anime_request', self.def)
+    return db.define('requests', self.def)
 };

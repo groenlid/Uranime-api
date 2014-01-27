@@ -9,6 +9,23 @@ var addDetailsId = function(model){
     return json;
 };
 
+
+var addEpisodeSeenStatus = function(episode, userEpisodes){    
+    episode.seen = null;
+    
+    for (var i = userEpisodes.length - 1; i >= 0; i--) {
+        var userEpisode = userEpisodes[i];
+        if(episode.id !== userEpisode.episode_id)
+            continue;
+        episode.seen = true;
+        episode.seenAt = userEpisode.timestamp;
+        userEpisodes.splice(i,1);
+        break;
+    };
+    
+    return episode;
+};
+
 var convertConnectionAndSite = function(connection){
     return {
         id: connection.id,
@@ -71,12 +88,28 @@ module.exports = {
 
     getDetailsById: function(req, res){
         var id = req.params.id;
+        
+        var includeQuery = [db.models.Episode];
+        
+        /*if(typeof(req.user) === "undefined"){ 
         var includeQuery = [
-            db.models.Episode,
-            //db.models.Genre,
-            //db.models.Synonym
-        ];
-
+                db.models.Episode
+            ]
+        }
+        else{
+            includeQuery = [
+                {
+                    model: db.models.Episode, 
+                    include: [
+                        {
+                            model: db.models.SeenEpisode,
+                            where: {user_id: req.user.id},
+                            required: false
+                        }
+                    ]
+                }
+            ];    
+        }*/
 
         db.models.Anime.find({where: {id:id}, include:includeQuery}).success(function(anime){
             
@@ -118,8 +151,30 @@ module.exports = {
                 });
                 return deferred.promise;
             };
+
+            var getUserSeenEpisodes = function(anime){
+                var deferred = Q.defer();
+                if(typeof(req.user) === "undefined")
+                    deferred.resolve();
+                else{
+                    var ids = anime.episodes.map(function(e){
+                        return e.id;
+                    });
+                    db.models.SeenEpisode.findAll({where: {user_id:req.user.id, episode_id: ids}}).success(function(seen){
+                        deferred.resolve(seen);
+                    });
+                }
+                return deferred.promise;
+            };
             
-            Q.all([getGenres(anime), getSeenEpisodes(anime), getSynonyms(anime), getConnectionsAndSites(anime)]).then(function(results){
+            Q.all([
+                    getGenres(anime), 
+                    getSeenEpisodes(anime), 
+                    getSynonyms(anime), 
+                    getConnectionsAndSites(anime),
+                    getUserSeenEpisodes(anime)]
+                    ).then(function(results){
+
                 var ret = anime.toJSON();
                 ret.genres = results[0];
                 ret.seen = results[1];
@@ -127,12 +182,13 @@ module.exports = {
                 ret.connections = results[3].map(convertConnectionAndSite);
                 ret.episodes = anime.episodes.map(addDetailsId);
                 
-                if(typeof(req.user) !== "undefined")
-                    ret.loggedIn = "YEAH!!!";
-                
+                if(req.loggedIn){
+                    var loggedInUsersEpisodes = results[4];
+                    ret.episodes = ret.episodes.map(function(x){return addEpisodeSeenStatus(x,loggedInUsersEpisodes)});
+                }
                 res.send(ret);
             }, function(){
-                
+                res.send(500, "Oops, something went wrong");
             });
         });
     },

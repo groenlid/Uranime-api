@@ -24,6 +24,7 @@ module.exports = function(db){
 
     Episode
       .belongsTo(Anime)
+      .hasMany(Connection)
       //.hasMany(User, {joinTableName:'user_episodes'});
       .hasMany(SeenEpisode);
 
@@ -55,7 +56,7 @@ module.exports = function(db){
       .hasOne(Token, { foreignKey: 'user_id'});
 
     Token
-      .belongsTo(User);   
+      .belongsTo(User);
   return {
     Anime: Anime,
     Episode: Episode,
