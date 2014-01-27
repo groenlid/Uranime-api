@@ -1,7 +1,7 @@
 var crypto = require('crypto')
     , Q = require('q');
 
-var anime = {
+var moduleObject = {
 
     // TODO: Add as a sequelize instance method
     /**
@@ -60,20 +60,18 @@ var anime = {
      * GET anime listing by id
      */
     getById: function getById(req, res){
-        var id      = req.params.id,
-            that    = this;
+        var id      = req.params.id;
             
         db.models.Anime.find(id).success(function(anime){
             if(anime == null)
                 return res.send(404, 'Sorry, we cannot find that!');
-            res.send(that.addDetailsId(anime));
+            res.send(moduleObject.addDetailsId(anime));
         });
     },
 
     getBetweenDates: function getBetweenDates(req, res){
         var after   = req.query.after,
-            before  = req.query.before,
-            that    = this;   
+            before  = req.query.before;   
 
         db.models.Episode.findAll({
             attributes: ['anime_id'],
@@ -93,7 +91,7 @@ var anime = {
                     id: ids
                 }
             }).then(function(anime){
-                res.send(anime.map(that.addDetailsId));
+                res.send(anime.map(moduleObject.addDetailsId));
             }, function(){
                 res.send(400);
             });
@@ -103,8 +101,7 @@ var anime = {
     },
 
     getDetailsById: function getDetailsById(req, res){
-        var id              = req.params.id,
-            that            = this, 
+        var id              = req.params.id, 
             includeQuery    = [
                 db.models.Episode
             ];
@@ -171,12 +168,12 @@ var anime = {
                 ret.genres = results[0];
                 ret.seen = results[1];
                 ret.synonyms = results[2];
-                ret.connections = results[3].map(that.convertConnectionAndSite);
-                ret.episodes = anime.episodes.map(that.addDetailsId);
+                ret.connections = results[3].map(moduleObject.convertConnectionAndSite);
+                ret.episodes = anime.episodes.map(moduleObject.addDetailsId);
                 
                 if(req.loggedIn){
                     var loggedInUsersEpisodes = results[4];
-                    ret.episodes = ret.episodes.map(function(x){return addEpisodeSeenStatus(x,loggedInUsersEpisodes)});
+                    ret.episodes = ret.episodes.map(function(x){return moduleObject.addEpisodeSeenStatus(x,loggedInUsersEpisodes)});
                 }
                 res.send(ret);
             }, function(){
@@ -188,14 +185,13 @@ var anime = {
     getBySearchQuery: function getBySearchQuery(req, res){
       var includeQuery  = [db.models.Synonym],
           title         = req.query.title, 
-          titleLower    = title.toLowerCase(),
-          that          = this;
+          titleLower    = title.toLowerCase();
 
       db.models.Anime.findAll({
         where: ["lower(anime_synonyms.title) like ?", '%' + titleLower + '%'], 
         include:includeQuery
       }).success(function(anime){
-          res.send(anime.map(that.addDetailsId));
+          res.send(anime.map(moduleObject.addDetailsId));
       });
     },
 
@@ -207,14 +203,14 @@ var anime = {
             before  = query.before;
       
       if(typeof title !== 'undefined')
-        return this.getBySearchQuery(req,res);
+        return moduleObject.getBySearchQuery(req,res);
       if(typeof before !== 'undefined' || after !== 'undefined')
-         return this.getBetweenDates(req,res);
+         return moduleObject.getBetweenDates(req,res);
     }
 };
 
 module.exports = {  
-    getById: anime.getById,
-    getDetailsById: anime.getDetailsById,
-    doSearch: anime.doSearch
+    getById: moduleObject.getById,
+    getDetailsById: moduleObject.getDetailsById,
+    doSearch: moduleObject.doSearch
 };
