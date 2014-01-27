@@ -1,64 +1,79 @@
 var crypto = require('crypto')
     , Q = require('q');
 
+var anime = {
 
-// Add as a sequelize instance method
-var addDetailsId = function(model){
-    var json = model.toJSON();
-    json.details_id = model.id;
-    return json;
-};
+    // TODO: Add as a sequelize instance method
+    /**
+        Adds a attribute on the json object called details
+    */
+    addDetailsId: function addDetailsId(model){
+        var json = model.toJSON();
+        json.details_id = model.id;
+        return json;
+    },
 
+    // TODO: Add as sequelize instance method.
+    /**
+        Convert the sequelize connection with associatied sites
+        with a more api-friendly version.
+    */
+    convertConnectionAndSite: function convertConnectionAndSite(connection){
+        return {
+            id: connection.id,
+            source_id: connection.source_id,
+            site_id: connection.site_id,
+            site_name: connection.site.name,
+            link: connection.site.show_link_url + connection.source_id 
+        };
+    },
 
-var addEpisodeSeenStatus = function(episode, userEpisodes){    
-    episode.seen = null;
+    // TODO: Add as prototype method
+    /**
+        Takes a string and convert it to a date.
+        If the string is not a correct date object,
+        an error is thrown.
+    */
+    getDateThrowIfInvalid: function getDateThrowIfInvalid(param){
+        var date = new Date(param);
+        if(date.toString() === 'Invalid Date') return new Error('Invalid Date');
+        return date;
+    },
+
+	addEpisodeSeenStatus: function addEpisodeSeenStatus(episode, userEpisodes){    
+    	episode.seen = null;
     
-    for (var i = userEpisodes.length - 1; i >= 0; i--) {
-        var userEpisode = userEpisodes[i];
-        if(episode.id !== userEpisode.episode_id)
-            continue;
-        episode.seen = true;
-        episode.seenAt = userEpisode.timestamp;
-        userEpisodes.splice(i,1);
-        break;
-    };
+    	for (var i = userEpisodes.length - 1; i >= 0; i--) {
+        	var userEpisode = userEpisodes[i];
+        	if(episode.id !== userEpisode.episode_id)
+            	continue;
+        	episode.seen = true;
+        	episode.seenAt = userEpisode.timestamp;
+        	userEpisodes.splice(i,1);
+        	break;
+    	};
     
-    return episode;
-};
+    	return episode;
+	},
 
-var convertConnectionAndSite = function(connection){
-    return {
-        id: connection.id,
-        source_id: connection.source_id,
-        site_id: connection.site_id,
-        site_name: connection.site.name,
-        link: connection.site.show_link_url + connection.source_id 
-    };
-};
-
-// Prototype the date object instead..
-var getDateThrowIfInvalid = function(param){
-    var date = new Date(param);
-    if(date.toString() === 'Invalid Date') return new Error('Invalid Date');
-    return date;
-};
-
-module.exports = {
-    /*
-     * GET anime listing.
+    /**
+     * GET anime listing by id
      */
-    getById: function(req, res){
-        var id = req.params.id;
+    getById: function getById(req, res){
+        var id      = req.params.id,
+            that    = this;
+            
         db.models.Anime.find(id).success(function(anime){
             if(anime == null)
                 return res.send(404, 'Sorry, we cannot find that!');
-            res.send(addDetailsId(anime));
+            res.send(that.addDetailsId(anime));
         });
     },
 
-    getBetweenDates: function(req, res){
-        var after  = req.query.after,
-            before = req.query.before;   
+    getBetweenDates: function getBetweenDates(req, res){
+        var after   = req.query.after,
+            before  = req.query.before,
+            that    = this;   
 
         db.models.Episode.findAll({
             attributes: ['anime_id'],
@@ -69,6 +84,7 @@ module.exports = {
             },
             group: 'anime_id'
         }).then(function(episodes){
+            // TODO: Make this a prototype method of array.
             var ids = episodes.map(function(e){
                 return e.anime_id;
             });
@@ -77,7 +93,7 @@ module.exports = {
                     id: ids
                 }
             }).then(function(anime){
-                res.send(anime.map(addDetailsId));
+                res.send(anime.map(that.addDetailsId));
             }, function(){
                 res.send(400);
             });
@@ -86,30 +102,12 @@ module.exports = {
         });
     },
 
-    getDetailsById: function(req, res){
-        var id = req.params.id;
-        
-        var includeQuery = [db.models.Episode];
-        
-        /*if(typeof(req.user) === "undefined"){ 
-        var includeQuery = [
+    getDetailsById: function getDetailsById(req, res){
+        var id              = req.params.id,
+            that            = this, 
+            includeQuery    = [
                 db.models.Episode
-            ]
-        }
-        else{
-            includeQuery = [
-                {
-                    model: db.models.Episode, 
-                    include: [
-                        {
-                            model: db.models.SeenEpisode,
-                            where: {user_id: req.user.id},
-                            required: false
-                        }
-                    ]
-                }
-            ];    
-        }*/
+            ];
 
         db.models.Anime.find({where: {id:id}, include:includeQuery}).success(function(anime){
             
@@ -167,20 +165,14 @@ module.exports = {
                 return deferred.promise;
             };
             
-            Q.all([
-                    getGenres(anime), 
-                    getSeenEpisodes(anime), 
-                    getSynonyms(anime), 
-                    getConnectionsAndSites(anime),
-                    getUserSeenEpisodes(anime)]
-                    ).then(function(results){
-
+            // TODO: use Q.all with object instead of array.
+            Q.all([getGenres(anime), getSeenEpisodes(anime), getSynonyms(anime), getConnectionsAndSites(anime), getUserSeenEpisodes(anime)]).then(function(results){
                 var ret = anime.toJSON();
                 ret.genres = results[0];
                 ret.seen = results[1];
                 ret.synonyms = results[2];
-                ret.connections = results[3].map(convertConnectionAndSite);
-                ret.episodes = anime.episodes.map(addDetailsId);
+                ret.connections = results[3].map(that.convertConnectionAndSite);
+                ret.episodes = anime.episodes.map(that.addDetailsId);
                 
                 if(req.loggedIn){
                     var loggedInUsersEpisodes = results[4];
@@ -193,27 +185,36 @@ module.exports = {
         });
     },
 
-    getBySearchQuery: function(req, res){
-      var includeQuery = [db.models.Synonym],
-          title = req.query.title, 
-          titleLower = title.toLowerCase();
+    getBySearchQuery: function getBySearchQuery(req, res){
+      var includeQuery  = [db.models.Synonym],
+          title         = req.query.title, 
+          titleLower    = title.toLowerCase(),
+          that          = this;
 
       db.models.Anime.findAll({
         where: ["lower(anime_synonyms.title) like ?", '%' + titleLower + '%'], 
         include:includeQuery
       }).success(function(anime){
-          res.send(anime.map(addDetailsId));
+          res.send(anime.map(that.addDetailsId));
       });
     },
 
-    doSearch: function(req, res){
-      var query = req.query, title = query.title, tag = query.tag, 
-          after = query.after, before = query.before,
-          publicMethods = module.exports;
+    doSearch: function doSearch(req, res){
+        var query   = req.query, 
+            title   = query.title, 
+            tag     = query.tag, 
+            after   = query.after, 
+            before  = query.before;
       
       if(typeof title !== 'undefined')
-        return publicMethods.getBySearchQuery(req,res);
+        return this.getBySearchQuery(req,res);
       if(typeof before !== 'undefined' || after !== 'undefined')
-         return publicMethods.getBetweenDates(req,res);
+         return this.getBetweenDates(req,res);
     }
+};
+
+module.exports = {  
+    getById: anime.getById,
+    getDetailsById: anime.getDetailsById,
+    doSearch: anime.doSearch
 };
