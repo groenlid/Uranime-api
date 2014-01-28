@@ -12,7 +12,7 @@ module.exports = {
                 }).then(done);
 
       // Scramble the passwords
-      db.query('UPDATE users SET password="?"', null, {raw:true}, [1]));
+      db.query('UPDATE users SET password="?"', null, {raw:true}, [1]);
 
   },
   down: function(migration, DataTypes, done) {
