@@ -239,7 +239,7 @@ module.exports = {
                 {raw: true},
                 [siteMapping[row.scrape_source], row.scrape_id, row.anime_id])       
             )});
-
+            
             manuelEpisodeList.forEach(function(row){
                 deferlist.push(db.query('INSERT INTO connections (`site_id`,`source_id`,`episode_id`) VALUES(?,?,?)', null, {raw:true}, row));
             });
