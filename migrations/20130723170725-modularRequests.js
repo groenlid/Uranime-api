@@ -165,10 +165,10 @@ module.exports = {
     
     var addDefaultSites = function(db){
         var sites = [
-            ['1', 'aniDB', 'AniDB stands for Anime DataBase. AniDB is a non-profit anime database that is open freely to the public.', 'http://anidb.net','http://anidb.net/perl-bin/animedb.pl?show=anime&aid='],
-            ['2', 'myanimelist', 'MyAnimeList.net was created by an anime fan, for anime fans. It was designed from the ground up to give the user a quick and no-hassle way to catalog their anime or manga collection. Over 40,000 users sign in every day to help build the world\'s largest social anime and manga database and community.', 'http://myanimelist.net', 'http://myanimelist.net/anime/'],
-            ['3', 'TheTVDB.com', 'TheTVDB is an open database that can be modified by anybody.', 'http://thetvdb.com', 'http://thetvdb.com/?tab=series&id='],
-            ['4', 'themoviedb.org', 'themoviedb.org is a free and community maintained movie database.','http://themoviedb.org', 'http://www.themoviedb.org/movie/']
+            ['1', 'aniDB', 'AniDB stands for Anime DataBase. AniDB is a non-profit anime database that is open freely to the public.', 'http://anidb.net','http://anidb.net/perl-bin/animedb.pl?show=anime&aid=','http://anidb.net/perl-bin/animedb.pl?show=ep&eid='],
+            ['2', 'myanimelist', 'MyAnimeList.net was created by an anime fan, for anime fans. It was designed from the ground up to give the user a quick and no-hassle way to catalog their anime or manga collection. Over 40,000 users sign in every day to help build the world\'s largest social anime and manga database and community.', 'http://myanimelist.net', 'http://myanimelist.net/anime/',''],
+            ['3', 'TheTVDB.com', 'TheTVDB is an open database that can be modified by anybody.', 'http://thetvdb.com', 'http://thetvdb.com/?tab=series&id=',''],
+            ['4', 'themoviedb.org', 'themoviedb.org is a free and community maintained movie database.','http://themoviedb.org', 'http://www.themoviedb.org/movie/','']
         ];
 
         /*var connectiontypes = [
@@ -179,7 +179,7 @@ module.exports = {
         var deferList = [];
         sites.forEach(function(site){
             deferList.push(db.query(
-                'INSERT INTO sites (`id`,`name`, `description`, `url`, `show_link_url`) VALUES (?,?,?,?,?)', 
+                'INSERT INTO sites (`id`,`name`, `description`, `url`, `show_link_url`, `episode_link_url`) VALUES (?,?,?,?,?,?)', 
                 null, 
                 {raw:true}, 
                 site
@@ -212,6 +212,24 @@ module.exports = {
             'Information': 3
         };
 
+        var manuelEpisodeList = [
+            ['1', '154841', '29656'],
+            ['1', '154852', '29657'],
+            ['1', '155102', '29658'],
+            ['1', '155101', '29664'],
+            ['1', '155965', '29663'],
+            ['1', '155965', '29976'],
+            ['1', '156033', '30072'],
+            ['1', '156306', '30117'],
+            ['1', '156460', '30150'],
+            ['1', '156461', '30178'],
+            ['1', '156625', '30242'],
+            ['1', '156733', '30282'],
+            ['1', '156825', '30328'],
+            ['1', '157097', '30426'],
+            ['1', '157365', '30739']
+        ];
+
         var defer = Q.defer();
         db.query('SELECT * FROM scrape_info').success(function(data){
             var deferlist = [];
@@ -221,7 +239,11 @@ module.exports = {
                 {raw: true},
                 [siteMapping[row.scrape_source], row.scrape_id, row.anime_id])       
             )});
-            console.log("added row to deferlist");
+
+            manuelEpisodeList.forEach(function(row){
+                deferlist.push(db.query('INSERT INTO connections (`site_id`,`source_id`,`episode_id`) VALUES(?,?,?)', null, {raw:true}, row));
+            });
+            
             Q.all(deferlist).then(function(){
                 defer.resolve();
             })

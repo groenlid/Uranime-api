@@ -11,9 +11,17 @@ self = {
         number: Sequelize.INTEGER,
         special: Sequelize.BOOLEAN,
         aired: Sequelize.DATE
+    },
+    expansion: {
+    	classMethods: {
+    		
+  		},
+  		instanceMethods: {
+    		
+  		}
     }
 };
 
 module.exports = function(db){
-    return db.define('episodes', self.def);
+    return db.define('episodes', self.def, self.expansion);
 };

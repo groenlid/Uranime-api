@@ -3,7 +3,7 @@ var crypto = require('crypto')
 
 var moduleObject = {
 
-    // TODO: Add as a sequelize instance method
+    // TODO: Add as a sequelize instance method. Maybe overwrite toJSON();
     /**
         Adds a attribute on the json object called details
     */
@@ -11,6 +11,13 @@ var moduleObject = {
         var json = model.toJSON();
         json.details_id = model.id;
         return json;
+    },
+
+    addDetailsIdAndPrepareConnection: function addDetailsIdAndPrepareConnection(model){
+        console.log(model);
+        var modelWithId = moduleObject.addDetailsId(model);
+        modelWithId.connections = modelWithId.connections.map(moduleObject.convertConnectionAndSite);
+        return modelWithId;
     },
 
     // TODO: Add as sequelize instance method.
@@ -24,7 +31,9 @@ var moduleObject = {
             source_id: connection.source_id,
             site_id: connection.site_id,
             site_name: connection.site.name,
-            link: connection.site.show_link_url + connection.source_id 
+            link: connection.episode_id == null ? 
+                    connection.site.show_link_url + connection.source_id :
+                    connection.site.episode_link_url + connection.source_id
         };
     },
 
@@ -103,7 +112,17 @@ var moduleObject = {
     getDetailsById: function getDetailsById(req, res){
         var id              = req.params.id, 
             includeQuery    = [
-                db.models.Episode
+                { 
+                    model: db.models.Episode, 
+                    include: [
+                        { 
+                            model:db.models.Connection, 
+                            include: [
+                                db.models.Site
+                            ]
+                        }
+                    ]
+                }
             ];
 
         db.models.Anime.find({where: {id:id}, include:includeQuery}).success(function(anime){
@@ -169,8 +188,8 @@ var moduleObject = {
                 ret.seen = results[1];
                 ret.synonyms = results[2];
                 ret.connections = results[3].map(moduleObject.convertConnectionAndSite);
-                ret.episodes = anime.episodes.map(moduleObject.addDetailsId);
-                
+                ret.episodes = anime.episodes.map(moduleObject.addDetailsIdAndPrepareConnection);
+
                 if(req.loggedIn){
                     var loggedInUsersEpisodes = results[4];
                     ret.episodes = ret.episodes.map(function(x){return moduleObject.addEpisodeSeenStatus(x,loggedInUsersEpisodes)});
