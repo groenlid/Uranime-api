@@ -2,63 +2,68 @@
 /*
  * GET users listing.
  */
+var moduleObject = {
 
-function getUserById(res, id, includeLibrary){
-  db.models.User.find(id).success(function(user){
-    user.getUserEpisodes({limit:10, order: 'id DESC'}).success(function(seen){
-      var ret = user.prepared();
+  /**
+    Lists up the users
+    */
+  list: function list(req, res){
+    res.send('respond with resources');
+  },
 
-      ret.userEpisodes = seen.map(function(item){
-        var item = item.toJSON();  
-        
-        return item;
-      });
-      res.send(ret);
+  getLibrary: function getLibrary(req, res){
+    var userid = (req.query.user_id !== null) ? 
+        req.query.user_id :
+        req.params.id;
+    moduleObject._getUserLibrary(res, userid);
+  },
+
+  getById: function getById(req, res){
+    moduleObject._getUserById(res, req.params.id);
+  },
+
+  _getUserLibrary: function _getUserLibrary(res, id){
+    var sql = "SELECT ue.user_id as user_id, "+
+                "ep.anime_id as anime_id, "+
+                "ep2.tot as total, "+
+                "MAX(ue.timestamp) as last_seen, " +
+                "COUNT(ep.id) as progress " +
+              "FROM episodes ep, user_episodes ue, ( "+
+                "SELECT e.anime_id as anime_id, COUNT(e.id) as tot " +
+                "FROM episodes e " +
+                "GROUP BY e.anime_id " +
+              ") as ep2 " +
+              "WHERE ep.id = ue.episode_id " +
+                "AND ep2.anime_id = ep.anime_id " +
+                "AND ue.user_id = ? " +
+              "GROUP BY ue.user_id, ep.anime_id;";
+      db.client.query(sql, null, {raw:true}, [id]).success(function(result){
+        res.send(result.map(moduleObject._createUserLibraryItemId));
     });
-  });
+  },
 
+  _createUserLibraryItemId: function _createUserLibraryItemId(libraryItem){
+    libraryItem.id = util.format('%s-%s', item.user_id, item.anime_id);
+    return libraryItem;
+  },
+
+  _getUserById: function _getUserById(res, id){
+    db.models.User.find(id).success(function(user){
+      user.getUserEpisodes({limit:10, order: 'id DESC'}).success(function(seen){
+        var ret = user.prepared();
+
+        ret.userEpisodes = seen;
+        res.send(ret);
+      });
+    });
+  }
 };
 
-function getUserLibrary(res, id){
-  var sql = "SELECT ue.user_id as user_id, "+
-              "ep.anime_id as anime_id, "+
-              "ep2.tot as total, "+
-              "MAX(ue.timestamp) as last_seen, " +
-              "COUNT(ep.id) as progress " +
-            "FROM episodes ep, user_episodes ue, ( "+
-              "SELECT e.anime_id as anime_id, COUNT(e.id) as tot " +
-              "FROM episodes e " +
-              "GROUP BY e.anime_id " +
-            ") as ep2 " +
-            "WHERE ep.id = ue.episode_id " +
-              "AND ep2.anime_id = ep.anime_id " +
-              "AND ue.user_id = ? " +
-            "GROUP BY ue.user_id, ep.anime_id;";
-    db.client.query(sql, null, {raw:true}, [id]).success(function(result){
-        var ret = result.map(function(item){
-            item.id     = item.user_id + '-' + item.anime_id;
-
-            return item; 
-        });
-      res.send(ret);
-  });
-}
-
-exports.list = function(req, res){
-  res.send("respond with a resource");
+module.exports = {
+  list: moduleObject.list,
+  getLibrary: moduleObject.getLibrary,
+  getById: moduleObject.getById
 };
-
-exports.getLibrary = function(req, res){
-  var userid = (req.query.user_id != null) ? 
-      req.query.user_id :
-      req.params.id;
-  getUserLibrary(res, userid);
-};
-
-exports.getById = function(req, res){
-  getUserById(res, req.params.id);
-};
-
 
 /*
 {
