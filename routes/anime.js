@@ -217,11 +217,11 @@ var moduleObject = {
     getByConnection: function getByConnection(req, res){
         var query           = req.query,
             source_id       = query.source_id,
-            site            = query.site,
+            site            = query.site_id,
             includeQuery    = [
                 { 
                     model: db.models.Connection,
-                    where: { source_id:source_id },
+                    where: { source_id:source_id, site_id: site },
                     include: [db.models.Site]
                 }
             ];
@@ -237,7 +237,7 @@ var moduleObject = {
             tag         = query.tag, 
             after       = query.after, 
             before      = query.before,
-            site        = query.site,
+            site        = query.site_id,
             source_id   = query.source_id;
       
         if(typeof title !== 'undefined')
@@ -246,6 +246,7 @@ var moduleObject = {
             return moduleObject.getBetweenDates(req,res);
         if(typeof site !== 'undefined' && source_id !== 'undefined')
             return moduleObject.getByConnection(req, res);
+        return res.send(400);
     }
 };
 
