@@ -214,17 +214,38 @@ var moduleObject = {
       });
     },
 
+    getByConnection: function getByConnection(req, res){
+        var query           = req.query,
+            source_id       = query.source_id,
+            site            = query.site,
+            includeQuery    = [
+                { 
+                    model: db.models.Connection,
+                    where: { source_id:source_id },
+                    include: [db.models.Site]
+                }
+            ];
+
+        db.models.Anime.findAll({include: includeQuery}).success(function(anime){
+            res.send(anime.map(moduleObject.addDetailsIdAndPrepareConnection));
+        })
+    },
+
     doSearch: function doSearch(req, res){
-        var query   = req.query, 
-            title   = query.title, 
-            tag     = query.tag, 
-            after   = query.after, 
-            before  = query.before;
+        var query       = req.query, 
+            title       = query.title, 
+            tag         = query.tag, 
+            after       = query.after, 
+            before      = query.before,
+            site        = query.site,
+            source_id   = query.source_id;
       
-      if(typeof title !== 'undefined')
-        return moduleObject.getBySearchQuery(req,res);
-      if(typeof before !== 'undefined' || after !== 'undefined')
-         return moduleObject.getBetweenDates(req,res);
+        if(typeof title !== 'undefined')
+            return moduleObject.getBySearchQuery(req,res);
+        if(typeof before !== 'undefined' && after !== 'undefined')
+            return moduleObject.getBetweenDates(req,res);
+        if(typeof site !== 'undefined' && source_id !== 'undefined')
+            return moduleObject.getByConnection(req, res);
     }
 };
 

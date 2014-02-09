@@ -14,7 +14,8 @@ var moduleObject = {
                 ret.push(seenEpisode);
             });
             res.send(ret);
-    })
+        })
+    }
     
 };
 

@@ -26,6 +26,7 @@ GLOBAL.db = require('./database')(config.development);
 
 // Middlewares
 app.use(options);
+app.use(auth.addCheckToken);
 
 app.configure(function(){
     app.set('port', process.env.PORT || 3000);

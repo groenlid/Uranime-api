@@ -1,4 +1,5 @@
-
+var util = require('util')
+   , Q = require('q');
 /*
  * GET users listing.
  */
@@ -43,7 +44,7 @@ var moduleObject = {
   },
 
   _createUserLibraryItemId: function _createUserLibraryItemId(libraryItem){
-    libraryItem.id = util.format('%s-%s', item.user_id, item.anime_id);
+    libraryItem.id = util.format('%s-%s', libraryItem.user_id, libraryItem.anime_id);
     return libraryItem;
   },
 

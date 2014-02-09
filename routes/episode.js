@@ -44,23 +44,55 @@ exports.getDetailsById = function(req, res){
 };
 
 exports.putEpisode = function(req, res){
-  var episode = req.body;
+  var episode = req.body, criteria;
 
-  
+  console.dir(episode);
 
-  // Check if the user has seen the episode before.
+  if(!episode.hasOwnProperty('id'))
+    episode.id = req.params.id;
 
-    // If not, register it as seen with timestamp now
+  criteria = { user_id: req.user.id, episode_id: episode.id };
+
+  // Check if the user is allowed to do anything else than mark it as seen
+
+  db.models.SeenEpisode.find({where: criteria}).success(function(seenEpisode){
+    var watched = episode.seen;
+
+    // Check if the user has seen the episode before.
+    if(seenEpisode === null && watched){
+      // If not, register it as seen with timestamp now
+      db.models.SeenEpisode.create(criteria).success(function(savedRow){
+        episode.seenAt = savedRow.timestamp;
+        res.send(episode);
+      });
+    }
+    else if(seenEpisode !== null && !watched){
+      // Remove the user seen episode
+      seenEpisode.destroy().success(function(){
+        episode.seenAt = null;
+        res.send(episode);
+      });
+    }
 
     // Return the episode back to the user.
-
-  res.send(episode);
+  });
 };
 
 exports.getById = function(req, res){
-    db.models.Episode.find(req.params.id).success(function(episode){
+  var include = req.loggedIn ? 
+    {
+      model: db.models.SeenEpisode,
+      where: {
+        user_id:req.user.id
+      }
+    } : 
+    {
+    };
+
+    db.models.Episode.find(req.params.id, {include: include}).success(function(episode){
         if(episode == null)
           return res.send(404, 'Sorry, we cannot find that!');
+        
         // TODO: Check if user is logged inn and add seen status.
         res.send(addDetailsId(episode));
     });

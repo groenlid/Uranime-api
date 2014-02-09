@@ -46,8 +46,12 @@ var moduleObject = {
         return deferred.promise;
     },
 
+    addCheckToken: function addCheckTokenMethod(req, res, next){
+        req.checkToken = moduleObject.checkToken;
+        next();
+    },
+
     tokenAuthentication: function tokenAuthentication(req, res, next) {
-        
         moduleObject.checkToken(req).then(function(user){
             req.user = user;
             req.loggedIn = true;
@@ -79,5 +83,6 @@ var moduleObject = {
 // Simple middleware the adds the user to the req if token is correct.
 module.exports = {
     token: moduleObject.tokenAuthentication,
-    tokenRequired: moduleObject.tokenAuthenticationRequired
+    tokenRequired: moduleObject.tokenAuthenticationRequired,
+    addCheckToken: moduleObject.addCheckToken
 };

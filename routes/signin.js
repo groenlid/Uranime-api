@@ -107,6 +107,17 @@ var moduleObject = {
             pass    = req.param('password'),
             token   = req.param('auth_token');
         
+        if(typeof token !== "undefined"){
+            return req.checkToken(req, token).then(function(user){
+                res.send({
+                    user_id: user.id,
+                    auth_token: token
+                });
+            }, function(){
+                res.send(401, loginFailureMessage);
+            });
+        }
+
         moduleObject.checkCredentials(email, pass).then(function(user){
             // Generate or send user the old token
             user.getToken().then(function(dbtoken){
