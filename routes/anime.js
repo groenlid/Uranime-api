@@ -14,7 +14,6 @@ var moduleObject = {
     },
 
     addDetailsIdAndPrepareConnection: function addDetailsIdAndPrepareConnection(model){
-        console.log(model);
         var modelWithId = moduleObject.addDetailsId(model);
         modelWithId.connections = modelWithId.connections.map(moduleObject.convertConnectionAndSite);
         return modelWithId;
@@ -222,7 +221,7 @@ var moduleObject = {
                 { 
                     model: db.models.Connection,
                     where: { source_id:source_id, site_id: site },
-                    include: [db.models.Site]
+                    include: [ db.models.Site ]
                 }
             ];
 
