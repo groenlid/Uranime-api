@@ -69,8 +69,8 @@ var moduleObject = {
      */
     getById: function getById(req, res){
         var id      = req.params.id;
-            
-        db.models.Anime.find(id).success(function(anime){
+    
+        req.db.models.Anime.find(id).success(function(anime){
             if(anime == null)
                 return res.send(404, 'Sorry, we cannot find that!');
             res.send(moduleObject.addDetailsId(anime));
@@ -79,9 +79,10 @@ var moduleObject = {
 
     getBetweenDates: function getBetweenDates(req, res){
         var after   = req.query.after,
-            before  = req.query.before;   
+            before  = req.query.before,
+            models  = req.db.models;   
 
-        db.models.Episode.findAll({
+        models.Episode.findAll({
             attributes: ['anime_id'],
             where: {
                 aired: {
@@ -94,7 +95,7 @@ var moduleObject = {
             var ids = episodes.map(function(e){
                 return e.anime_id;
             });
-            db.models.Anime.findAll({
+            models.Anime.findAll({
                 where: {
                     id: ids
                 }
@@ -110,21 +111,22 @@ var moduleObject = {
 
     getDetailsById: function getDetailsById(req, res){
         var id              = req.params.id, 
+            models          = req.db.models, 
             includeQuery    = [
                 { 
-                    model: db.models.Episode, 
+                    model: models.Episode, 
                     include: [
                         { 
-                            model:db.models.Connection, 
+                            model:models.Connection, 
                             include: [
-                                db.models.Site
+                                models.Site
                             ]
                         }
                     ]
                 }
             ];
 
-        db.models.Anime.find({where: {id:id}, include:includeQuery}).success(function(anime){
+        models.Anime.find({where: {id:id}, include:includeQuery}).success(function(anime){
             
             if(anime == null)
                 return res.send(404, 'Sorry, we cannot find that!');
@@ -150,7 +152,7 @@ var moduleObject = {
 
             var getConnectionsAndSites = function(anime){
                 var deferred = Q.defer();
-                anime.getConnections({include:[db.models.Site]}).success(function(connections){
+                anime.getConnections({include:[models.Site]}).success(function(connections){
                     deferred.resolve(connections);
                 });
                 return deferred.promise;
@@ -158,8 +160,8 @@ var moduleObject = {
 
             var getSeenEpisodes = function(anime){
                 var deferred = Q.defer();
-                db.models.SeenEpisode.getByEpisodesWithUser(anime.episodes).success(function(seen){
-                    var seenProper = db.models.SeenEpisode.removePasswordEmailAddGravatarByArray(seen);
+                models.SeenEpisode.getByEpisodesWithUser(anime.episodes).success(function(seen){
+                    var seenProper = models.SeenEpisode.removePasswordEmailAddGravatarByArray(seen);
                     deferred.resolve(seenProper);
                 });
                 return deferred.promise;
@@ -173,7 +175,7 @@ var moduleObject = {
                     var ids = anime.episodes.map(function(e){
                         return e.id;
                     });
-                    db.models.SeenEpisode.findAll({where: {user_id:req.user.id, episode_id: ids}}).success(function(seen){
+                    models.SeenEpisode.findAll({where: {user_id:req.user.id, episode_id: ids}}).success(function(seen){
                         deferred.resolve(seen);
                     });
                 }
@@ -201,11 +203,11 @@ var moduleObject = {
     },
 
     getBySearchQuery: function getBySearchQuery(req, res){
-      var includeQuery  = [db.models.Synonym],
+      var includeQuery  = [models.Synonym],
           title         = req.query.title, 
           titleLower    = title.toLowerCase();
 
-      db.models.Anime.findAll({
+      models.Anime.findAll({
         where: ["lower(anime_synonyms.title) like ?", '%' + titleLower + '%'], 
         include:includeQuery
       }).success(function(anime){
@@ -219,13 +221,13 @@ var moduleObject = {
             site            = query.site_id,
             includeQuery    = [
                 { 
-                    model: db.models.Connection,
+                    model: models.Connection,
                     where: { source_id:source_id, site_id: site },
-                    include: [ db.models.Site ]
+                    include: [ models.Site ]
                 }
             ];
 
-        db.models.Anime.findAll({include: includeQuery}).success(function(anime){
+        models.Anime.findAll({include: includeQuery}).success(function(anime){
             res.send(anime.map(moduleObject.addDetailsIdAndPrepareConnection));
         })
     },

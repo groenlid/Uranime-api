@@ -14,8 +14,9 @@ var express = require('express')
   , request = require('./routes/request')
   , http = require('http')
   , path = require('path')
+  , consts = require('constants')
   , db = require('./database')(config.development)
-  , middleware = require('./middleware')(db);
+  , middleware = require('./middleware')(db, consts);
 
 /**
  * Database and authorization setup.
@@ -23,8 +24,13 @@ var express = require('express')
 
 GLOBAL.app = express();
 
+// Constants
+app.locals(consts);
+
 // Middlewares
 app.use(middleware.options);
+app.use(middleware.appendconstants);
+app.use(middleware.appenddb);
 app.use(middleware.auth.addCheckToken);
 
 app.configure(function(){

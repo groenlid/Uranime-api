@@ -2,6 +2,7 @@
 var   crypto = require('crypto')
     , bcrypt = require('bcrypt')
     , Q = require('q')
+    , consts = require('constants')
     , loginFailureMessage = {Error: "Wrong username or password"};
 
 var moduleObject = {
