@@ -9,6 +9,7 @@ var moduleObject = {
 
     checkToken: function checkToken(req, tokenOverride){
         var deferred = Q.defer(),
+            db = req.db,
             tokenPrepend = 'Auth-Token ';
 
         // Check if the authentication header is correct formatted
