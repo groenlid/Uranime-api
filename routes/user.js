@@ -16,14 +16,14 @@ var moduleObject = {
     var userid = (req.query.user_id !== null) ? 
         req.query.user_id :
         req.params.id;
-    moduleObject._getUserLibrary(res, userid);
+    moduleObject._getUserLibrary(req.db, res, userid);
   },
 
   getById: function getById(req, res){
-    moduleObject._getUserById(res, req.params.id);
+    moduleObject._getUserById(req, res, req.params.id);
   },
 
-  _getUserLibrary: function _getUserLibrary(res, id){
+  _getUserLibrary: function _getUserLibrary(db, res, id){
     var sql = "SELECT ue.user_id as user_id, "+
                 "ep.anime_id as anime_id, "+
                 "ep2.tot as total, "+
@@ -48,8 +48,8 @@ var moduleObject = {
     return libraryItem;
   },
 
-  _getUserById: function _getUserById(res, id){
-    db.models.User.find(id).success(function(user){
+  _getUserById: function _getUserById(req, res, id){
+    req.db.models.User.find(id).success(function(user){
       user.getUserEpisodes({limit:10, order: 'id DESC'}).success(function(seen){
         var ret = user.prepared();
 

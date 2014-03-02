@@ -21,6 +21,7 @@ var convertConnectionAndSite = function(connection){
 exports.getDetailsById = function(req, res){
   
   var id = req.params.id,
+      db = req.db,
       includeQuery = [
         db.models.SeenEpisode,
         {
@@ -44,7 +45,8 @@ exports.getDetailsById = function(req, res){
 };
 
 exports.putEpisode = function(req, res){
-  var episode = req.body, criteria;
+  var db      = req.db,
+      episode = req.body, criteria;
 
   console.dir(episode);
 
@@ -79,15 +81,16 @@ exports.putEpisode = function(req, res){
 };
 
 exports.getById = function(req, res){
-  var include = req.loggedIn ? 
-    {
-      model: db.models.SeenEpisode,
-      where: {
-        user_id:req.user.id
-      }
-    } : 
-    {
-    };
+  var db      = req.db,
+      include = req.loggedIn ? 
+      {
+        model: db.models.SeenEpisode,
+        where: {
+          user_id:req.user.id
+        }
+      } 
+      : 
+      {};
 
     db.models.Episode.find(req.params.id, {include: include}).success(function(episode){
         if(episode == null)
@@ -98,8 +101,9 @@ exports.getById = function(req, res){
     });
 };
 
-function getEpisodeByWeek(date, res){
-  var query = "episodes.aired BETWEEN DATE_ADD(?, INTERVAL(1 - DAYOFWEEK(?)) DAY) " +
+function getEpisodeByWeek(req, date, res){
+  var db    = req.db,
+      query = "episodes.aired BETWEEN DATE_ADD(?, INTERVAL(1 - DAYOFWEEK(?)) DAY) " +
               " AND DATE_ADD(?, INTERVAL(7 - DAYOFWEEK(?)) DAY) AND episodes.aired IS NOT NULL" 
 
   var r = db.models.Episode.findAll({where: [query, date, date, date, date]}).success(function(episodes){
@@ -109,6 +113,6 @@ function getEpisodeByWeek(date, res){
 
 exports.getByParams = function(req, res){
   if(req.query.week){
-    getEpisodeByWeek(req.query.week, res);
+    getEpisodeByWeek(req, req.query.week, res);
   }
 };

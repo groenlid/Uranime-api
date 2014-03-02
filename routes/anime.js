@@ -110,8 +110,9 @@ var moduleObject = {
     },
 
     getDetailsById: function getDetailsById(req, res){
-        var id              = req.params.id, 
-            models          = req.db.models, 
+        var id              = req.params.id,
+            db              = req.db, 
+            models          = db.models, 
             includeQuery    = [
                 { 
                     model: models.Episode, 
@@ -160,7 +161,7 @@ var moduleObject = {
 
             var getSeenEpisodes = function(anime){
                 var deferred = Q.defer();
-                models.SeenEpisode.getByEpisodesWithUser(anime.episodes).success(function(seen){
+                models.SeenEpisode.getByEpisodesWithUser(db, anime.episodes).success(function(seen){
                     var seenProper = models.SeenEpisode.removePasswordEmailAddGravatarByArray(seen);
                     deferred.resolve(seenProper);
                 });
@@ -169,7 +170,7 @@ var moduleObject = {
 
             var getUserSeenEpisodes = function(anime){
                 var deferred = Q.defer();
-                if(typeof(req.user) === "undefined")
+                if(!req.loggedIn)
                     deferred.resolve();
                 else{
                     var ids = anime.episodes.map(function(e){
@@ -203,7 +204,9 @@ var moduleObject = {
     },
 
     getBySearchQuery: function getBySearchQuery(req, res){
-      var includeQuery  = [models.Synonym],
+      var db            = req.db,
+          models        = db.models,
+          includeQuery  = [models.Synonym],
           title         = req.query.title, 
           titleLower    = title.toLowerCase();
 

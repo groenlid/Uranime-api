@@ -12,7 +12,7 @@ self = {
 
     methods: {
         classMethods: {
-            getByEpisodesWithUser: function(episodes){
+            getByEpisodesWithUser: function(db, episodes){
                 var query, ids = function(array){
                     var r = [];
                     for(var i = 0; i < array.length; i++)

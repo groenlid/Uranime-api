@@ -6,7 +6,7 @@ var moduleObject = {
      */
     getFeed: function getFeed(req, res){
       // Simple first.. Get last 10 seen episodes..
-        db.models.SeenEpisode.findAll({limit:10, order: 'id DESC'}).success(function(seenEpisodes){
+        req.db.models.SeenEpisode.findAll({limit:10, order: 'id DESC'}).success(function(seenEpisodes){
             var ret = [];
 
             seenEpisodes.forEach(function(seenEpisode, i){

@@ -21,7 +21,7 @@ var moduleObject = {
      * @param clearText the user's cleartext password
      * @param callback the callback function for use with async
      */
-    convertPassword: function convertPassword(user, clearText){
+    convertPassword: function convertPassword(db, user, clearText){
         var salt_rounds = db.options.salt_rounds, deferred = Q.defer();
         bcrypt.hash(clearText, salt_rounds, function(err, hash) {
             // Store hash in your password DB.
@@ -36,7 +36,7 @@ var moduleObject = {
         return deferred.promise;
     },
 
-    findUser: function findUser(username){
+    findUser: function findUser(db,username){
         var deferred = Q.defer();
         db.models.User.find({where: {email: username} }).success(function (user) {
             if(user == null)
@@ -47,7 +47,7 @@ var moduleObject = {
         return deferred.promise;
     },
 
-    checkPassword: function checkPassword(user, clearText){
+    checkPassword: function checkPassword(db, user, clearText){
         var clearSalt = db.options.salt + clearText,
             shasum, deferred = Q.defer();
         // Check if the user uses the old password format
@@ -76,18 +76,18 @@ var moduleObject = {
         return deferred.promise;
     },
 
-    checkCredentials: function checkCredentials(username, password) {
+    checkCredentials: function checkCredentials(db, username, password) {
         var deferred = Q.defer();
         // Find the user
-        moduleObject.findUser(username).then(function(user){
+        moduleObject.findUser(db, username).then(function(user){
             // Check the password
-            moduleObject.checkPassword(user, password).then(function(user){
+            moduleObject.checkPassword(db, user, password).then(function(user){
                 // convert password if needed,
                 if(user.pw_version == 2){
                     deferred.resolve(user);
                     return deferred.promise;
                 }
-                moduleObject.convertPassword(user, password).then(function(user){
+                moduleObject.convertPassword(db, user, password).then(function(user){
                     deferred.resolve(user);
                 }, function(){
                     deferred.reject();
@@ -103,7 +103,8 @@ var moduleObject = {
     },
 
     signin: function signin(req, res){
-        var email   = req.param('email'),
+        var db      = req.db,
+            email   = req.param('email'),
             pass    = req.param('password'),
             token   = req.param('auth_token');
         
@@ -118,7 +119,7 @@ var moduleObject = {
             });
         }
 
-        moduleObject.checkCredentials(email, pass).then(function(user){
+        moduleObject.checkCredentials(db, email, pass).then(function(user){
             // Generate or send user the old token
             user.getToken().then(function(dbtoken){
                 if(dbtoken !== null)

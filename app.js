@@ -22,7 +22,7 @@ var express = require('express')
  * Database and authorization setup.
  */
 
-GLOBAL.app = express();
+var app = express();
 
 // Constants
 app.locals(consts);
