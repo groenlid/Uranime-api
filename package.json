@@ -16,5 +16,11 @@
   },
   "engines": {
       "node": "0.10.13"
+  },
+  "devDependencies": {
+    "mocha": "~1.14.0",
+    "request": "~2.27.0",
+    "should": "~2.1.0",
+    "sqlite3": "~2.1.19"
   }
 }

@@ -7,13 +7,16 @@
     "port": "3306",
     "logging": true,
     "salt": null,
-    "salt_rounds": null
+    "salt_rounds": null,
+    "dialect": "mysql"
   },
   "test": {
-    "username": "root",
+    "username": null,
     "password": null,
     "database": "database_test",
-    "host": "127.0.0.1"
+    "host": null,
+    "logging": true,
+    "dialect": "sqlite"
   },
   "production": {
     "username": "root",
