@@ -1,11 +1,11 @@
   
-  var Sequelize = require('sequelize')
+  var Sequelize = require('sequelize');
 
   module.exports = function(options){
     var database;
     database = {
       options: options
-    }
+    };
     database.module = Sequelize;
     options.logging = options.logging === true ? console.log : null;
     

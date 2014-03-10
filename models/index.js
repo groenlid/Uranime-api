@@ -11,7 +11,8 @@ module.exports = function(db){
         RequestAttribute = require('./requestAttribute')(db),
         Connection = require('./connection')(db),
         Token = require('./token')(db),
-        ScrapeType = require('./scrapeType')(db);
+        ScrapeType = require('./scrapeType')(db),
+        UserLibrary = require('./user_library')(db);
 
 
     // Relationships
@@ -20,7 +21,8 @@ module.exports = function(db){
       .hasMany(Episode)
       .hasMany(Genre, {joinTableName:'anime_genre'})
       .hasMany(Connection)
-      .hasMany(Synonym);
+      .hasMany(Synonym)
+      .hasMany(UserLibrary);
 
     Episode
       .belongsTo(Anime)
@@ -52,6 +54,7 @@ module.exports = function(db){
 
     User
       .hasMany(SeenEpisode)
+      .hasMany(UserLibrary)
       //.hasMany(Episode, {joinTableName:'user_episodes'});
       .hasOne(Token, { foreignKey: 'user_id'});
 
@@ -69,6 +72,7 @@ module.exports = function(db){
     RequestAttribute: RequestAttribute,
     Connection: Connection,
     ScrapeType: ScrapeType,
-    Token: Token
+    Token: Token,
+    UserLibrary: UserLibrary
   };
-}
+};

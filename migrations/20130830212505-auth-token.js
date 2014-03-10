@@ -21,9 +21,9 @@ module.exports = {
           allowNull: false
         }
       }
-    ).success(done)
+    ).success(done);
   },
   down: function(migration, DataTypes, done) {
     // add reverting commands here, calling 'done' when finished
   }
-}
+};

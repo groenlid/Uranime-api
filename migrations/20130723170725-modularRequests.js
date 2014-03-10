@@ -65,9 +65,9 @@ module.exports = {
                 type: DataTypes.INTEGER,
                 allowNull: false
             },
-    		anime_id: {
-    			type: DataTypes.INTEGER,
-    			allowNull: true
+            anime_id: {
+                type: DataTypes.INTEGER,
+                allowNull: true
     		},
     		request_id: {
     			type: DataTypes.INTEGER,

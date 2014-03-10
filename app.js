@@ -15,6 +15,7 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , consts = require('constants')
+  , proto = require('./prototype')
   , db = require('./database')(config.development)
   , middleware = require('./middleware')(db, consts);
 

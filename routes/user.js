@@ -24,6 +24,10 @@ var moduleObject = {
   },
 
   _getUserLibrary: function _getUserLibrary(db, res, id){
+    db.models.UserLibrary.findAll({where: {user_id: id}}).success(function(userLibrary){
+      res.send(userLibrary.map(moduleObject._createUserLibraryItemId));
+    });
+    return;
     var sql = "SELECT ue.user_id as user_id, "+
                 "ep.anime_id as anime_id, "+
                 "ep2.tot as total, "+
