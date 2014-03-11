@@ -49,19 +49,19 @@ var moduleObject = {
     },
 
 	addEpisodeSeenStatus: function addEpisodeSeenStatus(episode, userEpisodes){    
-    	episode.seen = null;
+        episode.seen = null;
     
-    	for (var i = userEpisodes.length - 1; i >= 0; i--) {
-        	var userEpisode = userEpisodes[i];
-        	if(episode.id !== userEpisode.episode_id)
-            	continue;
-        	episode.seen = true;
-        	episode.seenAt = userEpisode.timestamp;
-        	userEpisodes.splice(i,1);
-        	break;
-    	};
+        for (var i = userEpisodes.length - 1; i >= 0; i--) {
+            var userEpisode = userEpisodes[i];
+            if(episode.id !== userEpisode.episode_id)
+                continue;
+            episode.seen = true;
+            episode.seenAt = userEpisode.timestamp;
+            userEpisodes.splice(i,1);
+            break;
+        }
     
-    	return episode;
+        return episode;
 	},
 
     /**
@@ -209,17 +209,20 @@ var moduleObject = {
           includeQuery  = [models.Synonym],
           title         = req.query.title, 
           titleLower    = title.toLowerCase();
-
+          
       models.Anime.findAll({
         where: ["lower(anime_synonyms.title) like ?", '%' + titleLower + '%'], 
         include:includeQuery
       }).success(function(anime){
-          res.send(anime.map(moduleObject.addDetailsId));
+        console.log("helli");
+        res.send(anime.map(moduleObject.addDetailsId));
       });
     },
 
     getByConnection: function getByConnection(req, res){
         var query           = req.query,
+            db              = req.db,
+            models          = db.models,
             source_id       = query.source_id,
             site            = query.site_id,
             includeQuery    = [
@@ -232,7 +235,7 @@ var moduleObject = {
 
         models.Anime.findAll({include: includeQuery}).success(function(anime){
             res.send(anime.map(moduleObject.addDetailsIdAndPrepareConnection));
-        })
+        });
     },
 
     doSearch: function doSearch(req, res){

@@ -12,7 +12,8 @@ self = {
         status: Sequelize.STRING,
         runtime: Sequelize.INTEGER,
         classification: Sequelize.STRING,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        episode_count: Sequelize.INTEGER
     }
 };
 
