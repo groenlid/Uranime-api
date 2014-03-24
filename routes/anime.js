@@ -194,7 +194,7 @@ var moduleObject = {
 
                 if(req.loggedIn){
                     var loggedInUsersEpisodes = results[4];
-                    ret.episodes = ret.episodes.map(function(x){return moduleObject.addEpisodeSeenStatus(x,loggedInUsersEpisodes)});
+                    ret.episodes = ret.episodes.map(function(x){return moduleObject.addEpisodeSeenStatus(x,loggedInUsersEpisodes);});
                 }
                 res.send(ret);
             }, function(){
@@ -214,7 +214,6 @@ var moduleObject = {
         where: ["lower(anime_synonyms.title) like ?", '%' + titleLower + '%'], 
         include:includeQuery
       }).success(function(anime){
-        console.log("helli");
         res.send(anime.map(moduleObject.addDetailsId));
       });
     },

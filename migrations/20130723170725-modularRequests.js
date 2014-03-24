@@ -9,38 +9,39 @@ module.exports = {
     
     // Create the new tables...
     var createTables = function(){
-    	var deferlist = [];
+        var deferlist = [];
 
         deferlist.push(migration.createTable('requests',
 		{
-    		id: {
+            id: {
     			type: DataTypes.INTEGER,
     			primaryKey: true,
     			autoIncrement: true
     		},
     		createdAt: {
     			type: DataTypes.DATE,
+                allowNull: false,
     			defaultValue: DataTypes.NOW
     		},
-    		updatedAt: {
-    			type: DataTypes.DATE
-    		},
-    		user_id: {
-    			type: DataTypes.INTEGER,
-    			allowNull: false
-    		},
-    		title: {
-    			type: DataTypes.STRING,
-    			allowNull: false
-    		},
-    		comment: {
-    			type: DataTypes.TEXT,
-    			allowNull: true
-    		}
-    	},{
-    		timestamps: true,
-    		paranoid: false,
-        	underscored: true
+            updatedAt: {
+                type: DataTypes.DATE
+            },
+            user_id: {
+                type: DataTypes.INTEGER,
+                allowNull: false
+            },
+            title: {
+                type: DataTypes.STRING,
+                allowNull: false
+            },
+            comment: {
+                type: DataTypes.TEXT,
+                allowNull: true
+            }
+        },{
+            timestamps: true,
+            paranoid: false,
+            underscored: true
     	}));
 
     	deferlist.push(migration.createTable('connections',
@@ -72,15 +73,15 @@ module.exports = {
     		request_id: {
     			type: DataTypes.INTEGER,
     			allowNull: true
-    		},
+            },
             episode_id: {
                 type: DataTypes.INTEGER,
                 allowNull: true
             }
-    	},{
-    		timestamps: true,
-    		paranoid: false,
-        	underscored: true
+        },{
+            timestamps: true,
+            paranoid: false,
+            underscored: true
     	}));
 
         deferlist.push(migration.createTable('connectionAttributes',
@@ -100,6 +101,14 @@ module.exports = {
             },
             comment: {
                 type: DataTypes.TEXT,
+                allowNull: true
+            },
+            value: {
+                type: DataTypes.INTEGER,
+                allowNull: true
+            },
+            rank: {
+                type: DataTypes.INTEGER,
                 allowNull: true
             },
             createdAt: {
