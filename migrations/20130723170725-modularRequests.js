@@ -113,10 +113,13 @@ module.exports = {
             },
             createdAt: {
                 type: DataTypes.DATE,
+                allowedNull: false,
                 defaultValue: DataTypes.NOW
             },
             updatedAt: {
-                type: DataTypes.DATE
+                type: DataTypes.DATE,
+                allowedNull: false,
+                defaultValue: DataTypes.NOW
             },
         }));
     	
