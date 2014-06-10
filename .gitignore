@@ -1,3 +1,12 @@
-/config/config.json
-/node_modules/
-/node_modules
+.DS_Store
+.nodemonignore
+.sass-cache/
+.bower-*/
+.idea/
+node_modules/
+public/system/lib
+mean.iml
+test/coverage/
+modules/public/
+modules/views/
+/public/build/
