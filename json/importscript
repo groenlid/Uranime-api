@@ -1,0 +1,2 @@
+mongoimport -d mean-dev -c anime --stopOnError < anime.json
+mongoimport -d mean-dev -c genre --stopOnError < genres.json
