@@ -26,7 +26,7 @@ module.exports = function(app, passport) {
     // Setting the local strategy route
     app.route('/api/login')
         .post(passport.authenticate('local', {
-            failureFlash: true
+            session: false
         }), function (req,res) {
             res.send(req.user);
         });
