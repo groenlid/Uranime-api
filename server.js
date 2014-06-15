@@ -18,7 +18,6 @@ var db = mongoose.connect(config.db);
 
 var app = express();
 
-require('./client/config/bootstrap')(app);
 require('./server/config/bootstrap')(app, passport, db);
 
 app.listen(config.port, config.hostname, function(){

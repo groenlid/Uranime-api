@@ -20,7 +20,10 @@ describe('<Unit Test>', function() {
                 _id: 'Sample Genre',
                 description: 'Sample description'
             });
-            basicGenre.save(function(err, basicGenre){
+            basicGenre.save(function(err){
+                if(err){
+                    done(err);
+                }
                 basicAnime = new Anime({
                     title: 'Test Anime',
                     description: 'Sample description',
@@ -54,7 +57,9 @@ describe('<Unit Test>', function() {
             it('added genres should be saved with the anime', function(done){
                 basicAnime.genres.push(basicGenre);
                 basicAnime.save(function(err){
-                    if (err) return done(err);
+                    if (err) {
+                        return done(err);
+                    }
                     Anime.findOne({_id: basicAnime._id}, function(err, animeInDatabase){
                         animeInDatabase.genres.should.have.length(1);
                         done();
@@ -70,8 +75,9 @@ describe('<Unit Test>', function() {
                     aired: new Date()
                 });
                 basicAnime.save(function(err, animeInDatabase){
-                    if(err) return done(err);
-                    
+                    if(err){
+                        return done(err);
+                    }
                     animeInDatabase.episodes.should.have.length(1);
                     done();
                 });

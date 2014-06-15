@@ -3,10 +3,12 @@
 var favicon = require('static-favicon'), 
   	morgan = require('morgan'),
   	bodyParser = require('body-parser'),
+    express = require('express'),
   	methodOverride = require('method-override'),
   	expressValidator = require('express-validator'),
   	config = require('./config'),
   	appPath = process.cwd(),
+    compression = require('compression'),
   	errorHandler = require('errorhandler'),
     session = require('express-session'),
     mongoStore = require('mean-connect-mongo')(session),
@@ -48,6 +50,14 @@ module.exports = function(app, passport, db){
 	util.walk(appPath + '/server/routes', 'middlewares', function(path) {
 	    require(path)(app, passport);
 	});
+
+  app.use(compression({
+    level: 9
+  }));
+  
+  app.use( express.static('../../client/config'));
+  
+  app.route('/').get();
 
   // Error handler - has to be last
   if (process.env.NODE_ENV === 'development') {
