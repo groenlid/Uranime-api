@@ -98,11 +98,6 @@ module.exports = function(grunt) {
             test: {
                 NODE_ENV: 'test'
             }
-        },
-        karma: {
-            unit: {
-                configFile: 'test/karma/karma.conf.js'
-            }
         }
     });
 
@@ -117,7 +112,7 @@ module.exports = function(grunt) {
     }
 
     //Test task.
-    grunt.registerTask('test', ['env:test', 'mochaTest', 'karma:unit']);
+    grunt.registerTask('test', ['env:test', 'mochaTest']);
 
     // For Heroku users only.
     // Docs: https://github.com/linnovate/mean/wiki/Deploying-on-Heroku
