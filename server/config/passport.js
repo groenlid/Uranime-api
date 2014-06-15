@@ -35,7 +35,6 @@ var mongoose = require('mongoose'),
                 if (err) {
                     return done(err);
                 }
-                console.dir(user);
                 if (!user) {
                     return done(null, false, {
                         message: 'Unknown user'

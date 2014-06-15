@@ -57,7 +57,11 @@ var AnimeSchema = new Schema({
         type: String,
         ref: 'Genre'
     }],
-    connections: [connectionSchema]
+    connections: [connectionSchema],
+    
+    subscribers: [{
+        type: mongoose.Schema.Types.ObjectId, ref: 'User'
+    }],
 }, {
 	collection: 'anime'
 });

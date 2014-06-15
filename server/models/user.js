@@ -27,9 +27,7 @@ var UserSchema = new Schema({
     hashed_password: String,
     provider: String,
     providerData: {},
-    salt: String,
-    
-
+    salt: String
 });
 
 /**
