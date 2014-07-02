@@ -36,7 +36,8 @@ var AnimeSchema = new Schema({
     },
     status: {
     	type: String,
-    	enum: statusStates
+    	enum: statusStates,
+        required: true
     },
     classification: {
     	type: String,
@@ -58,7 +59,6 @@ var AnimeSchema = new Schema({
         ref: 'Genre'
     }],
     connections: [connectionSchema],
-    
     subscribers: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'User'
     }],

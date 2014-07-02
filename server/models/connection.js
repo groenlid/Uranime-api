@@ -33,6 +33,4 @@ ConnectionSchema.path('site').validate(function (site) {
     return site.length;
 }, 'Site cannot be blank');
 
-mongoose.model('Connection', ConnectionSchema);
-
 exports.schema = ConnectionSchema;
