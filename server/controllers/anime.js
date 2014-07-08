@@ -22,9 +22,8 @@ exports.anime = function(req, res, next, id) {
             _id: id
         },{
             'episodes.updated': 0,
-            'episodes.created': 0,
             updated: 0,
-            created: 0
+            updatedBy: 0
         })
         .exec(function(err, anime) {
             if (err) return next(err);
@@ -66,17 +65,38 @@ exports.create = function(req, res) {
     var anime = new Anime();
         anime.title = req.body.title;
         anime.status = req.body.status;
-        anime.description = req.body.description;
-
+        anime.description = req.body.description;      
+        anime.updatedBy = req.user;
 
     anime.save(function(err, savedAnime) {
         if (err) {
-            return res.send('users/signup', {
+            return res.json(400, {
                 errors: err.errors,
                 anime: anime
             });
         } else {
             res.json(201, savedAnime);
+        }
+    });
+};
+
+/**
+ * Update one anime with a given id
+ */
+exports.update = function(req, res) {
+    var anime = req.anime;
+        anime.updatedBy = req.user;
+        anime.updated = new Date();
+
+
+    anime.save(function(err, savedAnime){
+        if (err) {
+            return res.json(400, {
+                errors: err.errors,
+                anime:anime
+            });
+        } else {
+            return res.json(200, savedAnime);
         }
     });
 };

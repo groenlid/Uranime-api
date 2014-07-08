@@ -5,6 +5,7 @@
  */
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
+    version = require('mongoose-version'),
     episodeSchema = require('./episode').Schema,
     connectionSchema = require('./connection').Schema;
 
@@ -16,18 +17,19 @@ var typeStates = 'tv ova special ona movie other'.split(' ');
  * Anime Schema
  */
 var AnimeSchema = new Schema({
-    created: {
-        type: Date,
-        default: Date.now
-    },
     updated: {
         type: Date,
         default: Date.now
     },
+    updatedBy: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User'
+    },
     title: {
         type: String,
         default: '',
-        trim: true
+        trim: true,
+        required: true
     },
     description: {
         type: String,
@@ -60,17 +62,22 @@ var AnimeSchema = new Schema({
     }],
     connections: [connectionSchema],
     subscribers: [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'User'
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User'
     }],
 }, {
 	collection: 'anime'
+});
+
+AnimeSchema.plugin(version, {
+    collection: 'anime_versions'
 });
 
 /**
  * Validations
  */
 AnimeSchema.path('title').validate(function (title) {
-    return title.length;
+    return title && title.length;
 }, 'Title cannot be blank');
 
 /**
