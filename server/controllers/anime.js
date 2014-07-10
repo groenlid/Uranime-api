@@ -88,7 +88,6 @@ exports.update = function(req, res) {
         anime.updatedBy = req.user;
         anime.updated = new Date();
 
-
     anime.save(function(err, savedAnime){
         if (err) {
             return res.json(400, {

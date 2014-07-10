@@ -23,7 +23,8 @@ var AnimeSchema = new Schema({
     },
     updatedBy: {
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
     title: {
         type: String,
@@ -49,12 +50,8 @@ var AnimeSchema = new Schema({
     	type: String,
     	enum: typeStates
     },
-    poster: {
-        type: String
-    },
-    fanart: {
-        type: String
-    },
+    posters: [mongoose.Schema.Types.ObjectId],
+    fanarts: [mongoose.Schema.Types.ObjectId],
     episodes: [episodeSchema],
     genres: [{
         type: String,

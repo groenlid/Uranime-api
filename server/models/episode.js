@@ -22,6 +22,10 @@ var EpisodeSchema = new Schema({
         default: '',
         trim: true
     },
+    number: {
+        type: Number,
+        required: true
+    },
     special: {
     	type: Boolean,
     	default: false
@@ -33,9 +37,7 @@ var EpisodeSchema = new Schema({
         type: Number,
         default: 0
     },
-    image: {
-        type: String
-    }
+    images: [String]
 });
 
 mongoose.model('Episode', EpisodeSchema);
