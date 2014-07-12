@@ -67,7 +67,7 @@ var AnimeSchema = new Schema({
 });
 
 AnimeSchema.plugin(version, {
-    collection: 'anime_versions'
+    collection: 'anime.versions'
 });
 
 /**

@@ -13,6 +13,8 @@ var favicon = require('static-favicon'),
     session = require('express-session'),
     mongoStore = require('mean-connect-mongo')(session),
     cookieParser = require('cookie-parser'),
+    mongoose = require('mongoose'),
+    grid = require('gridfs-stream'),
   	util = require('./util');
 
 module.exports = function(app, passport, db){
@@ -35,10 +37,21 @@ module.exports = function(app, passport, db){
         name: config.sessionName
     }));
 
+  var gfs = grid(db.connection.db, mongoose.mongo);
+  
+  app.use(function(req, res, next){
+    req.gfs = gfs;
+    next();
+  });
+
 	app.use(expressValidator());
+
   app.use(passport.initialize());
   app.use(passport.session());
-	app.use(bodyParser());
+
+	app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.json());
+
 	app.use(methodOverride());
 
   // Setting the fav icon and static folder
