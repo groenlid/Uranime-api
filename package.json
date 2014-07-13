@@ -36,7 +36,6 @@
     "grunt-contrib-watch": "~0.6.1",
     "grunt-env": "^0.4.1",
     "grunt-nodemon": "0.2.1",
-    "image-type": "^0.1.4",
     "jade": "*",
     "load-grunt-tasks": "^0.4.0",
     "lodash": "^2.4.1",
@@ -54,7 +53,6 @@
     "passport-local": "^1.0.0",
     "passport-twitter": "^1.0.2",
     "static-favicon": "~1.0.2",
-    "stream-to": "^0.3.1",
     "time-grunt": "^0.3.1"
   },
   "devDependencies": {
