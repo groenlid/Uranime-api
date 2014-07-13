@@ -46,6 +46,17 @@ var uploadImage = function(req, res, imageType){
 	form.parse(req);
 };
 
+var downloadImage = function(req, res, imageType){
+	var id = req.params.id,
+		gfs = req.gfs;
+
+	var readstream = gfs.createReadStream({
+		_id: id,
+		root: imageType
+	});
+	readstream.pipe(res);
+};
+
 exports.uploadFanart = function(req, res){
 	uploadImage(req, res, 'anime.fanart');
 };
@@ -56,4 +67,16 @@ exports.uploadPoster = function(req, res){
 
 exports.uploadEpisodeImage = function(req, res){
 	uploadImage(req, res, 'episode.image');
+};
+
+exports.downloadFanart = function(req, res){
+	downloadImage(req, res, 'anime.fanart');
+};
+
+exports.downloadPoster = function(req, res){
+	downloadImage(req, res, 'anime.poster');
+};
+
+exports.downloadEpisodeImage = function(req, res){
+	downloadImage(req, res, 'episode.image');
 };
