@@ -18,13 +18,15 @@ var typeStates = 'tv ova special ona movie other'.split(' ');
  */
 var AnimeSchema = new Schema({
     updated: {
-        type: Date,
-        default: Date.now
-    },
-    updatedBy: {
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User',
-        required: true
+        date: {
+            type: Date,
+            default: Date.now
+        },
+        by: {
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'User',
+            required: true
+        }
     },
     title: {
         type: String,
@@ -44,11 +46,13 @@ var AnimeSchema = new Schema({
     },
     classification: {
     	type: String,
-    	enum: classificationStates
+    	enum: classificationStates,
+        required: true
     },
     type: {
     	type: String,
-    	enum: typeStates
+    	enum: typeStates,
+        required: true
     },
     posters: [mongoose.Schema.Types.ObjectId],
     fanarts: [mongoose.Schema.Types.ObjectId],
@@ -81,7 +85,7 @@ AnimeSchema.path('title').validate(function (title) {
  * Pre/Post hooks
  */
 AnimeSchema.pre('save', function (next) {
-    this.updated = Date.now();
+    this.updated.date = Date.now();
     next();
 });
 

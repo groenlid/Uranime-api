@@ -1,6 +1,7 @@
 'use strict';
 var multiparty  = require('multiparty'),
 	bluebird	= require('bluebird'),
+	config		= require('../config/config'),
 	gm  = require('gm');
 
 
@@ -119,25 +120,25 @@ var downloadImage = function(req, res, imageType){
 };
 
 exports.uploadFanart = function(req, res){
-	uploadImage(req, res, 'anime.fanart');
+	uploadImage(req, res, config.imageCollections.fanart);
 };
 
 exports.uploadPoster = function(req, res){
-	uploadImage(req, res, 'anime.poster');
+	uploadImage(req, res, config.imageCollections.poster);
 };
 
 exports.uploadEpisodeImage = function(req, res){
-	uploadImage(req, res, 'episode.image');
+	uploadImage(req, res, config.imageCollections.episodeImage);
 };
 
 exports.downloadFanart = function(req, res){
-	downloadImage(req, res, 'anime.fanart');
+	downloadImage(req, res, config.imageCollections.fanart);
 };
 
 exports.downloadPoster = function(req, res){
-	downloadImage(req, res, 'anime.poster');
+	downloadImage(req, res, config.imageCollections.poster);
 };
 
 exports.downloadEpisodeImage = function(req, res){
-	downloadImage(req, res, 'episode.image');
+	downloadImage(req, res, config.imageCollections.episodeImage);
 };

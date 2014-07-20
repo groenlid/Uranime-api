@@ -27,6 +27,12 @@ describe('<Unit Test>', function() {
                 basicAnime = new Anime({
                     title: 'Test Anime',
                     description: 'Sample description',
+                    status: 'finished',
+                    classification: 'PG',
+                    type: 'ova',
+                    updated: {
+                        by: new mongoose.Types.ObjectId()
+                    }
                 });
                 basicAnime.save(function(){
                     done();
@@ -72,7 +78,9 @@ describe('<Unit Test>', function() {
                     name: 'Episode title',
                     description: 'Episode description',
                     special: true,
-                    aired: new Date()
+                    aired: new Date(),
+                    _id: new mongoose.Types.ObjectId(),
+                    number:0
                 });
                 basicAnime.save(function(err, animeInDatabase){
                     if(err){

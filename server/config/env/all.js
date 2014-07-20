@@ -15,6 +15,12 @@ module.exports = {
         profileFields: ['id', 'first-name', 'last-name', 'email-address']
     },
 
+    imageCollections: {
+    	fanart: 'anime.fanart',
+    	poster: 'anime.poster',
+    	episodeImage: 'episode.image'
+    },
+
     // The secret should be set to a non-guessable string that
     // is used to compute a session hash
     sessionSecret: 'MEAN',

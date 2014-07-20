@@ -4,13 +4,9 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 var EpisodeSchema = new Schema({
-    created: {
-        type: Date,
-        default: Date.now
-    },
-    updated: {
-        type: Date,
-        default: Date.now
+    _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
     },
     name: {
         type: String,
@@ -37,9 +33,9 @@ var EpisodeSchema = new Schema({
         type: Number,
         default: 0
     },
-    images: [String]
+    images: [mongoose.Schema.Types.ObjectId]
 });
 
-mongoose.model('Episode', EpisodeSchema);
+//mongoose.model('Episode', EpisodeSchema); // This isn't its own model... 
 
 exports.Schema = EpisodeSchema;
