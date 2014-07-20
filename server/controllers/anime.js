@@ -74,6 +74,14 @@ var setAnimeFields = function(currentAnime, givenAnime){
     currentAnime.description    = givenAnime.description;  
 };
 
+var setEpisodeFields = function(currentEpisode, givenEpisode){
+    currentEpisode.number = givenEpisode.number;
+    currentEpisode.runtime = givenEpisode.runtime;
+    currentEpisode.special = givenEpisode.special;
+    currentEpisode.description = givenEpisode.description;
+    currentEpisode.name = givenEpisode.name;
+};
+
 var findImagefiles = function(gfs, collection, fileIds){
     var ids = fileIds.map(function(id) { 
         return new mongoose.Types.ObjectId(id); 
@@ -151,6 +159,16 @@ var updateEpisodes = function(currentAnime, givenAnime){
     currentAnime.episodes = currentAnime.episodes.filter(function(episode){
         var shouldDelete = operations.toRemove.indexOf(episode._id.toString()) > 0;
         return !shouldDelete;
+    });
+
+    currentAnime.episodes.forEach(function(currentEpisode){
+        var currentEpisodeId = currentEpisode._id.toString();
+        var givenEpisodes = givenAnime.episodes || [];
+        var givenEpisode = _.find(givenEpisodes, function(ep){
+            return ep._id.toString() === currentEpisodeId;
+        });
+
+        setEpisodeFields(currentEpisode, givenEpisode);
     });
 
     console.log(util.format('Episodes to add: %d, Episodes to remove %d, Episodes to modify %d', operations.toAdd.length, operations.toRemove.length, operations.toModify.length));
