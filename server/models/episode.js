@@ -1,7 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    connectionSchema = require('./connection').Schema;
 
 var EpisodeSchema = new Schema({
     _id: {
@@ -33,6 +34,7 @@ var EpisodeSchema = new Schema({
         type: Number,
         default: 0
     },
+    connections: [connectionSchema],
     images: [mongoose.Schema.Types.ObjectId]
 });
 

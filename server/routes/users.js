@@ -17,12 +17,6 @@ module.exports = function(app, passport) {
     // Setting up the userId param
     app.param('userId', users.user);
 
-    // AngularJS route to check for authentication
-    app.route('/api/loggedin')
-        .get(function(req, res) {
-            res.send(req.isAuthenticated() ? req.user : '0');
-        });
-
     // Setting the local strategy route
     app.route('/api/login')
         .post(passport.authenticate('local', {
