@@ -11,3 +11,4 @@ modules/public/
 modules/views/
 /public/build/
 testdata
+certs/*

@@ -2,7 +2,8 @@
 
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    connectionSchema = require('./connection').Schema;
+    connectionSchema = require('./connection').EpisodeSchema;
+
 
 var EpisodeSchema = new Schema({
     _id: {

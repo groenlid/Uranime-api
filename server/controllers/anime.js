@@ -26,7 +26,9 @@ exports.anime = function(req, res, next, id) {
             _id: id
         },{
             'episodes.updated': 0,
-            updated: 0,
+            'episodes.connections._id': 0,
+            'updated': 0,
+            'connections._id': 0
         })
         .exec(function(err, anime) {
             if (err) return next(err);
@@ -72,6 +74,7 @@ var setAnimeFields = function(currentAnime, givenAnime){
     currentAnime.classification = givenAnime.classification;
     currentAnime.type           = givenAnime.type;
     currentAnime.description    = givenAnime.description;  
+    currentAnime.connections    = givenAnime.connections;
 };
 
 var setEpisodeFields = function(currentEpisode, givenEpisode){
@@ -80,6 +83,7 @@ var setEpisodeFields = function(currentEpisode, givenEpisode){
     currentEpisode.special = givenEpisode.special;
     currentEpisode.description = givenEpisode.description;
     currentEpisode.name = givenEpisode.name;
+    currentEpisode.connections = givenEpisode.connections;
 };
 
 var findImagefiles = function(gfs, collection, fileIds){
@@ -217,8 +221,7 @@ exports.create = exports.update = function(req, res) {
         res.json(response, savedAnime);
     }).catch(function(err){
         res.json(400, {
-            errors: err.errors || err,
-            anime: givenAnime
+            errors: err.errors || err
         });
     });
 };

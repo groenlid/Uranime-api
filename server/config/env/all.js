@@ -10,7 +10,10 @@ module.exports = {
 	db: process.env.MONGOHQ_URL,
 	templateEngine: 'swig',
 	showStackError: true,
-
+    ssl: {
+        key: 'certs/127.0.0.1.key',
+        cert: 'certs/127.0.0.1.cert'
+    },
 	linkedin: {
         profileFields: ['id', 'first-name', 'last-name', 'email-address']
     },

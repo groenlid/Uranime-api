@@ -11,14 +11,6 @@ var mongoose = require('mongoose'),
  * Tag Schema
  */
 var GenreSchema = new Schema({
-    created: {
-        type: Date,
-        default: Date.now
-    },
-    updated: {
-        type: Date,
-        default: Date.now
-    },
     _id: {
         type: String,
         trim: true,

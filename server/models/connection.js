@@ -5,55 +5,78 @@
  */
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    util = require('util');
+    _ = require('lodash');
 
-var sites = {
-    myanimelist: 'http://myanimelist.net/anime/%d',
-    anidb: 'http://anidb.net/perl-bin/animedb.pl?show=anime&aid=%d',
-    thetvdb: 'http://thetvdb.com/?tab=series&id=%d',
-    themoviedb: '',
-    trakt: ''
+/**
+ * Contains the possitble mapping enums etc.
+ */
+var rules = {
+    myanimelist: {},
+    anidb: {
+        mappings: ['normal']
+    },
+    thetvdb: {},
+    themoviedb: {},
+    trakt: {}
+};
+
+/**
+ * Common Schema definition
+ */
+
+var commonDefinition = {
+    site_id: {
+        type: Number,
+        required: true
+    },
+    site: {
+        type: String,
+        enum: Object.keys(rules),
+        required: true
+    },
+    comment: {
+        type: String,
+        default: '',
+        trim: true
+    }
 };
 
 /**
  * Connection Schema
  */
-var ConnectionSchema = new Schema({
-    site: {
+var AnimeConnectionSchema = new Schema(_.extend({
+    mapping: {
         type: String,
-        trim: true,
-        enum: Object.keys(sites),
         required: true
-    },
-    content: {
-        type: String,
-        default: '',
-        trim: true
     }
-});
+}, commonDefinition));
+
+var EpisodeConnectionSchema = new Schema(commonDefinition);
 
 /**
  * Virtuals
  */
-ConnectionSchema.virtual('link').get(function () {
-    return util.format(sites[this.site], this.site_id);
+AnimeConnectionSchema.virtual('link').get(function () {
+    return rules[this.site].anime_link;//util.format(sites[this.site], this.site_id);
 });
+
 
 /**
  * Validations
- */ 
-ConnectionSchema.path('site').validate(function (site) {
-    return site.length;
-}, 'Site cannot be blank');
+ */
+AnimeConnectionSchema.path('mapping').validate(function (mapping) {
+    return _.contains(rules[this.site].mappings, mapping);
+}, 'This site does not support this mapping.');
 
 /**
  * Methods
  */
-ConnectionSchema.methods = {
+ /*
+AnimeConnectionSchema.methods = {
+};*/
 
-    toJSON: function(){
-        return 'test';
-    }
+
+module.exports = {
+    EpisodeSchema: EpisodeConnectionSchema,
+    AnimeSchema: AnimeConnectionSchema
 };
-
-exports.schema = ConnectionSchema;

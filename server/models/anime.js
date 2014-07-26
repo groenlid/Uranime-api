@@ -7,7 +7,7 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     version = require('mongoose-version'),
     episodeSchema = require('./episode').Schema,
-    connectionSchema = require('./connection').Schema;
+    connectionSchema = require('./connection').AnimeSchema;
 
 var statusStates = 'finished currently unaired'.split(' ');
 var classificationStates = 'G PG PG-13 R R+ Rx'.split(' ');
@@ -20,7 +20,8 @@ var AnimeSchema = new Schema({
     updated: {
         date: {
             type: Date,
-            default: Date.now
+            default: Date.now,
+            required: true
         },
         by: {
             type: mongoose.Schema.Types.ObjectId, 
@@ -74,7 +75,11 @@ var AnimeSchema = new Schema({
 /**
  * Indexes
  */
-AnimeSchema.index({ title: 'text', synonyms: 'text', 'episodes.name': 'text' });
+AnimeSchema.index({ 
+    title: 'text', 
+    synonyms: 'text', 
+    'episodes.name': 'text' 
+});
 
 AnimeSchema.plugin(version, {
     collection: 'anime.versions'
