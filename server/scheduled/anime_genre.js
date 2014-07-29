@@ -29,7 +29,7 @@ module.exports = function(app, agenda) {
                 
                 deferreds.push(deferred);
 
-                Genre.findByIdAndUpdate(genre.id, 
+                Genre.findByIdAndUpdate(genre.name, 
                     { description: genre.description, is_hentai: genre.ishentai, parentGenre: categoryIdMap[genre.parentid] }, 
                     { upsert: true }, 
                     function( savedGenre ){
