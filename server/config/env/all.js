@@ -10,6 +10,10 @@ module.exports = {
 	db: process.env.MONGOHQ_URL,
 	templateEngine: 'swig',
 	showStackError: true,
+    anidb: {
+        client: 'nzedb',
+        clientVersion: 1
+    },
     ssl: {
         key: 'certs/127.0.0.1.key',
         cert: 'certs/127.0.0.1.cert'

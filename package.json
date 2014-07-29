@@ -12,6 +12,7 @@
     "postinstall": "node node_modules/bower/bin/bower install"
   },
   "dependencies": {
+    "agenda": "^0.6.16",
     "assetmanager": "^0.1.2",
     "bcrypt": "0.7.7",
     "bluebird": "^2.2.1",
@@ -53,7 +54,8 @@
     "passport-local": "^1.0.0",
     "passport-twitter": "^1.0.2",
     "static-favicon": "~1.0.2",
-    "time-grunt": "^0.3.1"
+    "time-grunt": "^0.3.1",
+    "anidb": "git://github.com/groenlid/node-anidb"
   },
   "devDependencies": {
     "assetmanager": "^0.1.2",

@@ -71,9 +71,10 @@ AnimeConnectionSchema.path('mapping').validate(function (mapping) {
 /**
  * Methods
  */
- /*
+ 
 AnimeConnectionSchema.methods = {
-};*/
+    
+};
 
 
 module.exports = {

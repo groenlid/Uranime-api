@@ -21,9 +21,13 @@ var GenreSchema = new Schema({
         default: '',
         trim: true
     },
-    is_genre: {
+    is_hentai: {
     	type: Boolean,
     	default: false
+    },
+    parentGenre: {
+        type: String,
+        ref: 'Genre'
     }
 },{
     collection: 'genre'

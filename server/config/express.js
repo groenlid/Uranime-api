@@ -15,7 +15,8 @@ var favicon = require('static-favicon'),
     cookieParser = require('cookie-parser'),
     mongoose = require('mongoose'),
     grid = require('gridfs-stream'),
-  	util = require('./util');
+  	util = require('./util'),
+    Agenda = require('agenda');
 
 module.exports = function(app, passport, db){
 
@@ -37,6 +38,7 @@ module.exports = function(app, passport, db){
         name: config.sessionName
     }));
 
+  // Gridfs
   var gfs = grid(db.connection.db, mongoose.mongo);
   
   app.use(function(req, res, next){
@@ -63,6 +65,17 @@ module.exports = function(app, passport, db){
 	util.walk(appPath + '/server/routes', 'middlewares', function(path) {
 	    require(path)(app, passport);
 	});
+
+  // Agenda
+  var agenda = new Agenda();
+  agenda.database(config.db);
+
+  util.walk(appPath + '/server/scheduled', null, function(path){
+    require(path)(app, agenda);
+  });
+  
+  agenda.start();
+
 
   app.use(compression({
     level: 9
