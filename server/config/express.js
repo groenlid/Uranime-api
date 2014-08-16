@@ -59,22 +59,22 @@ module.exports = function(app, passport, db){
   // Setting the fav icon and static folder
   app.use(favicon());
 
-	// Skip the app/routes/middlewares directory as it is meant to be
-	// used and shared by routes as further middlewares and is not a
-	// route by itself
-	util.walk(appPath + '/server/routes', 'middlewares', function(path) {
-	    require(path)(app, passport);
-	});
-
   // Agenda
   var agenda = new Agenda();
   agenda.database(config.db);
 
   util.walk(appPath + '/server/scheduled', null, function(path){
-    require(path)(app, agenda);
+    require(path)(app, agenda, gfs);
   });
   
   agenda.start();
+
+  // Skip the app/routes/middlewares directory as it is meant to be
+  // used and shared by routes as further middlewares and is not a
+  // route by itself
+  util.walk(appPath + '/server/routes', 'middlewares', function(path) {
+      require(path)(app, passport);
+  });
 
 
   app.use(compression({

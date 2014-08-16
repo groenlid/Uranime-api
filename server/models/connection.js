@@ -10,14 +10,12 @@ var mongoose = require('mongoose'),
 /**
  * Contains the possitble mapping enums etc.
  */
-var rules = {
-    myanimelist: {},
-    anidb: {
-        mappings: ['normal']
-    },
-    thetvdb: {},
-    themoviedb: {},
-    trakt: {}
+var mappings = {
+    myanimelist: [],
+    anidb: ['normal'],
+    thetvdb: [],
+    themoviedb: [],
+    trakt: []
 };
 
 /**
@@ -31,7 +29,7 @@ var commonDefinition = {
     },
     site: {
         type: String,
-        enum: Object.keys(rules),
+        enum: Object.keys(mappings),
         required: true
     },
     comment: {
@@ -46,26 +44,21 @@ var commonDefinition = {
  */
 var AnimeConnectionSchema = new Schema(_.extend({
     mapping: {
-        type: String,
-        required: true
+        type: String
+    },
+    season: {
+        type: String
     }
 }, commonDefinition));
 
 var EpisodeConnectionSchema = new Schema(commonDefinition);
-
-/**
- * Virtuals
- */
-AnimeConnectionSchema.virtual('link').get(function () {
-    return rules[this.site].anime_link;//util.format(sites[this.site], this.site_id);
-});
 
 
 /**
  * Validations
  */
 AnimeConnectionSchema.path('mapping').validate(function (mapping) {
-    return _.contains(rules[this.site].mappings, mapping);
+    return _.contains(mappings[this.site], mapping);
 }, 'This site does not support this mapping.');
 
 /**

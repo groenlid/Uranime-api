@@ -100,6 +100,19 @@ AnimeSchema.pre('save', function (next) {
     next();
 });
 
+/**
+ * Statics methods
+ */
+
+AnimeSchema.statics.latests = function(limit, callback) {
+    this.aggregate([
+        { $unwind: '$episodes'},
+        { $sort: {'episodes.aired': -1}},
+        { $limit: limit},
+        { $project: {'_id': 1, 'name': 1, 'aired': '$episodes.aired', 'episode': '$episodes.number'}}
+    ], callback);
+};
+
 mongoose.model('Anime', AnimeSchema);
 
 exports.schema = AnimeSchema;

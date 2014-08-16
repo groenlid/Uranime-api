@@ -9,6 +9,7 @@ var mongoose = require('mongoose'),
 /**
  * List all genres
  */
+
 exports.all = function(req, res) {
     Genre.find({}).exec(function(err, genres) {
         if (err) {

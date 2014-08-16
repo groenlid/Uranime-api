@@ -31,7 +31,7 @@ var streamIsAllowedFileType = function(stream){
     var resolver = bluebird.pending(),
         allowedFileTypes = ['png','jpeg','jpg'],
         error = 'Unknown filetype';
-
+        
     gm(stream)
     .format({bufferStream: true}, function(err, format){
         if(err) return resolver.reject(err);
@@ -53,7 +53,7 @@ var uploadImage = function(req, res, imageType){
     var form = new multiparty.Form(),
         gfs = req.gfs, 
         promises = [];
-
+        
     form.on('error', function(err){
         if(err)
             res.send(500, err);
@@ -70,7 +70,7 @@ var uploadImage = function(req, res, imageType){
 
         if (part.filename !== null) {
             promises.push(resolver.promise);
-
+            
             // Validate the uploaded file.
             streamIsAllowedFileSize(part)
             .then(streamIsAllowedFileType)
@@ -88,7 +88,7 @@ var uploadImage = function(req, res, imageType){
                 });
 
                 writestream.on('error', function(err){
-                    form.emit('error');
+                    form.emit('error', err);
                 });
 
             }).catch(function(err){
