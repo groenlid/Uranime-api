@@ -3,6 +3,7 @@
 .sass-cache/
 .bower-*/
 .idea/
+.sublime-*
 node_modules/
 public/system/lib
 mean.iml
