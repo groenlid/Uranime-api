@@ -50,9 +50,7 @@ ImageSchema.statics.allImages = function(gfs){
         var defer = bluebird.pending(); 
         gfs.collection(config.imageCollections[key]).find({}).toArray(function(err, images){
             if(err) return defer.reject(err);
-            defer.resolve(images.map(function(data){
-                return data._id;
-            }));
+            defer.resolve(_.pluck(images, '_id'));
         });
         defers.push(defer.promise);
     });

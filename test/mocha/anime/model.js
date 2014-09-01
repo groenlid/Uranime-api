@@ -6,7 +6,7 @@
 var should      = require('should'),
     mongoose    = require('mongoose'),
     Anime       = mongoose.model('Anime'),
-    Genre         = mongoose.model('Genre');
+    Genre       = mongoose.model('Genre');
 
 //Globals
 var basicAnime;

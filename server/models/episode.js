@@ -5,6 +5,12 @@ var mongoose = require('mongoose'),
     connectionSchema = require('./connection').EpisodeSchema;
 
 
+/**
+ * The episode schema.
+ * It's not it's own model, and should only be used
+ * as embedded.
+ * @type {Schema}
+ */
 var EpisodeSchema = new Schema({
     _id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -38,7 +44,5 @@ var EpisodeSchema = new Schema({
     connections: [connectionSchema],
     images: [mongoose.Schema.Types.ObjectId]
 });
-
-//mongoose.model('Episode', EpisodeSchema); // This isn't its own model... 
 
 exports.Schema = EpisodeSchema;
