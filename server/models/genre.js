@@ -21,7 +21,7 @@ var GenreSchema = new Schema({
         default: '',
         trim: true
     },
-    is_hentai: {
+    isHentai: {
     	type: Boolean,
     	default: false
     },

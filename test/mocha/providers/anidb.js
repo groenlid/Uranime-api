@@ -19,7 +19,9 @@ describe('<Unit Test>', function() {
 	describe('Provider AniDb:', function() {
 		
 		it('Should fail when providing insufficient arguments', function(done){
-			(function() { new anidbProvider() }).should.throw();
+			/*jshint immed: false */
+			(function() { new anidbProvider(); }).should.throw();
+			/*jshint immed: true */
 			done();
 		});
 
@@ -40,21 +42,21 @@ describe('<Unit Test>', function() {
 			done();
 		});
 
-		it('GetConnections should return the connections assoicatied with the provider', function(done){
+		it('GetConnections should return the connections associated with the provider', function(done){
 			var fakeAnime = {
 				connections: [
 					{
-						site_id: 12,
+						siteId: 12,
 						site: 'anidb',
 						comment: 'Dum dum dum'
 					},
 					{
-						site_id:13,
+						siteId:13,
 						site: 'anidb',
 						comment: 'Da-di-dum'
 					},
 					{
-						site_id:2000,
+						siteId:2000,
 						site:'thetvdb',
 						comment: 'This should be removed'
 					}
@@ -79,7 +81,7 @@ describe('<Unit Test>', function() {
 						runtime: 1,
 						connections: [
 							{
-								site_id: 1000,
+								siteId: 1000,
 								site: 'anidb'
 							}
 						]
@@ -87,7 +89,7 @@ describe('<Unit Test>', function() {
 				],
 				connections: [
 					{
-						site_id: 12,
+						siteId: 12,
 						site: 'anidb',
 						comment: 'Dum dum dum'
 					}
@@ -123,7 +125,6 @@ describe('<Unit Test>', function() {
 			fakeClient.getAnime = function(id, cb){
 				cb(null, fakeResponse);
 			};
-
 			
 			new anidbProvider(fakeAnime, fakeClient)
 				.updateEpisodes()

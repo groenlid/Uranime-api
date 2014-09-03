@@ -23,7 +23,7 @@ var mappings = {
  */
 
 var commonDefinition = {
-    site_id: {
+    siteId: {
         type: Number,
         required: true
     },

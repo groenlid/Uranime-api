@@ -7,6 +7,7 @@ var config = require('../config/config'),
 function AniDbProvider(uranime_anime, client) {
 	if(!uranime_anime) throw new Error('You must instanciate the provider with a anime model as the first argument. new AniDbProvider(anime);');
 
+	this._timeoutRequest = 3000;
 	this._connectionId = 'anidb';
 	this._anime = uranime_anime;
     this._client = client || new anidb(config.anidb.client, config.anidb.clientVersion);
@@ -27,13 +28,39 @@ AniDbProvider.prototype._getConnections = function(){
 /**
  * Fetches the remote anime from the connections and
  * assigns it on the object as this._remoteAnime.
- * It is saved as {connection.site_id: {anime}}.
+ * It is saved as {connection.siteId: {anime}}.
  * @return {Object} The remote anime dictionary.
  */
-AniDbProvider.prototype._refreshRemoteAnime = function(){
-	var connections = this._getConnections();
-	if(connections.length === 0) return {};
+AniDbProvider.prototype.refreshRemote = function(){
+	var self = this,
+		defers = [], 
+		defer = bluebird.pending,
+		connections = this._getConnections();
+
+	if(connections.length === 0 || this._remoteAnime) {
+		defer.resolve();
+		return defer.promise;
+	}
 	
+	connections.forEach(function(connection, i){
+		var d = bluebird.pending;
+		setTimeout(function(){
+			self._client.getAnime(connection.siteId, function(anime){
+				self._remoteAnime[connection.siteId] = anime;
+			});
+		}, i * this._timeoutRequest);
+		defers.push(d.promise);
+	});
+
+	return defers.length === 0 ? defer.promise : bluebird.all(defers);
+};
+
+/**
+ * Returns the modified referance uranime_anime from the provider.
+ * @return {Anime}
+ */
+AniDbProvider.prototype.returnAnime = function(){
+	return this._anime;
 };
 
 /**
@@ -44,20 +71,13 @@ AniDbProvider.prototype._refreshRemoteAnime = function(){
  */
 AniDbProvider.prototype.updateEpisodes = function(){
     var defer = bluebird.pending(),
-    connections = this._getConnections(),
-    localAnime = this._anime;
+    self = this;
 
-    if(connections.length === 0)
-    	return;
-
-    connections.forEach(function(connection){
-
-    });
-    /*this._client.getAnime(this._anime.id, function(err, anime){
-    	console.log(anime);
-    	defer.resolve(localAnime);
-    });*/
-
+	this.refreshRemote()
+	.then(function(){
+		console.log('Refreshed the anime... ', self.returnAnime());
+	}, defer.reject); 
+ 
     return defer.promise;
 };
 
