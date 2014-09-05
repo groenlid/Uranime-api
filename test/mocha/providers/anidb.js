@@ -127,6 +127,7 @@ describe('<Unit Test>', function() {
 			};
 			
 			new anidbProvider(fakeAnime, fakeClient)
+				.refreshRemote()
 				.updateEpisodes()
 				.then(function(anime){
 					anime.episodes.should.be.instanceof(Array).and.have.lengthOf(2);

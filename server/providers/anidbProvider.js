@@ -48,7 +48,7 @@ AniDbProvider.prototype.refreshRemote = function(){
 			self._client.getAnime(connection.siteId, function(anime){
 				self._remoteAnime[connection.siteId] = anime;
 			});
-		}, i * this._timeoutRequest);
+		}, i * self._timeoutRequest);
 		defers.push(d.promise);
 	});
 
@@ -73,7 +73,8 @@ AniDbProvider.prototype.updateEpisodes = function(){
     var defer = bluebird.pending(),
     self = this;
 
-	this.refreshRemote()
+
+
 	.then(function(){
 		console.log('Refreshed the anime... ', self.returnAnime());
 	}, defer.reject); 
