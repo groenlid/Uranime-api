@@ -11,7 +11,7 @@ module.exports = {
 	templateEngine: 'swig',
 	showStackError: true,
     anidb: {
-        client: 'nzedb',
+        client: 'calendar',
         clientVersion: 1
     },
     ssl: {

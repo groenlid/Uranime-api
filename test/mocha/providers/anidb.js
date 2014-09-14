@@ -73,16 +73,17 @@ describe('<Unit Test>', function() {
 			var fakeAnime = {
 				episodes: [
 					{
-						name: 'Episode 1',
+						title: 'Episode 1',
 						description: 'Episode 1 description',
 						number: 1,
 						special: false,
 						aired: new Date('01.01.1970'),
 						runtime: 1,
+						titles: [{title: 'Episode something else'}],
 						connections: [
 							{
 								siteId: 1000,
-								site: 'anidb'
+								site: 'anidb',
 							}
 						]
 					}
@@ -105,7 +106,7 @@ describe('<Unit Test>', function() {
 				        length: 25,
 				        airdate: new Date('02.01.1970'),
 				        titles: [
-				        { title: 'Episode 1.5'},
+				        { title: 'Episode 1.5', lang: 'en'},
 				        { title: 'Episode something else'}]
 					},
 					{
@@ -116,7 +117,7 @@ describe('<Unit Test>', function() {
 				        airdate: new Date('08.01.1970'),
 				        titles: [
 				        { title: 'There is something going on..'},
-				        { title: 'Dafuq is this?'}]
+				        { title: 'Dafuq is this?', lang: 'en'}]
 					}
 				]
 			};
@@ -125,15 +126,18 @@ describe('<Unit Test>', function() {
 			fakeClient.getAnime = function(id, cb){
 				cb(null, fakeResponse);
 			};
-			
-			new anidbProvider(fakeAnime, fakeClient)
-				.refreshRemote()
-				.updateEpisodes()
-				.then(function(anime){
-					anime.episodes.should.be.instanceof(Array).and.have.lengthOf(2);
-					anime.episodes[0].should.have.property('name','Episode 1.5');
-					done();
-				});
+
+			var provider = new anidbProvider(fakeAnime, fakeClient);
+
+			provider.refreshRemote()
+			.then(provider.updateEpisodes)
+			.then(provider.returnAnime)
+			.then(function(anime){
+				anime.episodes.should.be.instanceof(Array).and.have.lengthOf(2);
+				anime.episodes[0].should.have.property('title','Episode 1');
+				anime.episodes[1].should.have.property('title','Dafuq is this?');
+				done();
+			});
 
 		});
 

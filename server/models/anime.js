@@ -55,7 +55,11 @@ var AnimeSchema = new Schema({
     	enum: typeStates,
         required: true
     },
-    synonyms: [String],
+    titles: [{
+        title: String,
+        lang: String,
+        type: String
+    }],
     posters: [mongoose.Schema.Types.ObjectId],
     fanarts: [mongoose.Schema.Types.ObjectId],
     episodes: [episodeSchema],
@@ -76,9 +80,10 @@ var AnimeSchema = new Schema({
  * Indexes
  */
 AnimeSchema.index({ 
-    title: 'text', 
-    synonyms: 'text', 
-    'episodes.name': 'text' 
+    'title': 'text', 
+    'titles.title': 'text', 
+    'episodes.title': 'text',
+    'episodes.titles': 'text' 
 });
 
 AnimeSchema.plugin(version, {

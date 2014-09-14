@@ -41,6 +41,11 @@ var EpisodeSchema = new Schema({
         type: Number,
         default: 0
     },
+    titles: [{
+        title: String,
+        lang: String,
+        type: String
+    }],
     connections: [connectionSchema],
     images: [mongoose.Schema.Types.ObjectId]
 });
