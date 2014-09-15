@@ -5,6 +5,8 @@
  */
 var anidbProvider = require('../../../server/providers/anidbProvider'),
 	should = require('should'),
+	mongoose = require('mongoose'),
+	Anime = mongoose.model('Anime'),
 	anidb = require('anidb');
 
 
@@ -70,16 +72,18 @@ describe('<Unit Test>', function() {
 		});
 
 		it('updateEpisodes should update the episodes on the given anime', function(done){
-			var fakeAnime = {
+			var fakeAnime = new Anime({
 				episodes: [
 					{
-						title: 'Episode 1',
 						description: 'Episode 1 description',
 						number: 1,
 						special: false,
 						aired: new Date('01.01.1970'),
 						runtime: 1,
-						titles: [{title: 'Episode something else'}],
+						titles: [
+							{title: 'Episode something else'},
+							{title: 'Episode 1.5', lang: 'en'}
+						],
 						connections: [
 							{
 								siteId: 1000,
@@ -95,7 +99,7 @@ describe('<Unit Test>', function() {
 						comment: 'Dum dum dum'
 					}
 				]
-			};
+			});
 
 			var fakeResponse = {
 				episodes: [
@@ -106,7 +110,7 @@ describe('<Unit Test>', function() {
 				        length: 25,
 				        airdate: new Date('02.01.1970'),
 				        titles: [
-				        { title: 'Episode 1.5', lang: 'en'},
+				        { title: 'Episode 1', lang: 'en'},
 				        { title: 'Episode something else'}]
 					},
 					{
@@ -134,8 +138,7 @@ describe('<Unit Test>', function() {
 			.then(provider.returnAnime)
 			.then(function(anime){
 				anime.episodes.should.be.instanceof(Array).and.have.lengthOf(2);
-				anime.episodes[0].should.have.property('title','Episode 1');
-				anime.episodes[1].should.have.property('title','Dafuq is this?');
+				anime.episodes[0].titles.should.be.instanceof(Array).and.have.lengthOf(3);
 				done();
 			});
 

@@ -12,10 +12,7 @@ var mongoose = require('mongoose'),
  * @type {Schema}
  */
 var EpisodeSchema = new Schema({
-    _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
-    },
+
     name: {
         type: String,
         default: '',
@@ -41,11 +38,20 @@ var EpisodeSchema = new Schema({
         type: Number,
         default: 0
     },
-    titles: [{
-        title: String,
-        lang: String,
-        type: String
-    }],
+    titles: [new Schema({
+        title: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        lang: {
+            type: String
+        },
+        type: {
+            type: String
+        }
+    })
+    ],
     connections: [connectionSchema],
     images: [mongoose.Schema.Types.ObjectId]
 });

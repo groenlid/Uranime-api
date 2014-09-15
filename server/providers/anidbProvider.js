@@ -3,13 +3,26 @@
 var config = require('../config/config'),
     anidb = require('anidb'),
     bluebird = require('bluebird'),
-    util = require('util'),
     _ = require('lodash'),
-    rules = {
+    defaultRules = {
     	setIfEmpty: 1,
     	override: 2
     };
 
+/**
+ * Mappers
+ */
+function Mapper(siteId) {
+	this._connectionId = siteId;
+}
+
+function NormalMapper() {}
+
+/**
+ * Provider
+ * @param {[type]} uranime_anime
+ * @param {[type]} client
+ */
 function AniDbProvider(uranime_anime, client) {
 	if(!uranime_anime) throw new Error('You must instanciate the provider with a anime model as the first argument. new AniDbProvider(anime);');
 
@@ -38,8 +51,8 @@ AniDbProvider.prototype._getConnections = function(){
  * @return {Object} The remote anime dictionary.
  */
 AniDbProvider.prototype.refreshRemote = function(self){
-	var self = self || this,
-		defers = [], 
+	self = self || this;
+	var defers = [], 
 		defer = bluebird.pending(),
 		connections = self._getConnections();
 	
@@ -69,7 +82,7 @@ AniDbProvider.prototype.refreshRemote = function(self){
  * @return {Anime}
  */
 AniDbProvider.prototype.returnAnime = function(self){
-	var self = self || this;
+	self = self || this;
 	return new bluebird(function(resolve, reject){
 		resolve(self._anime);
 	});
@@ -92,10 +105,11 @@ AniDbProvider.prototype._returnRemoteAnime = function(connection){
  * @returns {defer.promise} Resolves with the anime object
  */
 AniDbProvider.prototype.updateEpisodes = function(self){
-    var self = self || this,
-    defer = bluebird.pending(),
-    animeToUpdate = self._anime,
-    connections = self._getConnections();
+    self = self || this;
+    
+    var defer = bluebird.pending(),
+	    animeToUpdate = self._anime,
+	    connections = self._getConnections();
 
     connections.forEach(function(connection){
     	var remoteAnime = self._returnRemoteAnime(connection),
@@ -122,56 +136,46 @@ AniDbProvider.prototype.updateEpisodes = function(self){
 };
 
 AniDbProvider.prototype._updateEpisodeField = function(field, episodeToUpdate, anidbField, rules){
-	var rule = (rules === undefined) ? rule[field] : rules.setIfEmpty;
+	var rule = (rules === undefined) ? rule[field] : defaultRules.setIfEmpty;
+	console.log('replace field %s from %s to %s', field, episodeToUpdate[field], anidbField);
 
 	switch(rule){
-		case rules.setIfEmpty:
+		case defaultRules.setIfEmpty:
 			episodeToUpdate[field] = episodeToUpdate[field] || anidbField;
 		break;
-		case rules.override:
+		case defaultRules.override:
 			episodeToUpdate[field] = anidbField;
 		break;
 	}
 };
 
 AniDbProvider.prototype._updateEpisode = function(episodeToUpdate, anidbEpisode, rules){
-
 	rules = rules || {};
 
 	this._updateEpisodeField('number', episodeToUpdate, anidbEpisode.epno, rules);
 	this._updateEpisodeField('runtime', episodeToUpdate, anidbEpisode.length, rules);
-	this._updateEpisodeField('aired', episodeToUpdate, anidbEpisode.airdate, rules);
-	this._updateEpisodeField('special', episodeToUpdate, anidbEpisode.type === 2, rules);
+	this._updateEpisodeField('aired', episodeToUpdate, new Date(anidbEpisode.airdate), rules);
+	this._updateEpisodeField('special', episodeToUpdate, false, rules);
 	
-	var title = _.find(anidbEpisode.titles, function(title){
-		return title.lang === 'en'; 
-	});
-	
-	if(title) this._updateEpisodeField('title', episodeToUpdate, title.title, rules);
-	
-	if(!episodeToUpdate.titles) episodeToUpdate.titles = [];
-
 	anidbEpisode.titles.forEach(function(title){
 		
 		var exists = _.find(episodeToUpdate.titles, function(localTitle){
-			return localTitle.title === title.title && title.lang == localTitle.lang;
-		})
+			return localTitle.title === title.title;
+		});
 
-		if(!exists)
-			episodeToUpdate.titles.push(title);
+		if(!exists){
+			var newTitle = episodeToUpdate.titles.create(title);
+			episodeToUpdate.titles.push(newTitle);
+		}
 	});
 };
 
 /**
- * Mappers
+ * Mapper prototypes
  */
-function Mapper(siteId) {
-	this._connectionId = siteId;
-};
 
 Mapper.prototype._findLocalEpisodeByRemoteId = function(animeToSearch, remoteId){
-	var self = this,
-		connectionId = this._connectionId;
+	var connectionId = this._connectionId;
 
 	if(!animeToSearch.episodes) return;
 
@@ -185,24 +189,26 @@ Mapper.prototype._findLocalEpisodeByRemoteId = function(animeToSearch, remoteId)
 	});
 };
 
+
+
 NormalMapper.prototype = new Mapper();
-function NormalMapper() {}
+
 
 NormalMapper.prototype._findLocalEpisode = function(animeToSearch, remoteEpisode){
-	if(remoteEpisode.type === 2) return; // Type 2 == Special episode.
-
 	return  this._findLocalEpisodeByRemoteId(animeToSearch, remoteEpisode.id) || 
 			_.find(animeToSearch.episodes, function(episode){
-				return episode.number === remoteEpisode.epno && episode.special === (remoteEpisode.type === 2);
+				return episode.number === remoteEpisode.epno;
 			});
 };
 
 
 NormalMapper.prototype.getEpisodeToUpdate = function(animeToUpdate, remoteEpisode){
-	var localEpisode =  this._findLocalEpisode(animeToUpdate, remoteEpisode);
+	if(remoteEpisode.type !== 1) return; // Type 1 == Regular episode.
+
+	var localEpisode = this._findLocalEpisode(animeToUpdate, remoteEpisode);
 	
 	if(!localEpisode){
-		localEpisode = {};
+		localEpisode = animeToUpdate.episodes.create({});
 		animeToUpdate.episodes.push(localEpisode);
 	}
 	return localEpisode;
