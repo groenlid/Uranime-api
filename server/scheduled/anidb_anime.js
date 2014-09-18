@@ -2,10 +2,12 @@
 
 var anidbProvider = require('../providers/anidbProvider'),
     mongoose = require('mongoose'),
-    Anime = mongoose.model('Anime');
+    Anime = mongoose.model('Anime'),
+    anidb = require('anidb'),
+    config = require('../config/config');
 
 module.exports = function(app, agenda) {
-
+    var client = new anidb(config.anidb.client, config.anidb.clientVersion, 3000);
     var scheduledName = 'anidb: update anime';
 
     function fetchAndUpdateAnime(job, done, ids){
@@ -19,7 +21,7 @@ module.exports = function(app, agenda) {
                 return fetchAndUpdateAnime(job, done, ids);
             }
 
-            var provider = new anidbProvider(anime);
+            var provider = new anidbProvider(anime, client);
             provider.refreshRemote()
             .then(provider.updateEpisodes)
             .then(provider.returnAnime)
@@ -29,7 +31,7 @@ module.exports = function(app, agenda) {
                 });
             })
             .finally(function(err){
-                return fetchAndUpdateAnime(job, done, ids);
+                fetchAndUpdateAnime(job, done, ids);
             });
 
         });
