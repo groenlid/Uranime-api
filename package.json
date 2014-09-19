@@ -54,7 +54,8 @@
     "passport-local": "^1.0.0",
     "passport-twitter": "^1.0.2",
     "static-favicon": "~1.0.2",
-    "time-grunt": "^0.3.1"
+    "time-grunt": "^0.3.1",
+    "winston": "^0.8.0"
   },
   "devDependencies": {
     "assetmanager": "^0.1.2",

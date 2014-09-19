@@ -16,7 +16,7 @@ var favicon = require('static-favicon'),
     mongoose = require('mongoose'),
     grid = require('gridfs-stream'),
   	util = require('./util'),
-    Agenda = require('agenda');
+    setupAgenda = require('./agenda');
 
 module.exports = function(app, passport, db){
 
@@ -59,23 +59,7 @@ module.exports = function(app, passport, db){
   // Setting the fav icon and static folder
   app.use(favicon());
 
-  // Agenda
-  var agenda = new Agenda();
-  agenda.database(config.db);
-
-  agenda.on('start', function(job) {
-    console.log('Job %s starting', job.attrs.name);
-  });
-
-  agenda.on('complete', function(job) {
-    console.log('Job %s finished', job.attrs.name);
-  });
-
-  util.walk(appPath + '/server/scheduled', null, function(path){
-    require(path)(app, agenda, gfs);
-  });
-  
-  agenda.start();
+  setupAgenda(app, appPath, gfs);
 
   // Skip the app/routes/middlewares directory as it is meant to be
   // used and shared by routes as further middlewares and is not a

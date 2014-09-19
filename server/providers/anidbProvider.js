@@ -138,6 +138,20 @@ AniDbProvider.prototype._updateEpisodeField = function(field, episodeToUpdate, a
 	}
 };
 
+AniDbProvider.prototype._episodeContainSiteConnection = function(animeEpisode, site){
+	return _.chain(animeEpisode.connections).pluck('site').contains(site);
+};
+
+AniDbProvider.prototype._addConnectionOnEpisode = function(episodeToUpdate, anidbEpisode){
+	if(this._episodeContainSiteConnection(episodeToUpdate, 'anidb')) return;
+
+	var connection = episodeToUpdate.connections.create({
+		siteId: anidbEpisode.id,
+		site: 'anidb'
+	});
+	episodeToUpdate.connections.push(connection);
+};
+
 AniDbProvider.prototype._updateEpisode = function(episodeToUpdate, anidbEpisode, rules){
 	rules = rules || {};
 
@@ -157,6 +171,8 @@ AniDbProvider.prototype._updateEpisode = function(episodeToUpdate, anidbEpisode,
 			episodeToUpdate.titles.push(newTitle);
 		}
 	});
+
+	this._addConnectionOnEpisode(episodeToUpdate, anidbEpisode);
 };
 
 
