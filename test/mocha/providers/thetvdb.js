@@ -3,38 +3,33 @@
 /**
  * Module dependencies.
  */
-var anidbProvider = require('../../../server/providers/anidbProvider'),
-	should = require('should'),
+var TheTVDBProvider = require('../../../server/providers/thetvdbProvider'),
 	mongoose = require('mongoose'),
 	Anime = mongoose.model('Anime'),
-	anidb = require('anidb');
+	should = require('should');
 
 /**
- * The tests
+ * Test data
  */
+
+/**
+ * Tests
+ */
+
 describe('<Unit Test>', function() {
-	describe('Provider AniDb:', function() {
+	describe('Provider TheTvDb:', function() {
 		
 		it('Should fail when providing insufficient arguments', function(done){
 			/*jshint immed: false */
-			(function() { new anidbProvider(); }).should.throw();
+			(function() { new TheTVDBProvider(); }).should.throw();
 			/*jshint immed: true */
 			done();
 		});
 
-		it('Should use the given anidb-client if given one as second argument', function(done){
-			var fakeAnime  =  {};
-			var fakeClient =  {identificator: 'HellsBells'};
-
-			var provider = new anidbProvider(fakeAnime, fakeClient);
-			provider._client.should.have.property('identificator', fakeClient.identificator);
-			done();
-		});
-
-		it('Should create it\'s own client if one is not given', function(done){
+		it('Should always create it\'s own client', function(done){
 			var fakeAnime = {};
 
-			var provider = new anidbProvider(fakeAnime);
+			var provider = new TheTVDBProvider(fakeAnime);
 			should.exist(provider._client);
 			done();
 		});
@@ -45,24 +40,24 @@ describe('<Unit Test>', function() {
 					{
 						siteId: 12,
 						site: 'anidb',
-						comment: 'Dum dum dum'
+						comment: 'This should be removed'
 					},
 					{
 						siteId:13,
 						site: 'anidb',
-						comment: 'Da-di-dum'
+						comment: 'This should be removed'
 					},
 					{
 						siteId:2000,
 						site:'thetvdb',
-						comment: 'This should be removed'
+						comment: 'Da-di-dum'
 					}
 				]
 			};
 
-			var connections = new anidbProvider(fakeAnime)._getConnections();
+			var connections = new TheTVDBProvider(fakeAnime)._getConnections();
 			should.exist(connections);
-			connections.should.be.instanceof(Array).and.have.lengthOf(2);
+			connections.should.be.instanceof(Array).and.have.lengthOf(1);
 			done();
 		});
 
@@ -82,15 +77,17 @@ describe('<Unit Test>', function() {
 						connections: [
 							{
 								siteId: 1000,
-								site: 'anidb',
+								site: 'thetvdb',
 							}
 						]
 					}
 				],
 				connections: [
 					{
-						siteId: 12,
-						site: 'anidb',
+						siteId: 264663,
+						mapping: 'season',
+						season: 2,
+						site: 'thetvdb',
 						comment: 'Dum dum dum'
 					}
 				]
@@ -121,23 +118,18 @@ describe('<Unit Test>', function() {
 				]
 			};
 
-			var fakeClient = new anidb();
+			var fakeClient = {};
 			fakeClient.getAnime = function(id, cb){
 				cb(null, fakeResponse);
 			};
 
-			var provider = new anidbProvider(fakeAnime, fakeClient);
+			var provider = new TheTVDBProvider(fakeAnime);
 
 			provider.refreshRemote()
-			.then(provider.updateEpisodes)
-			.then(provider.returnAnime)
+			//.then(provider.updateEpisodes)
+			//.then(provider.returnAnime)
 			.then(function(anime){
-				anime.episodes.should.be.instanceof(Array).and.have.lengthOf(2);
-				anime.episodes[0].titles.should.be.instanceof(Array).and.have.lengthOf(3);
-				anime.episodes[0].connections.should.be.instanceof(Array).and.have.lengthOf(1);
-				anime.episodes[0].connections[0].should.have.property('siteId', '1000');
-				anime.episodes[1].connections.should.be.instanceof(Array).and.have.lengthOf(1);
-				anime.episodes[1].connections[0].should.have.property('siteId', '1001');
+				console.dir(JSON.stringify(provider._remoteAnime));
 				done();
 			});
 

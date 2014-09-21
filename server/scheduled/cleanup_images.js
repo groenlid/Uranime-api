@@ -22,7 +22,5 @@ module.exports = function(app, agenda, gfs) {
     });
 
     //agenda.now(scheduledName);
-    if ('test' !== app.get('env')) {
-        agenda.every('1 day', scheduledName);
-    }
+    agenda.every('1 day', scheduledName);
 };

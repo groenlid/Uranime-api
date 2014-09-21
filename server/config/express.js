@@ -58,8 +58,10 @@ module.exports = function(app, passport, db){
 
   // Setting the fav icon and static folder
   app.use(favicon());
-
-  setupAgenda(app, appPath, gfs);
+  
+  if ('test' !== app.get('env')) {
+    setupAgenda(app, appPath, gfs);
+  }
 
   // Skip the app/routes/middlewares directory as it is meant to be
   // used and shared by routes as further middlewares and is not a

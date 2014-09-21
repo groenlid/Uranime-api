@@ -14,6 +14,9 @@ module.exports = {
         client: 'calendar',
         clientVersion: 1
     },
+    thetvdb: {
+        key: '9DAF49C96CBF8DAC'
+    },
     ssl: {
         key: 'certs/127.0.0.1.key',
         cert: 'certs/127.0.0.1.cert'

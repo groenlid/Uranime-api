@@ -44,7 +44,5 @@ module.exports = function(app, agenda) {
     });
 
     //agenda.now(scheduledName);
-    if ('test' !== app.get('env')) {
-        agenda.every('1 weeks', scheduledName);
-    }
+    agenda.every('1 weeks', scheduledName);
 };

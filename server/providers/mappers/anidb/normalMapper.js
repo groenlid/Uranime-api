@@ -5,9 +5,7 @@ var Mapper = require('../mapper'),
 
 function NormalMapper() {}
 
-
-NormalMapper.prototype = new Mapper();
-
+NormalMapper.prototype = Object.create(Mapper.prototype);
 
 NormalMapper.prototype._findLocalEpisode = function(animeToSearch, remoteEpisode){
 	return  this._findLocalEpisodeByRemoteId(animeToSearch, remoteEpisode.id) || 

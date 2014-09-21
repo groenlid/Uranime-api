@@ -48,9 +48,7 @@ module.exports = function(app, agenda) {
     });
 
     //agenda.now(scheduledName, { anime: '53ef85125258bb45d8d3e44d' });
-    if ('test' !== app.get('env')) {
-        agenda.every('1 day', scheduledName);
-    }
+    agenda.every('1 day', scheduledName);
     //agenda.every('5 minutes', scheduledName);
     //agenda.now(scheduledName);
 

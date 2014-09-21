@@ -55,6 +55,7 @@
     "passport-twitter": "^1.0.2",
     "static-favicon": "~1.0.2",
     "time-grunt": "^0.3.1",
+    "tvdb": "0.0.13",
     "winston": "^0.8.0"
   },
   "devDependencies": {
