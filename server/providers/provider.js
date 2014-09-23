@@ -2,7 +2,11 @@
 
 var util = require('util'),
 	bluebird = require('bluebird'),
-	_ = require('lodash');
+	_ = require('lodash'),
+	defaultRules = {
+    	setIfEmpty: 1,
+    	override: 2
+    };;
 
 /**
  * Provider
@@ -76,6 +80,36 @@ Provider.prototype._updateEpisodeField = function(field, episodeToUpdate, remote
 			episodeToUpdate[field] = remoteField;
 		break;
 	}
+};
+
+/**
+ * Updates the episodes on the anime object
+ * and resolves the promise with the updated
+ * anime object. It does not save the model.
+ * @returns {defer.promise} Resolves with the anime object
+ */
+Provider.prototype.updateEpisodes = function(self){
+    self = self || this;
+    
+    var defer = bluebird.pending(),
+	    animeToUpdate = self._anime,
+	    connections = self._getConnections();
+
+    connections.forEach(function(connection){
+    	var remoteAnime = self._returnRemoteAnime(connection),
+    		mapper = self._getMapper(connection);
+    	
+    	
+    	remoteAnime.episodes.forEach(function(remoteEpisode){
+    		var localEpisodeToUpdate = mapper.getEpisodeToUpdate(animeToUpdate, remoteEpisode);
+    		if(!localEpisodeToUpdate) return;
+    		self._updateEpisode(localEpisodeToUpdate, remoteEpisode, connection.rules);
+    	});
+
+    });
+
+ 	defer.resolve(self);
+    return defer.promise;
 };
 
 /**

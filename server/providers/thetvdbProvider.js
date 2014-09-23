@@ -4,10 +4,7 @@ var Provider = require('./provider'),
 	TVDB = require('tvdb'),
 	bluebird = require('bluebird'),
 	config = require('../config/config'),
-	defaultRules = {
-    	setIfEmpty: 1,
-    	override: 2
-    };;
+	SeasonMapper = require('./mappers/thetvdb/seasonMapper');
 
 /**
  * Provider
@@ -30,6 +27,17 @@ TheTVDBProvider.prototype._refreshSingleRemote = function(self, connection){
 			resolve(anime);
 		});
 	});
+};
+
+TheTVDBProvider.prototype._getMapper = function(connection){
+	switch(connection.mapping){
+		case 'season':
+			return new SeasonMapper(this._site);
+		break;
+		default:
+			return new SeasonMapper(this._site);
+		break;
+	}
 };
 
 module.exports = TheTVDBProvider;

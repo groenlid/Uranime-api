@@ -76,8 +76,8 @@ describe('<Unit Test>', function() {
 						],
 						connections: [
 							{
-								siteId: 1000,
-								site: 'thetvdb',
+								siteId: 999,
+								site: 'anidb',
 							}
 						]
 					}
@@ -89,46 +89,72 @@ describe('<Unit Test>', function() {
 						season: 2,
 						site: 'thetvdb',
 						comment: 'Dum dum dum'
+					},
+					{
+						siteId: 2,
+						mapping: 'normal',
+						site: 'anidb',
+						comment: 'Dum dum dum'
 					}
 				]
 			});
 
-			var fakeResponse = {
-				episodes: [
-					{
-						id: 1000,
-				        epno: 1,
-				        type: 1,
-				        length: 25,
-				        airdate: new Date('02.01.1970'),
-				        titles: [
-				        { title: 'Episode 1', lang: 'en'},
-				        { title: 'Episode something else'}]
-					},
-					{
-						id: 1001,
-				        epno: 2,
-				        type: 1,
-				        length: 20,
-				        airdate: new Date('08.01.1970'),
-				        titles: [
-				        { title: 'There is something going on..'},
-				        { title: 'Dafuq is this?', lang: 'en'}]
-					}
-				]
-			};
+			var fakeResponse = { 
+				tvShow: { 
+					id: '264663',
+        			genre: '|Animation|',
+        			language: 'en',
+        			name: 'Date a Live',
+        			firstAired: "2013-04-06T00:00:00.000Z",
+        			imdbId: 'tt2575684',
+        			banner: 'graphical/264663-g.jpg',
+        			overview: 'Thirty years ago a strange phenomenon with him and kiss her.' 
+        		},
+        		episodes: [
+        			{
+        				id:"4788062",
+        				name:"Nothing here",
+        				number:"1",
+        				language: "en",
+        				season:"1",
+        				seasonId:"575556",
+        				tvShowId:"264663",
+        				lastUpdated:"1402246862",
+        				firstAired:"2014-04-12T00:00:00.000Z",
+        				overview:"Something.",
+        				rating:"10.0",
+        				ratingCount:"1"
+        			},
+        			{
+        				id:"4788063",
+        				name:"Daily Life",
+        				number:"1",
+        				language: "en",
+        				season:"2",
+        				seasonId:"575557",
+        				tvShowId:"264663",
+        				lastUpdated:"1402246862",
+        				firstAired:"2014-04-12T00:00:00.000Z",
+        				overview:"Shido wakes up.",
+        				rating:"10.0",
+        				ratingCount:"1"
+        			}
+        		]
+    		};
 
 			var fakeClient = {};
-			fakeClient.getAnime = function(id, cb){
+			fakeClient.getInfo = function(id, cb){
 				cb(null, fakeResponse);
 			};
 
-			var provider = new TheTVDBProvider(fakeAnime);
+			var provider = new TheTVDBProvider(fakeAnime, fakeClient);
 
 			provider.refreshRemote()
-			//.then(provider.updateEpisodes)
-			//.then(provider.returnAnime)
+			.then(provider.updateEpisodes)
+			.then(provider.returnAnime)
 			.then(function(anime){
+				anime.episodes.should.be.instanceof(Array).and.have.lengthOf(1);
+				anime.episodes[0].titles.should.be.instanceof(Array).and.have.lengthOf(3);
 				console.dir(JSON.stringify(provider._remoteAnime));
 				done();
 			});
