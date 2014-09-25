@@ -23,7 +23,8 @@ function AniDbProvider(uranime_anime, client) {
 AniDbProvider.prototype = Object.create(Provider.prototype);
 
 
-AniDbProvider.prototype._refreshSingleRemote = function(self, connection){
+AniDbProvider.prototype._refreshSingleRemote = function(connection){
+	var self = this;
 	return new bluebird(function(resolve, reject){
 		self._client.getAnime(connection.siteId, function(err, anime){
 			if(err) return reject(err);

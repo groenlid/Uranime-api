@@ -126,20 +126,18 @@ describe('<Unit Test>', function() {
 				cb(null, fakeResponse);
 			};
 
-			var provider = new anidbProvider(fakeAnime, fakeClient);
-
-			provider.refreshRemote()
-			.then(provider.updateEpisodes)
-			.then(provider.returnAnime)
-			.then(function(anime){
-				anime.episodes.should.be.instanceof(Array).and.have.lengthOf(2);
-				anime.episodes[0].titles.should.be.instanceof(Array).and.have.lengthOf(3);
-				anime.episodes[0].connections.should.be.instanceof(Array).and.have.lengthOf(1);
-				anime.episodes[0].connections[0].should.have.property('siteId', '1000');
-				anime.episodes[1].connections.should.be.instanceof(Array).and.have.lengthOf(1);
-				anime.episodes[1].connections[0].should.have.property('siteId', '1001');
-				done();
-			});
+			new anidbProvider(fakeAnime, fakeClient)
+				.refreshRemote()
+				.updateEpisodes()
+				.returnAnime(function(err, anime){
+					anime.episodes.should.be.instanceof(Array).and.have.lengthOf(2);
+					anime.episodes[0].titles.should.be.instanceof(Array).and.have.lengthOf(3);
+					anime.episodes[0].connections.should.be.instanceof(Array).and.have.lengthOf(1);
+					anime.episodes[0].connections[0].should.have.property('siteId', '1000');
+					anime.episodes[1].connections.should.be.instanceof(Array).and.have.lengthOf(1);
+					anime.episodes[1].connections[0].should.have.property('siteId', '1001');
+					done();
+				});
 
 		});
 

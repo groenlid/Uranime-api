@@ -19,7 +19,8 @@ function TheTVDBProvider(uranime_anime, client) {
 
 TheTVDBProvider.prototype = Object.create(Provider.prototype);
 
-TheTVDBProvider.prototype._refreshSingleRemote = function(self, connection){
+TheTVDBProvider.prototype._refreshSingleRemote = function(connection){
+	var self = this;
 	return new bluebird(function(resolve, reject){
 		self._client.getInfo(connection.siteId, function(err, anime){
 			if(err) return reject(err);

@@ -149,10 +149,10 @@ describe('<Unit Test>', function() {
 
 			var provider = new TheTVDBProvider(fakeAnime, fakeClient);
 
-			provider.refreshRemote()
-			.then(provider.updateEpisodes)
-			.then(provider.returnAnime)
-			.then(function(anime){
+			provider
+			.refreshRemote()
+			.updateEpisodes()
+			.returnAnime(function(err, anime){
 				anime.episodes.should.be.instanceof(Array).and.have.lengthOf(1);
 				anime.episodes[0].titles.should.be.instanceof(Array).and.have.lengthOf(3);
 				console.dir(JSON.stringify(provider._remoteAnime));

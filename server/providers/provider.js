@@ -18,6 +18,7 @@ function Provider(uranime_anime) {
 		throw new Error(util.format('Missing argument anime. use new `ProviderName`(anime); You sent %s', JSON.stringify(arguments)));
 
 	this._anime = uranime_anime;
+    this._actionQueue = [];
 }
 
 /**
@@ -50,23 +51,25 @@ Provider.prototype._returnRemoteAnime = function(connection){
  * It is saved as {connection.siteId: {anime}}.
  * @return {Object} The remote anime dictionary.
  */
-Provider.prototype.refreshRemote = function(self){
-	self = self || this;
+Provider.prototype.refreshRemote = function(){
+	this._actionQueue.push(this._refreshRemote);
+	return this;
+};
+
+Provider.prototype._refreshRemote = function(){
 	var defers = [], 
-		defer = bluebird.pending(),
-		connections = self._getConnections();
-	
-	self._remoteAnime = {};	
+		connections = this._getConnections(),
+		self = this;
+
+
+	this._remoteAnime = {};	
 	
 	connections.forEach(function(connection, i){
-		defers.push(self._refreshSingleRemote(self, connection));
+		defers.push(self._refreshSingleRemote(connection));
 	});
 
-	bluebird.all(defers).then(function(){
-		defer.resolve(self);
-	});
+	return bluebird.all(defers);
 
-	return defer.promise;
 };
 
 Provider.prototype._updateEpisodeField = function(field, episodeToUpdate, remoteField, rules){
@@ -86,40 +89,61 @@ Provider.prototype._updateEpisodeField = function(field, episodeToUpdate, remote
  * Updates the episodes on the anime object
  * and resolves the promise with the updated
  * anime object. It does not save the model.
- * @returns {defer.promise} Resolves with the anime object
  */
-Provider.prototype.updateEpisodes = function(self){
-    self = self || this;
-    
-    var defer = bluebird.pending(),
-	    animeToUpdate = self._anime,
-	    connections = self._getConnections();
+Provider.prototype.updateEpisodes = function(){
+	this._actionQueue.push(this._updateEpisodes);
+	return this;
+};
 
-    connections.forEach(function(connection){
-    	var remoteAnime = self._returnRemoteAnime(connection),
-    		mapper = self._getMapper(connection);
-    	
-    	
-    	remoteAnime.episodes.forEach(function(remoteEpisode){
-    		var localEpisodeToUpdate = mapper.getEpisodeToUpdate(animeToUpdate, remoteEpisode);
-    		if(!localEpisodeToUpdate) return;
-    		self._updateEpisode(localEpisodeToUpdate, remoteEpisode, connection.rules);
+Provider.prototype._updateEpisodes = function(){
+    var animeToUpdate = this._anime,
+	    connections = this._getConnections(),
+	    self = this;
+
+	return new bluebird(function(resolve, reject){
+		connections.forEach(function(connection){
+	    	var remoteAnime = self._returnRemoteAnime(connection),
+	    		mapper = self._getMapper(connection);
+	    	
+	    	
+	    	remoteAnime.episodes.forEach(function(remoteEpisode){
+	    		var localEpisodeToUpdate = mapper.getEpisodeToUpdate(animeToUpdate, remoteEpisode);
+	    		if(!localEpisodeToUpdate) return;
+	    		self._updateEpisode(localEpisodeToUpdate, remoteEpisode, connection.rules);
+	    	});
+
     	});
+    	resolve();
+	});
+};
 
-    });
+Provider.prototype._doQueue = function(callback){
+	var self = this, action;
+	if(this._actionQueue.length === 0)
+		return callback();
 
- 	defer.resolve(self);
-    return defer.promise;
+	action = this._actionQueue.shift();
+	action.call(self).then(function(){
+		self._doQueue.call(self, callback);
+	}, callback);
 };
 
 /**
  * Returns the modified referance uranime_anime from the provider.
  * @return {Anime}
  */
-Provider.prototype.returnAnime = function(self){
-	self = self || this;
+Provider.prototype.returnAnime = function(callback){
+	var self = this;
 	return new bluebird(function(resolve, reject){
-		resolve(self._anime);
+		self._doQueue(function(err){
+			if(err) {
+				if(callback) callback(err);
+				reject(err);
+				return;
+			};
+			if(callback) callback(null, self._anime);
+			resolve(self._anime);
+		});
 	});
 };
 
