@@ -153,9 +153,9 @@ describe('<Unit Test>', function() {
 			.refreshRemote()
 			.updateEpisodes()
 			.returnAnime(function(err, anime){
+				if(err) return done(err);
 				anime.episodes.should.be.instanceof(Array).and.have.lengthOf(1);
 				anime.episodes[0].titles.should.be.instanceof(Array).and.have.lengthOf(3);
-				console.dir(JSON.stringify(provider._remoteAnime));
 				done();
 			});
 

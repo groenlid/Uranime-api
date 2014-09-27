@@ -108,7 +108,7 @@ Provider.prototype._updateEpisodes = function(){
 	    	
 	    	remoteAnime.episodes.forEach(function(remoteEpisode){
 	    		var localEpisodeToUpdate = mapper.getEpisodeToUpdate(animeToUpdate, remoteEpisode);
-	    		if(!localEpisodeToUpdate) return;
+	    		if(typeof localEpisodeToUpdate === 'undefined') return;
 	    		self._updateEpisode(localEpisodeToUpdate, remoteEpisode, connection.rules);
 	    	});
 

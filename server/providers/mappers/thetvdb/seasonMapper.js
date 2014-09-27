@@ -3,24 +3,25 @@
 var Mapper = require('../mapper'),
 	_ = require('lodash');
 
-function SeasonMapper() {
-	
+function SeasonMapper(connection) {
+	Mapper.call(this, connection);
 }
 
 SeasonMapper.prototype = Object.create(Mapper.prototype);
 
-SeasonMapper.prototype._findLocalEpisode = function(animeToSearch, remoteEpisode){
+SeasonMapper.prototype._findLocalEpisode = function(animeToSearch, remoteEpisode, seasonToFetch){
 	return  this._findLocalEpisodeByRemoteId(animeToSearch, remoteEpisode.id) || 
 			_.find(animeToSearch.episodes, function(episode){
-				return episode.number === remoteEpisode.epno;
+				return episode.number === parseInt(remoteEpisode.number,10);
 			});
 };
 
 
 SeasonMapper.prototype.getEpisodeToUpdate = function(animeToUpdate, remoteEpisode){
-	if(remoteEpisode.type !== 1) return; // Type 1 == Regular episode.
+	var seasonToFetch = this._connection.season;
+	if(typeof seasonToFetch === 'undefined' || remoteEpisode.season !== seasonToFetch) return;
 
-	var localEpisode = this._findLocalEpisode(animeToUpdate, remoteEpisode);
+	var localEpisode = this._findLocalEpisode(animeToUpdate, remoteEpisode, seasonToFetch);
 	
 	if(!localEpisode){
 		localEpisode = animeToUpdate.episodes.create({});

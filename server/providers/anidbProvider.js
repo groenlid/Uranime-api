@@ -37,10 +37,10 @@ AniDbProvider.prototype._refreshSingleRemote = function(connection){
 AniDbProvider.prototype._getMapper = function(connection){
 	switch(connection.mapping){
 		case 'normal':
-			return new NormalMapper(this._site);
+			return new NormalMapper(connection);
 		break;
 		default:
-			return new NormalMapper(this._site);
+			return new NormalMapper(connection);
 		break;
 	}
 };

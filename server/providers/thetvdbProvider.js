@@ -4,7 +4,8 @@ var Provider = require('./provider'),
 	TVDB = require('tvdb'),
 	bluebird = require('bluebird'),
 	config = require('../config/config'),
-	SeasonMapper = require('./mappers/thetvdb/seasonMapper');
+	SeasonMapper = require('./mappers/thetvdb/seasonMapper'),
+	_ = require('lodash');
 
 /**
  * Provider
@@ -30,13 +31,33 @@ TheTVDBProvider.prototype._refreshSingleRemote = function(connection){
 	});
 };
 
+TheTVDBProvider.prototype._updateEpisode = function(episodeToUpdate, tvdbEpisode, rules){
+	rules = rules || {};
+
+	// this._updateEpisodeField('number', episodeToUpdate, anidbEpisode.epno, rules);
+	// this._updateEpisodeField('runtime', episodeToUpdate, anidbEpisode.length, rules);
+	// this._updateEpisodeField('aired', episodeToUpdate, new Date(anidbEpisode.airdate), rules);
+	// this._updateEpisodeField('special', episodeToUpdate, false, rules);
+	
+	var titleExists = _.find(episodeToUpdate.titles, function(localTitle){
+		return localTitle.title === tvdbEpisode.name;
+	});
+	
+	if(!titleExists){
+		var newTitle = episodeToUpdate.titles.create({title: tvdbEpisode.name, lang: tvdbEpisode.language});
+		episodeToUpdate.titles.push(newTitle);
+	}
+
+	this._addConnectionOnEpisode(episodeToUpdate, tvdbEpisode);
+};
+
 TheTVDBProvider.prototype._getMapper = function(connection){
 	switch(connection.mapping){
 		case 'season':
-			return new SeasonMapper(this._site);
+			return new SeasonMapper(connection);
 		break;
 		default:
-			return new SeasonMapper(this._site);
+			return new SeasonMapper(connection);
 		break;
 	}
 };
