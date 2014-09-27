@@ -6,7 +6,7 @@ var util = require('util'),
 	defaultRules = {
     	setIfEmpty: 1,
     	override: 2
-    };;
+    };
 
 /**
  * Provider
@@ -140,7 +140,7 @@ Provider.prototype.returnAnime = function(callback){
 				if(callback) callback(err);
 				reject(err);
 				return;
-			};
+			}
 			if(callback) callback(null, self._anime);
 			resolve(self._anime);
 		});

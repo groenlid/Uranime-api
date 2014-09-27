@@ -4,7 +4,9 @@ var anidbProvider = require('../providers/anidbProvider'),
     mongoose = require('mongoose'),
     Anime = mongoose.model('Anime'),
     anidb = require('anidb'),
-    config = require('../config/config');
+    config = require('../config/config'),
+    bluebird = require('bluebird'),
+    thetvdbProvider = require('../providers/thetvdbProvider');
 
 module.exports = function(app, agenda) {
     var client = new anidb(config.anidb.client, config.anidb.clientVersion, 3000);
@@ -21,19 +23,20 @@ module.exports = function(app, agenda) {
                 return fetchAndUpdateAnime(job, done, ids);
             }
 
-            var provider = new anidbProvider(anime, client);
-            provider.refreshRemote()
-            .then(provider.updateEpisodes)
-            .then(provider.returnAnime)
-            .then(function(updatedAnime){
-                updatedAnime.save(function(err, savedAnime){
-                    
-                });
-            })
-            .finally(function(err){
+            var anidb = new anidbProvider(anime, client)
+            .refreshRemote()
+            .updateEpisodes()
+            .returnAnime();
+
+            var thetvdb = new thetvdbProvider(anime)
+            .refreshRemote()
+            .updateEpisodes()
+            .returnAnime();
+
+            bluebird.settle([anidb, thetvdb]).then(function(){
+                anime.save();
                 fetchAndUpdateAnime(job, done, ids);
             });
-
         });
     }
 

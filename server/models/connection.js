@@ -13,7 +13,7 @@ var mongoose = require('mongoose'),
 var mappings = {
     myanimelist: [],
     anidb: ['normal'],
-    thetvdb: [],
+    thetvdb: ['season'],
     themoviedb: [],
     trakt: []
 };

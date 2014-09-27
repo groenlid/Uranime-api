@@ -55,10 +55,8 @@ TheTVDBProvider.prototype._getMapper = function(connection){
 	switch(connection.mapping){
 		case 'season':
 			return new SeasonMapper(connection);
-		break;
 		default:
 			return new SeasonMapper(connection);
-		break;
 	}
 };
 

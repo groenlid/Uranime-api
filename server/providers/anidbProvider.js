@@ -38,10 +38,8 @@ AniDbProvider.prototype._getMapper = function(connection){
 	switch(connection.mapping){
 		case 'normal':
 			return new NormalMapper(connection);
-		break;
 		default:
 			return new NormalMapper(connection);
-		break;
 	}
 };
 
