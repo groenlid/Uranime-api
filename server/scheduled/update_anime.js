@@ -6,7 +6,8 @@ var anidbProvider = require('../providers/anidbProvider'),
     anidb = require('anidb'),
     config = require('../config/config'),
     bluebird = require('bluebird'),
-    thetvdbProvider = require('../providers/thetvdbProvider');
+    thetvdbProvider = require('../providers/thetvdbProvider'),
+    winston = require('winston');
 
 module.exports = function(app, agenda) {
     var client = new anidb(config.anidb.client, config.anidb.clientVersion, 3000);
@@ -19,7 +20,7 @@ module.exports = function(app, agenda) {
         var id = ids.shift();
         Anime.findOne({_id: id}, function(err, anime){
             if(err) {
-                // Should probably log something here...
+                winston.error('Could not fetch the anime with _id: %s', id, err);
                 return fetchAndUpdateAnime(job, done, ids);
             }
 
@@ -33,8 +34,16 @@ module.exports = function(app, agenda) {
             .updateEpisodes()
             .returnAnime();
 
-            bluebird.settle([anidb, thetvdb]).then(function(){
-                anime.save();
+            anidb.error(function(err){
+                winston.error('Could not update the anime %s with provider %s', anime._id, 'anidbProvider', {anime: anime, error: err});
+            });
+
+            bluebird.settle([anidb, thetvdb]).then(function(results){
+                anime.save(function(err){
+                    if(err) {
+                        winston.error('Could not save anime after update', err);
+                    }
+                });
                 fetchAndUpdateAnime(job, done, ids);
             });
         });
@@ -43,6 +52,7 @@ module.exports = function(app, agenda) {
     agenda.define(scheduledName, {concurrency: 1} ,function(job, done) {
         Anime.find({status: {$ne: 'finished'}}, {_id: true}, function(err, ids){
             if(err){
+                winston.error('Could not fetch not finished anime from the database', err);
                 return job.fail(err);
             }
             return fetchAndUpdateAnime(job, done, ids);

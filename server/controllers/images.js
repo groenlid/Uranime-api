@@ -2,6 +2,7 @@
 var multiparty  = require('multiparty'),
     bluebird    = require('bluebird'),
     config      = require('../config/config'),
+    winston     = require('winston'),
     gm          = require('gm');
 
 
@@ -46,66 +47,71 @@ var streamIsAllowedFileType = function(stream){
     });
 
     return resolver.promise;
-
 };
 
-var uploadImage = function(req, res, imageType){
+var uploadImageFromUrl = function(url, imageType){
+    
+};
+
+/**
+ * Uploads an image to the specified grid-store and returns the information.
+ * @param  {object} req express request object
+ * @param  {object} res express response object
+ * @param  {string} imageType
+ * @return {promise}
+ */
+var uploadImageFromForm = function(req, res, imageType){
     var form = new multiparty.Form(),
         gfs = req.gfs, 
-        promises = [];
+        promises = [],
+        promise = bluebird.pending();
         
     form.on('error', function(err){
-        if(err)
-            res.send(500, err);
-        else
-            res.send(500, 'An error occurred parsing the uploaded files');
+        promise.reject(err || 'An error occurred parsing the uploaded files');
     });
 
     form.on('part', function(part) {
         var resolver = bluebird.pending();
 
-        if (part.filename === null) {
-            part.resume();
-        }
+        if (part.filename === null)
+            return part.resume();
 
-        if (part.filename !== null) {
-            promises.push(resolver.promise);
-            
-            // Validate the uploaded file.
-            streamIsAllowedFileSize(part)
-            .then(streamIsAllowedFileType)
-            .then(function(stream){
+        promises.push(resolver.promise);
+        
+        // Validate the uploaded file.
+        streamIsAllowedFileSize(part)
+        .then(streamIsAllowedFileType)
+        .then(function(stream){
 
-                var writestream = gfs.createWriteStream({
-                    filename: part.filename,
-                    root: imageType
-                });
-
-                stream.pipe(writestream);
-
-                writestream.on('close', function(file){
-                    resolver.resolve(file);
-                });
-
-                writestream.on('error', function(err){
-                    form.emit('error', err);
-                });
-
-            }).catch(function(err){
-                console.log('test', err);
-                form.emit('error', 'An error occurred parsing the uploaded files. Check the filetype and size');
+            var writestream = gfs.createWriteStream({
+                filename: part.filename,
+                root: imageType
             });
 
-        }
+            stream.pipe(writestream);
+
+            writestream.on('close', function(file){
+                resolver.resolve(file);
+            });
+
+            writestream.on('error', function(err){
+                form.emit('error', err);
+            });
+
+        }).catch(function(err){
+            console.log('test', err);
+            form.emit('error', 'An error occurred parsing the uploaded files. Check the filetype and size');
+        });
     });
 
     form.on('close', function(){
         bluebird.all(promises).then(function(files){
-            res.send(files);
+            promise.resolve(files);
         });
     });
 
     form.parse(req);
+    return promise.promise;
 };
 
 var downloadImage = function(req, res, imageType){
@@ -119,16 +125,37 @@ var downloadImage = function(req, res, imageType){
     readstream.pipe(res);
 };
 
+var loggCallback = function(err){
+    winston.error('An error occurred during file-upload', err);
+};
+
 exports.uploadFanart = function(req, res){
-    uploadImage(req, res, config.imageCollections.fanart);
+    var url = req.param('url'),
+        action = typeof url !== 'undefined' ? 
+                uploadImageFromUrl(url, config.imageCollections.fanart) : 
+                uploadImageFromForm(req, res, config.imageCollections.fanart);
+    
+    action.then(function(files){
+        if(res) res.send(files);
+    },function(err){
+        if(res) res.send(500, err);
+    }).then(null, loggCallback);
 };
 
 exports.uploadPoster = function(req, res){
-    uploadImage(req, res, config.imageCollections.poster);
+    uploadImageFromForm(req, res, config.imageCollections.poster).then(function(files){
+        res.send(files);
+    },function(err){
+        res.send(500, err);
+    });
 };
 
 exports.uploadEpisodeImage = function(req, res){
-    uploadImage(req, res, config.imageCollections.episodeImage);
+    uploadImageFromForm(req, res, config.imageCollections.episodeImage).then(function(files){
+        res.send(files);
+    },function(err){
+        res.send(500, err);
+    });
 };
 
 exports.downloadFanart = function(req, res){
