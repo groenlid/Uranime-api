@@ -10,6 +10,7 @@ module.exports = {
 	db: process.env.MONGOHQ_URL,
 	templateEngine: 'swig',
 	showStackError: true,
+    imagesize: 20971520, // 20MB
     anidb: {
         client: 'calendar',
         clientVersion: 1

@@ -10,8 +10,7 @@ TODO
 Dependencies
 ===
 
-* imagemagick
-* graphicsmagick
+* A certificate (see below for instructions on how to create a self-signed one)
 * mongodb
 
 Create self-signed certificates

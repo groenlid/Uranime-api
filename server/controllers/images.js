@@ -3,7 +3,9 @@ var multiparty  = require('multiparty'),
     bluebird    = require('bluebird'),
     config      = require('../config/config'),
     winston     = require('winston'),
-    gm          = require('gm');
+    mongoose    = require('mongoose'),
+    imageType   = require('image-type'),
+    http        = require('http');
 
 
 /**
@@ -13,7 +15,7 @@ var multiparty  = require('multiparty'),
  */
 var streamIsAllowedFileSize = function(stream){
     var resolver = bluebird.pending(),
-        limit = 1024 * 1024 * 1, // 20MB
+        limit = config.imagesize,
         byteCount = stream.byteCount || parseInt(stream.byteCount, 10); 
 
     if(byteCount > limit || byteCount === 0){
@@ -30,39 +32,64 @@ var streamIsAllowedFileSize = function(stream){
  */
 var streamIsAllowedFileType = function(stream){
     var resolver = bluebird.pending(),
-        allowedFileTypes = ['png','jpeg','jpg'],
+        allowedFileTypes = ['png','jpg'],
         error = 'Unknown filetype';
-        
-    gm(stream)
-    .format({bufferStream: true}, function(err, format){
-        if(err) return resolver.reject(err);
 
-        if(typeof format === 'undefined' || allowedFileTypes.indexOf(format.toLowerCase()) < 0){
+    stream.once('data', function(data){
+        var type = imageType(data);
+        stream.position = 0;
+        if(!type || allowedFileTypes.indexOf(type.toLowerCase()) < 0){
             resolver.reject(error);
+            return;
         }
-    })
-    .stream(function (err, stdout, stderr) {
-        if(err) return resolver.reject(err);
-        resolver.resolve(stdout);
+        resolver.resolve(stream);
     });
 
     return resolver.promise;
 };
 
-var uploadImageFromUrl = function(url, imageType){
-    
+var uploadImageFromUrl = function(url, collection){
+    var defer = bluebird.pending();
+
+    http.get(url, function (res) {
+        // Validate the uploaded file.
+        streamIsAllowedFileSize(res)
+        .then(streamIsAllowedFileType)
+        .then(function(stream){
+
+            var writestream = mongoose.gfs.createWriteStream({
+                filename: res.path,
+                root: collection
+            });
+
+            stream.pipe(writestream);
+
+            writestream.on('close', function(file){
+                defer.resolve([file]);
+            });
+
+            writestream.on('error', function(err){
+                defer.reject(err);
+            });
+
+        }).catch(function(err){
+            defer.reject(err);
+        });
+    });
+
+    return defer.promise;
 };
 
 /**
  * Uploads an image to the specified grid-store and returns the information.
  * @param  {object} req express request object
  * @param  {object} res express response object
- * @param  {string} imageType
+ * @param  {string} collection the collection to save the file. eg. poster, fanart etc.
  * @return {promise}
  */
-var uploadImageFromForm = function(req, res, imageType){
+var uploadImageFromForm = function(req, res, collection){
     var form = new multiparty.Form(),
-        gfs = req.gfs, 
+        gfs = mongoose.gfs, 
         promises = [],
         promise = bluebird.pending();
         
@@ -85,7 +112,7 @@ var uploadImageFromForm = function(req, res, imageType){
 
             var writestream = gfs.createWriteStream({
                 filename: part.filename,
-                root: imageType
+                root: collection
             });
 
             stream.pipe(writestream);
@@ -99,7 +126,6 @@ var uploadImageFromForm = function(req, res, imageType){
             });
 
         }).catch(function(err){
-            console.log('test', err);
             form.emit('error', 'An error occurred parsing the uploaded files. Check the filetype and size');
         });
     });
@@ -114,15 +140,15 @@ var uploadImageFromForm = function(req, res, imageType){
     return promise.promise;
 };
 
-var downloadImage = function(req, res, imageType){
-    var id = req.params.id,
-        gfs = req.gfs;
+var downloadImage = function(id, outStream, imageType){
+    var gfs = mongoose.gfs;
 
     var readstream = gfs.createReadStream({
         _id: id,
         root: imageType
     });
-    readstream.pipe(res);
+
+    readstream.pipe(outStream);
 };
 
 var loggCallback = function(err){
@@ -159,13 +185,16 @@ exports.uploadEpisodeImage = function(req, res){
 };
 
 exports.downloadFanart = function(req, res){
-    downloadImage(req, res, config.imageCollections.fanart);
+    downloadImage(req.params.id, res, config.imageCollections.fanart);
 };
 
 exports.downloadPoster = function(req, res){
-    downloadImage(req, res, config.imageCollections.poster);
+    downloadImage(req.params.id, res, config.imageCollections.poster);
 };
 
 exports.downloadEpisodeImage = function(req, res){
-    downloadImage(req, res, config.imageCollections.episodeImage);
+    downloadImage(req.params.id, res, config.imageCollections.episodeImage);
 };
+
+exports.downloadImage = downloadImage; 
+exports.uploadImageFromUrl = uploadImageFromUrl;

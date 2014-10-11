@@ -40,11 +40,7 @@ module.exports = function(app, passport, db){
 
   // Gridfs
   var gfs = grid(db.connection.db, mongoose.mongo);
-  
-  app.use(function(req, res, next){
-    req.gfs = gfs;
-    next();
-  });
+  mongoose.gfs = gfs;
 
 	app.use(expressValidator());
 
