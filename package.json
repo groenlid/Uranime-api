@@ -77,6 +77,7 @@
     "karma-script-launcher": "~0.1.0",
     "requirejs": "~2.1.11",
     "should": "3.3.1",
+    "sinon": "^1.10.3",
     "supertest": "0.11.0"
   }
 }

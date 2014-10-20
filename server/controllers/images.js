@@ -9,6 +9,15 @@ var multiparty  = require('multiparty'),
 
 
 /**
+ * Expose this method for easy mocking.
+ * @param  {string}   url      Url to get resource from
+ * @param  {Function} callback 
+ */
+exports.getFromUrl = function(url, callback){
+    http.request(url, callback);
+};
+
+/**
  * Here we check only the byteCount field on the stream.
  * Reading the entire stream just to check the length would be
  * too expensive. 
@@ -19,7 +28,7 @@ var streamIsAllowedFileSize = function(stream){
         byteCount = stream.byteCount || parseInt(stream.byteCount, 10); 
 
     if(byteCount > limit || byteCount === 0){
-        resolver.reject('Too big file');
+        resolver.reject('The file is too big');
     }
     else{
         resolver.resolve(stream);
@@ -30,28 +39,31 @@ var streamIsAllowedFileSize = function(stream){
 /**
  * 
  */
-var streamIsAllowedFileType = function(stream){
+var streamIsAllowedFileType = function(inputStream){
     var resolver = bluebird.pending(),
         allowedFileTypes = ['png','jpg'],
         error = 'Unknown filetype';
 
-    stream.once('data', function(data){
+
+    inputStream.once('data', function(data){
         var type = imageType(data);
-        stream.position = 0;
         if(!type || allowedFileTypes.indexOf(type.toLowerCase()) < 0){
             resolver.reject(error);
             return;
         }
-        resolver.resolve(stream);
+        inputStream.unshift(data);
+        resolver.resolve(inputStream);
     });
 
     return resolver.promise;
 };
 
+
+
 var uploadImageFromUrl = function(url, collection){
     var defer = bluebird.pending();
 
-    http.get(url, function (res) {
+    exports.getFromUrl(url, function (res) {
         // Validate the uploaded file.
         streamIsAllowedFileSize(res)
         .then(streamIsAllowedFileType)
