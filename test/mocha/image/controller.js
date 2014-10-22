@@ -69,6 +69,7 @@ describe('Controller images:', function() {
                 should.exist(file);
                 file.should.be.instanceof(Array).and.have.lengthOf(1);
                 should.exist(file[0]._id);
+                file[0].length.should.equal(fileContent.length);
                 id = file._id;
                 done();
             });

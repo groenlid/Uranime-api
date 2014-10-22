@@ -43,9 +43,9 @@ var streamIsAllowedFileType = function(inputStream){
     var resolver = bluebird.pending(),
         allowedFileTypes = ['png','jpg'],
         error = 'Unknown filetype';
-
-
-    inputStream.once('data', function(data){
+        
+    inputStream.on('readable', function() {
+        var data = inputStream.read(16);
         var type = imageType(data);
         if(!type || allowedFileTypes.indexOf(type.toLowerCase()) < 0){
             resolver.reject(error);
@@ -54,7 +54,7 @@ var streamIsAllowedFileType = function(inputStream){
         inputStream.unshift(data);
         resolver.resolve(inputStream);
     });
-
+    
     return resolver.promise;
 };
 
@@ -64,6 +64,7 @@ var uploadImageFromUrl = function(url, collection){
     var defer = bluebird.pending();
 
     exports.getFromUrl(url, function (res) {
+        res.pause();
         // Validate the uploaded file.
         streamIsAllowedFileSize(res)
         .then(streamIsAllowedFileType)
