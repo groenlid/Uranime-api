@@ -101,19 +101,19 @@ Provider.prototype._updateEpisodes = function(){
 	    self = this;
 
 	return new bluebird(function(resolve, reject){
+		var promises = [];
 		connections.forEach(function(connection){
 	    	var remoteAnime = self._returnRemoteAnime(connection),
 	    		mapper = self._getMapper(connection);
 	    	
-	    	
 	    	remoteAnime.episodes.forEach(function(remoteEpisode){
 	    		var localEpisodeToUpdate = mapper.getEpisodeToUpdate(animeToUpdate, remoteEpisode);
 	    		if(typeof localEpisodeToUpdate === 'undefined') return;
-	    		self._updateEpisode(localEpisodeToUpdate, remoteEpisode, connection.rules);
+	    		promises.push(self._updateEpisode(localEpisodeToUpdate, remoteEpisode, connection.rules));
 	    	});
 
     	});
-    	resolve();
+    	bluebird.all(promises).then(resolve);
 	});
 };
 

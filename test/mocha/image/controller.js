@@ -61,16 +61,13 @@ describe('Controller images:', function() {
         });
 
         it('should be able to upload an image from a given url', function(done) {
-            var collection = config.imageCollections.poster,
-                url = 'http://test.com',
-                id;
+            var collection = config.imageCollections.poster;
             
-            controller.uploadImageFromUrl(url, collection).then(function(file){
+            controller.uploadImageFromUrl('', collection).then(function(file){
                 should.exist(file);
                 file.should.be.instanceof(Array).and.have.lengthOf(1);
                 should.exist(file[0]._id);
                 file[0].length.should.equal(fileContent.length);
-                id = file._id;
                 done();
             });
         });

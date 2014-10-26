@@ -5,7 +5,10 @@ var Provider = require('./provider'),
 	bluebird = require('bluebird'),
 	config = require('../config/config'),
 	SeasonMapper = require('./mappers/thetvdb/seasonMapper'),
-	_ = require('lodash');
+	imageController = require('../controllers/images'),
+	_ = require('lodash'),
+	mongoose = require('mongoose'),
+	util = require('util');
 
 /**
  * Provider
@@ -31,6 +34,13 @@ TheTVDBProvider.prototype._refreshSingleRemote = function(connection){
 	});
 };
 
+/**
+ * Updates the episodes from the remote. Can either return void or promise async tasks.
+ * @param  {object} episodeToUpdate 
+ * @param  {object} tvdbEpisode     
+ * @param  {object} rules           
+ * @return {promise|void}                 
+ */
 TheTVDBProvider.prototype._updateEpisode = function(episodeToUpdate, tvdbEpisode, rules){
 	rules = rules || {};
 
@@ -49,6 +59,38 @@ TheTVDBProvider.prototype._updateEpisode = function(episodeToUpdate, tvdbEpisode
 	}
 
 	this._addConnectionOnEpisode(episodeToUpdate, tvdbEpisode);
+	
+	if(episodeToUpdate.images.length !== 0) {
+		return;
+	}
+
+	return this._fetchEpisodeImageAndUpdateReferance(episodeToUpdate, tvdbEpisode);
+};
+
+/**
+ * This should be redone when thetvdb-node have updated their library 
+ * to include episode-image information
+ * @param  {episode} episodeToUpdate 
+ * @param  {episode} tvdbEpisode     
+ * @return {promise}                 
+ */
+TheTVDBProvider.prototype._fetchEpisodeImageAndUpdateReferance = function(episodeToUpdate, tvdbEpisode){
+	var urlForEpisodes = 'http://thetvdb.com/banners/episodes/%s/%s.jpg',
+		url = util.format(urlForEpisodes, tvdbEpisode.tvShowId,tvdbEpisode.id);
+	return new bluebird(function(resolve, reject){
+		console.log('fetching image: %s', url);
+		imageController.uploadImageFromUrl(url, config.imageCollections.episodeImage).then(function(files){
+			console.log('Success fetching image. ', files);
+			episodeToUpdate.images.push(new mongoose.Types.ObjectId(files[0]._id));
+		})
+		.catch(function(err) {
+			console.log('Could not fetch image', err);
+		})
+		.finally(function(){
+			console.log('Finally called');
+			resolve();
+		});
+	});
 };
 
 TheTVDBProvider.prototype._getMapper = function(connection){

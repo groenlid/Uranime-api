@@ -65,6 +65,9 @@ var uploadImageFromUrl = function(url, collection){
 
     exports.getFromUrl(url, function (res) {
         res.pause();
+        res.on('error', function(err){
+            defer.reject(err);
+        });
         // Validate the uploaded file.
         streamIsAllowedFileSize(res)
         .then(streamIsAllowedFileType)

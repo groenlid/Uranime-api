@@ -6,19 +6,32 @@
 var TheTVDBProvider = require('../../../server/providers/thetvdbProvider'),
 	mongoose = require('mongoose'),
 	Anime = mongoose.model('Anime'),
-	should = require('should');
+	should = require('should'),
+	fs = require('fs'),
+	imageController = require('../../../server/controllers/images');
 
 /**
  * Test data
  */
-var fakeAnime, fakeResponse;
+var fakeAnime, fakeResponse, testImagePath = './test/mocha/data/image.jpg';
 
 /**
  * Tests
  */
 
 describe('Provider TheTvDb:', function() {
-	
+    var tmpFunction;
+    before(function() {
+        tmpFunction = imageController.getFromUrl;
+        imageController.getFromUrl = function(url, callback){
+            callback(fs.createReadStream(testImagePath));
+        };
+    });
+
+    after(function(){
+        imageController.getFromUrl = tmpFunction;
+    });
+
 	beforeEach(function(){
 		fakeAnime = new Anime({
 			episodes: [

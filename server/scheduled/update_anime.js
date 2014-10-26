@@ -11,7 +11,7 @@ var anidbProvider = require('../providers/anidbProvider'),
 
 module.exports = function(app, agenda) {
     var client = new anidb(config.anidb.client, config.anidb.clientVersion, 3000);
-    var scheduledName = 'anidb: update anime';
+    var scheduledName = 'remote: update anime';
 
     function fetchAndUpdateAnime(job, done, ids){
         if(ids.length === 0)
