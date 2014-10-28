@@ -14,7 +14,7 @@ var multiparty  = require('multiparty'),
  * @param  {Function} callback 
  */
 exports.getFromUrl = function(url, callback){
-    http.request(url, callback);
+    return http.get(url, callback);
 };
 
 /**
@@ -71,15 +71,15 @@ var uploadImageFromUrl = function(url, collection){
         // Validate the uploaded file.
         streamIsAllowedFileSize(res)
         .then(streamIsAllowedFileType)
-        .then(function(stream){
+        .then(function(){
 
             var writestream = mongoose.gfs.createWriteStream({
                 filename: res.path,
                 root: collection
             });
 
-            stream.pipe(writestream);
-
+            res.pipe(writestream);
+            res.resume();
             writestream.on('close', function(file){
                 defer.resolve([file]);
             });
@@ -99,11 +99,10 @@ var uploadImageFromUrl = function(url, collection){
 /**
  * Uploads an image to the specified grid-store and returns the information.
  * @param  {object} req express request object
- * @param  {object} res express response object
  * @param  {string} collection the collection to save the file. eg. poster, fanart etc.
  * @return {promise}
  */
-var uploadImageFromForm = function(req, res, collection){
+var uploadImageFromForm = function(req, collection){
     var form = new multiparty.Form(),
         gfs = mongoose.gfs, 
         promises = [],
@@ -156,15 +155,29 @@ var uploadImageFromForm = function(req, res, collection){
     return promise.promise;
 };
 
-var downloadImage = function(id, outStream, imageType){
-    var gfs = mongoose.gfs;
+var downloadImage = function(id, imageType){
+    return new bluebird(function(resolve, reject){
+        var gfs = mongoose.gfs,
+        options = {
+            _id: id,
+            root: imageType
+        };
 
-    var readstream = gfs.createReadStream({
-        _id: id,
-        root: imageType
+        gfs.exist(options, function (err, found) {
+            console.log(arguments, options);
+            if(err){
+                reject({code: 500, msg:'An error occurred during file-download'});
+                return;
+            }
+            if(found){
+                resolve(gfs.createReadStream(options));
+            }
+            else {
+                reject({code: 404}) ;
+            }
+        });
     });
-
-    readstream.pipe(outStream);
+    
 };
 
 var loggCallback = function(err){
@@ -175,7 +188,7 @@ exports.uploadFanart = function(req, res){
     var url = req.param('url'),
         action = typeof url !== 'undefined' ? 
                 uploadImageFromUrl(url, config.imageCollections.fanart) : 
-                uploadImageFromForm(req, res, config.imageCollections.fanart);
+                uploadImageFromForm(req, config.imageCollections.fanart);
     
     action.then(function(files){
         if(res) res.send(files);
@@ -185,31 +198,53 @@ exports.uploadFanart = function(req, res){
 };
 
 exports.uploadPoster = function(req, res){
-    uploadImageFromForm(req, res, config.imageCollections.poster).then(function(files){
-        res.send(files);
+    var url = req.param('url'),
+        action = typeof url !== 'undefined' ? 
+                uploadImageFromUrl(url, config.imageCollections.poster) : 
+                uploadImageFromForm(req, config.imageCollections.poster);
+
+    action.then(function(files){
+        if(res) res.send(files);
     },function(err){
-        res.send(500, err);
-    });
+        if(res) res.send(500, err);
+    }).then(null, loggCallback);
 };
 
 exports.uploadEpisodeImage = function(req, res){
-    uploadImageFromForm(req, res, config.imageCollections.episodeImage).then(function(files){
-        res.send(files);
+    var url = req.param('url'),
+        action = typeof url !== 'undefined' ? 
+                uploadImageFromUrl(url, config.imageCollections.episodeImage) : 
+                uploadImageFromForm(req, config.imageCollections.episodeImage);
+
+    action.then(function(files){
+        if(res) res.send(files);
     },function(err){
-        res.send(500, err);
-    });
+        if(res) res.send(500, err);
+    }).then(null, loggCallback);
 };
 
 exports.downloadFanart = function(req, res){
-    downloadImage(req.params.id, res, config.imageCollections.fanart);
+    downloadImage(req.params.id, config.imageCollections.fanart).then(function(stream){
+        stream.pipe(res);
+    }, function(codeAndMessage){
+        res.send(codeAndMessage.code, codeAndMessage.msg);
+    });
 };
 
 exports.downloadPoster = function(req, res){
-    downloadImage(req.params.id, res, config.imageCollections.poster);
+    downloadImage(req.params.id, config.imageCollections.poster).then(function(stream){
+        stream.pipe(res);
+    }, function(codeAndMessage){
+        res.send(codeAndMessage.code, codeAndMessage.msg);
+    });
 };
 
 exports.downloadEpisodeImage = function(req, res){
-    downloadImage(req.params.id, res, config.imageCollections.episodeImage);
+    downloadImage(req.params.id, config.imageCollections.episodeImage).then(function(stream){
+        stream.pipe(res);
+    }, function(codeAndMessage){
+        res.send(codeAndMessage.code, codeAndMessage.msg);
+    });
 };
 
 exports.downloadImage = downloadImage; 

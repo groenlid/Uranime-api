@@ -107,12 +107,16 @@ Provider.prototype._updateEpisodes = function(){
 	    		mapper = self._getMapper(connection);
 	    	
 	    	remoteAnime.episodes.forEach(function(remoteEpisode){
-	    		var localEpisodeToUpdate = mapper.getEpisodeToUpdate(animeToUpdate, remoteEpisode);
+	    		var localEpisodeToUpdate = mapper.getEpisodeToUpdate(animeToUpdate, remoteEpisode), pendingUpdate;
 	    		if(typeof localEpisodeToUpdate === 'undefined') return;
-	    		promises.push(self._updateEpisode(localEpisodeToUpdate, remoteEpisode, connection.rules));
+	    		pendingUpdate = self._updateEpisode(localEpisodeToUpdate, remoteEpisode, connection.rules);
+	    		if(typeof pendingUpdate !== 'undefined') {
+	    			promises.push(pendingUpdate);
+	    		}
 	    	});
 
     	});
+    	console.log('Update-episode-Promises:', promises);
     	bluebird.all(promises).then(resolve);
 	});
 };

@@ -82,6 +82,7 @@ TheTVDBProvider.prototype._fetchEpisodeImageAndUpdateReferance = function(episod
 		imageController.uploadImageFromUrl(url, config.imageCollections.episodeImage).then(function(files){
 			console.log('Success fetching image. ', files);
 			episodeToUpdate.images.push(new mongoose.Types.ObjectId(files[0]._id));
+			console.log('episodeToUpdate', episodeToUpdate.images);
 		})
 		.catch(function(err) {
 			console.log('Could not fetch image', err);
