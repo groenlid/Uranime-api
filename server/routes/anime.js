@@ -5,12 +5,12 @@ var anime = require('../controllers/anime'),
 
 module.exports = function(app) {
 
-    app.route('/api/anime/:animeId')
+    app.route('/anime/:animeId')
     	.put(authorization.requiresAdmin, anime.update)
         .get(anime.show);
 
 
-    app.route('/api/anime')
+    app.route('/anime')
         .get(anime.all)
         .post(authorization.requiresAdmin, anime.create);
 

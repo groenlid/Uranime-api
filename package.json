@@ -46,7 +46,7 @@
     "mongoose": "^3.8.8",
     "mongoose-version": "^0.2.4",
     "morgan": "~1.0.0",
-    "multiparty": "^3.3.0",
+    "multiparty": "^4.0.0",
     "passport": "^0.2.0",
     "passport-facebook": "^1.0.3",
     "passport-github": "^0.1.5",

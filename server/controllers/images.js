@@ -23,6 +23,7 @@ exports.getFromUrl = function(url, callback){
  * too expensive. 
  */
 var streamIsAllowedFileSize = function(stream){
+    console.log(stream);
     var resolver = bluebird.pending(),
         limit = config.imagesize,
         byteCount = stream.byteCount || parseInt(stream.byteCount, 10); 
@@ -47,10 +48,12 @@ var streamIsAllowedFileType = function(inputStream){
     inputStream.on('readable', function() {
         var data = inputStream.read(16);
         var type = imageType(data);
+        
         if(!type || allowedFileTypes.indexOf(type.toLowerCase()) < 0){
             resolver.reject(error);
             return;
         }
+        
         inputStream.unshift(data);
         resolver.resolve(inputStream);
     });
@@ -72,7 +75,6 @@ var uploadImageFromUrl = function(url, collection){
         streamIsAllowedFileSize(res)
         .then(streamIsAllowedFileType)
         .then(function(){
-
             var writestream = mongoose.gfs.createWriteStream({
                 filename: res.path,
                 root: collection
@@ -109,6 +111,7 @@ var uploadImageFromForm = function(req, collection){
         promise = bluebird.pending();
         
     form.on('error', function(err){
+        console.log(err, 'error');
         promise.reject(err || 'An error occurred parsing the uploaded files');
     });
 
@@ -124,7 +127,7 @@ var uploadImageFromForm = function(req, collection){
         streamIsAllowedFileSize(part)
         .then(streamIsAllowedFileType)
         .then(function(stream){
-
+            console.log('stream is allowed');
             var writestream = gfs.createWriteStream({
                 filename: part.filename,
                 root: collection
@@ -164,7 +167,6 @@ var downloadImage = function(id, imageType){
         };
 
         gfs.exist(options, function (err, found) {
-            console.log(arguments, options);
             if(err){
                 reject({code: 500, msg:'An error occurred during file-download'});
                 return;
@@ -173,7 +175,7 @@ var downloadImage = function(id, imageType){
                 resolve(gfs.createReadStream(options));
             }
             else {
-                reject({code: 404}) ;
+                reject({code: 404});
             }
         });
     });

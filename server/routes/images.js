@@ -5,22 +5,22 @@ var authorization = require('./middlewares/authorization'),
 
 module.exports = function(app) {
 
-    app.route('/api/images/fanart')
+    app.route('/images/fanart')
         .post(authorization.requiresAdmin, images.uploadFanart);
 
-    app.route('/api/images/fanart/:id')
+    app.route('/images/fanart/:id')
     	.get(images.downloadFanart);
 
-    app.route('/api/images/poster')
+    app.route('/images/poster')
     	.post(authorization.requiresAdmin, images.uploadPoster);
 
-    app.route('/api/images/poster/:id')
+    app.route('/images/poster/:id')
     	.get(images.downloadPoster);
 
-    app.route('/api/images/episode')
+    app.route('/images/episode')
     	.post(authorization.requiresAdmin, images.uploadEpisodeImage);
 
-    app.route('/api/images/episode/:id')
+    app.route('/images/episode/:id')
     	.get(images.downloadEpisodeImage);
 
 };

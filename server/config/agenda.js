@@ -5,6 +5,10 @@ var Agenda = require('agenda'),
 	config = require('./config');
 
 module.exports = function(app, appPath, gfs){
+  if ('test' === app.get('env')) {
+    return;
+  }
+  
   // Agenda
   var agenda = new Agenda();
   agenda.database(config.db);

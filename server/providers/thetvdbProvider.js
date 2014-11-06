@@ -78,17 +78,13 @@ TheTVDBProvider.prototype._fetchEpisodeImageAndUpdateReferance = function(episod
 	var urlForEpisodes = 'http://thetvdb.com/banners/episodes/%s/%s.jpg',
 		url = util.format(urlForEpisodes, tvdbEpisode.tvShowId,tvdbEpisode.id);
 	return new bluebird(function(resolve, reject){
-		console.log('fetching image: %s', url);
 		imageController.uploadImageFromUrl(url, config.imageCollections.episodeImage).then(function(files){
-			console.log('Success fetching image. ', files);
 			episodeToUpdate.images.push(new mongoose.Types.ObjectId(files[0]._id));
-			console.log('episodeToUpdate', episodeToUpdate.images);
 		})
 		.catch(function(err) {
 			console.log('Could not fetch image', err);
 		})
 		.finally(function(){
-			console.log('Finally called');
 			resolve();
 		});
 	});

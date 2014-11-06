@@ -116,7 +116,6 @@ Provider.prototype._updateEpisodes = function(){
 	    	});
 
     	});
-    	console.log('Update-episode-Promises:', promises);
     	bluebird.all(promises).then(resolve);
 	});
 };

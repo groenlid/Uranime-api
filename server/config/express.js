@@ -35,7 +35,9 @@ module.exports = function(app, passport, db){
             collection: config.sessionCollection
         }),
         cookie: config.sessionCookie,
-        name: config.sessionName
+        name: config.sessionName,
+        resave: true,
+        saveUninitialized: true
     }));
 
   // Gridfs
@@ -55,9 +57,7 @@ module.exports = function(app, passport, db){
   // Setting the fav icon and static folder
   app.use(favicon());
   
-  if ('test' !== app.get('env')) {
-    setupAgenda(app, appPath, gfs);
-  }
+  setupAgenda(app, appPath, gfs);
 
   // Skip the app/routes/middlewares directory as it is meant to be
   // used and shared by routes as further middlewares and is not a
