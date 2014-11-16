@@ -6,8 +6,8 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     version = require('mongoose-version'),
-    episodeSchema = require('./episode').Schema,
-    connectionSchema = require('./connection').AnimeSchema;
+    connectionSchema = require('./connection'),
+    ObjectId = mongoose.Schema.Types.ObjectId;
 
 var statusStates = 'finished currently unaired'.split(' ');
 var classificationStates = 'G PG PG-13 R R+ Rx'.split(' ');
@@ -24,7 +24,7 @@ var AnimeSchema = new Schema({
             required: true
         },
         by: {
-            type: mongoose.Schema.Types.ObjectId, 
+            type: ObjectId,
             ref: 'User',
             required: false
         }
@@ -56,22 +56,71 @@ var AnimeSchema = new Schema({
         required: true
     },
     titles: [{
-        title: String,
-        lang: String,
-        type: String
+        title: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        lang: {
+            type: String
+        },
+        type: {
+            type: String
+        }
     }],
-    posters: [mongoose.Schema.Types.ObjectId],
-    fanarts: [mongoose.Schema.Types.ObjectId],
-    episodes: [episodeSchema],
+    posters: [ObjectId],
+    fanarts: [ObjectId],
     genres: [{
         type: String,
         ref: 'Genre'
     }],
-    connections: [connectionSchema],
+    connections: [connectionSchema.AnimeSchema],
     subscribers: [{
-        type: mongoose.Schema.Types.ObjectId, 
+        type: ObjectId,
         ref: 'User'
     }],
+    episodes: [new Schema({
+        name: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        description: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        number: {
+            type: Number,
+            required: true
+        },
+        special: {
+            type: Boolean,
+            default: false
+        },
+        aired: {
+            type: Date
+        },
+        runtime: {
+            type: Number,
+            default: 0
+        },
+        titles: [{
+            title: {
+                type: String,
+                required: true,
+                trim: true
+            },
+            lang: {
+                type: String
+            },
+            type: {
+                type: String
+            }
+        }],
+        connections: [connectionSchema.EpisodeSchema],
+        images: [ObjectId]
+    })]
 }, {
 	collection: 'anime'
 });

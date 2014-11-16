@@ -83,6 +83,7 @@ TheTVDBProvider.prototype._fetchEpisodeImageAndUpdateReferance = function(episod
 		})
 		.catch(function(err) {
 			console.log('Could not fetch image', err);
+			resolve();
 		})
 		.finally(function(){
 			resolve();

@@ -41,22 +41,6 @@ UserSchema.virtual('password').set(function(password) {
     return this._password;
 });
 
-UserSchema.virtual('facebook').get(function() {
-    return this.providerData;
-});
-UserSchema.virtual('twitter').get(function() {
-    return this.providerData;
-});
-UserSchema.virtual('github').get(function() {
-    return this.providerData;
-});
-UserSchema.virtual('google').get(function() {
-    return this.providerData;
-});
-UserSchema.virtual('linkedin').get(function() {
-    return this.providerData;
-});
-
 /**
  * Validations
  */

@@ -44,12 +44,12 @@ module.exports = function(app, passport, db){
   var gfs = grid(db.connection.db, mongoose.mongo);
   mongoose.gfs = gfs;
 
-	app.use(expressValidator());
+  app.use(expressValidator());
 
   app.use(passport.initialize());
   app.use(passport.session());
 
-	app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
 
 	app.use(methodOverride());

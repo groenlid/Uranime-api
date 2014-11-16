@@ -5,6 +5,7 @@
  */
 var mongoose = require('mongoose'),
     Anime = mongoose.model('Anime'),
+    SocialEpisodeInfo = mongoose.model('SocialEpisodeInfo'),
     bluebird = require('bluebird'),
     config = require('../config/config'),
     util = require('util'),
@@ -223,5 +224,24 @@ exports.create = exports.update = function(req, res) {
         res.json(400, {
             errors: err.errors || err
         });
+    });
+};
+
+
+exports.getSocialInformation = function(req, res) {
+    var id = req.params.id;
+    SocialEpisodeInfo.find({
+        anime: id
+    }).exec(function(err, socialEpisodeInfos) {
+        if (err) {
+            res.render('error', {
+                status: 500
+            });
+        } else {
+            socialEpisodeInfos.forEach(function(socialEpisodeInfo){
+                socialEpisodeInfo.removePrivateSeens(req.user);
+            });
+            res.json(socialEpisodeInfos);
+        }
     });
 };

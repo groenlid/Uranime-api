@@ -9,6 +9,8 @@ module.exports = function(app) {
     	.put(authorization.requiresAdmin, anime.update)
         .get(anime.show);
 
+    app.route('/anime/:id/socialInfo')
+        .get(anime.getSocialInformation);
 
     app.route('/anime')
         .get(anime.all)

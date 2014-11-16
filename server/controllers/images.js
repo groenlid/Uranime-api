@@ -23,7 +23,6 @@ exports.getFromUrl = function(url, callback){
  * too expensive. 
  */
 var streamIsAllowedFileSize = function(stream){
-    console.log(stream);
     var resolver = bluebird.pending(),
         limit = config.imagesize,
         byteCount = stream.byteCount || parseInt(stream.byteCount, 10); 
@@ -75,6 +74,7 @@ var uploadImageFromUrl = function(url, collection){
         streamIsAllowedFileSize(res)
         .then(streamIsAllowedFileType)
         .then(function(){
+                console.log("writing to gridfs");
             var writestream = mongoose.gfs.createWriteStream({
                 filename: res.path,
                 root: collection
@@ -83,6 +83,8 @@ var uploadImageFromUrl = function(url, collection){
             res.pipe(writestream);
             res.resume();
             writestream.on('close', function(file){
+                console.log("finished writing to gridfs");
+
                 defer.resolve([file]);
             });
 
