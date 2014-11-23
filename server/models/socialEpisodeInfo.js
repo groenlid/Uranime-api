@@ -51,6 +51,9 @@ var SocialEpisodeInfoSchema = new Schema({
     collection: 'socialEpisodeInfo'
 });
 
+SocialEpisodeInfoSchema.index({ anime: 1, type: -1 });
+SocialEpisodeInfoSchema.index({ 'seenBy.user': 1, type: -1 });
+
 SocialEpisodeInfoSchema.methods = {
     removePrivateSeens: function(user){
         this.seenBy = this.seenBy.filter(function(seenBy){
@@ -67,7 +70,7 @@ SocialEpisodeInfoSchema.methods = {
             seenBy: this.seenBy,
             comment: this.comment,
             rating: this.rating
-        }
+        };
     }
 };
 

@@ -21,3 +21,7 @@ exports.getSocialInformation = function(req, res) {
         }
     });
 };
+
+exports.updateEpisode = function(req, res){
+
+};

@@ -8,7 +8,8 @@ var Provider = require('./provider'),
 	imageController = require('../controllers/images'),
 	_ = require('lodash'),
 	mongoose = require('mongoose'),
-	util = require('util');
+	util = require('util'),
+	winston = require('winston');
 
 /**
  * Provider
@@ -43,11 +44,11 @@ TheTVDBProvider.prototype._refreshSingleRemote = function(connection){
  */
 TheTVDBProvider.prototype._updateEpisode = function(episodeToUpdate, tvdbEpisode, rules){
 	rules = rules || {};
-
-	// this._updateEpisodeField('number', episodeToUpdate, anidbEpisode.epno, rules);
-	// this._updateEpisodeField('runtime', episodeToUpdate, anidbEpisode.length, rules);
-	// this._updateEpisodeField('aired', episodeToUpdate, new Date(anidbEpisode.airdate), rules);
-	// this._updateEpisodeField('special', episodeToUpdate, false, rules);
+	
+	this._updateEpisodeField('number', episodeToUpdate, tvdbEpisode.number, rules);
+	this._updateEpisodeField('runtime', episodeToUpdate, tvdbEpisode.runtime, rules);
+	this._updateEpisodeField('aired', episodeToUpdate, new Date(tvdbEpisode.firstAired), rules);
+	this._updateEpisodeField('special', episodeToUpdate, tvdbEpisode.special, rules);
 	
 	var titleExists = _.find(episodeToUpdate.titles, function(localTitle){
 		return localTitle.title === tvdbEpisode.name;
@@ -82,7 +83,7 @@ TheTVDBProvider.prototype._fetchEpisodeImageAndUpdateReferance = function(episod
 			episodeToUpdate.images.push(new mongoose.Types.ObjectId(files[0]._id));
 		})
 		.catch(function(err) {
-			console.log('Could not fetch image', err);
+			winston.warn('Could not fetch image:', err);
 			resolve();
 		})
 		.finally(function(){

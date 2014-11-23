@@ -5,7 +5,8 @@ var multiparty  = require('multiparty'),
     winston     = require('winston'),
     mongoose    = require('mongoose'),
     imageType   = require('image-type'),
-    http        = require('http');
+    http        = require('http'),
+    util        = require('util');
 
 
 /**
@@ -42,14 +43,14 @@ var streamIsAllowedFileSize = function(stream){
 var streamIsAllowedFileType = function(inputStream){
     var resolver = bluebird.pending(),
         allowedFileTypes = ['png','jpg'],
-        error = 'Unknown filetype';
+        error = 'Unknown filetype. Allowed filetypes are %s. Got filetype %s';
         
     inputStream.on('readable', function() {
         var data = inputStream.read(16);
         var type = imageType(data);
         
         if(!type || allowedFileTypes.indexOf(type.toLowerCase()) < 0){
-            resolver.reject(error);
+            resolver.reject(util.format(error, allowedFileTypes, type));
             return;
         }
         
@@ -74,7 +75,7 @@ var uploadImageFromUrl = function(url, collection){
         streamIsAllowedFileSize(res)
         .then(streamIsAllowedFileType)
         .then(function(){
-                console.log("writing to gridfs");
+            winston.log('writing to gridfs');
             var writestream = mongoose.gfs.createWriteStream({
                 filename: res.path,
                 root: collection
@@ -83,7 +84,7 @@ var uploadImageFromUrl = function(url, collection){
             res.pipe(writestream);
             res.resume();
             writestream.on('close', function(file){
-                console.log("finished writing to gridfs");
+                winston.log('finished writing to gridfs');
 
                 defer.resolve([file]);
             });

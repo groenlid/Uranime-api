@@ -12,8 +12,8 @@ module.exports = {
 	showStackError: true,
     imagesize: 20971520, // 20MB
     anidb: {
-        client: 'calendar',
-        clientVersion: 1
+        client: 'nzedb',
+        clientVersion: 2
     },
     thetvdb: {
         key: '9DAF49C96CBF8DAC'

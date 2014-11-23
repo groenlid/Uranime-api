@@ -164,4 +164,46 @@ describe('Provider TheTvDb:', function() {
 
 	});
 
+	it('Thetvdb provider should generate a valid model from a base anime model', function(done){
+		var fakeBareboneAnime = new Anime({
+			classification: 'PG',
+			title: 'test-anime',
+			status: 'finished',
+			type: 'tv',
+			connections: [
+				{
+					siteId: 264663,
+					mapping: 'season',
+					season: 2,
+					site: 'thetvdb',
+					comment: 'Dum dum dum'
+				}
+			]
+		});
+
+
+		var fakeClient = {};
+		fakeClient.getInfo = function(id, cb){
+			cb(null, fakeResponse);
+		};
+
+		var provider = new TheTVDBProvider(fakeBareboneAnime, fakeClient);
+
+		provider
+		.refreshRemote()
+		.updateEpisodes()
+		.returnAnime(function(err, anime){
+			if(err) {
+				return done(err);
+			}
+			anime.episodes.should.be.instanceof(Array).and.have.lengthOf(1);
+			anime.episodes[0].titles.should.be.instanceof(Array).and.have.lengthOf(1);
+			anime.episodes[0].should.have.property('number', 1);
+			anime.save(function(err){
+				done(err);
+			});
+		});
+
+	});
+
 });

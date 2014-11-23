@@ -81,7 +81,7 @@ describe('Provider AniDb:', function() {
 					connections: [
 						{
 							siteId: 1000,
-							site: 'anidb',
+							site: 'anidb'
 						}
 					]
 				}
@@ -120,7 +120,7 @@ describe('Provider AniDb:', function() {
 			]
 		};
 
-		var fakeClient = new anidb();
+		var fakeClient = new anidb('','');
 		fakeClient.getAnime = function(id, cb){
 			cb(null, fakeResponse);
 		};
