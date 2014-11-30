@@ -19,7 +19,7 @@ module.exports = function(app, passport) {
     app.param('userId', users.user);
 
     // Setting the local strategy route
-    app.route('/actions/login')
+    app.route('/users/actions/login')
         .post(passport.authenticate('local', {
             session: true
         }), function (req,res) {

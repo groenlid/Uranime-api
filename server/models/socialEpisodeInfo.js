@@ -21,10 +21,23 @@ var SocialEpisodeInfoSchema = new Schema({
             type: ObjectId,
             ref: 'User'
         },
-        history: [{
-            seenAt: Date,
-            client: String
-        }],
+        client: String,
+        markedDate: {
+            type: Date,
+            default: Date.now
+        },
+        private: Boolean
+    }],
+    currentlyWatching: [{
+        user: {
+            type: ObjectId,
+            ref: 'User'
+        },
+        client: String,
+        markedDate: {
+            type: Date,
+            default: Date.now
+        },
         private: Boolean
     }],
     comments: [new Schema({
@@ -69,7 +82,8 @@ SocialEpisodeInfoSchema.methods = {
             anime: this.anime,
             seenBy: this.seenBy,
             comment: this.comment,
-            rating: this.rating
+            rating: this.rating,
+            currentlyWatching: this.currentlyWatching
         };
     }
 };

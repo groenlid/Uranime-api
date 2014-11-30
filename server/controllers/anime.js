@@ -9,7 +9,8 @@ var mongoose = require('mongoose'),
     bluebird = require('bluebird'),
     config = require('../config/config'),
     util = require('util'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    winston = require('winston');
 
 /**
  * Show an article
@@ -54,9 +55,10 @@ exports.all = function(req, res) {
             description: 1
         }).sort('-created').exec(function(err, anime) {
         if (err) {
-            res.render('error', {
+            res.send(500, {
                 status: 500
             });
+            winston.error(err);
         } else {
             res.json(anime);
         }
@@ -234,7 +236,7 @@ exports.getSocialInformation = function(req, res) {
         anime: id
     }).exec(function(err, socialEpisodeInfos) {
         if (err) {
-            res.render('error', {
+            res.send(500, {
                 status: 500
             });
         } else {

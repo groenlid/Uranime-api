@@ -61,7 +61,7 @@ TheTVDBProvider.prototype._updateEpisode = function(episodeToUpdate, tvdbEpisode
 
 	this._addConnectionOnEpisode(episodeToUpdate, tvdbEpisode);
 	
-	if(episodeToUpdate.images.length !== 0) {
+	if(episodeToUpdate.images.length !== 0 || tvdbEpisode.image === '') {
 		return;
 	}
 
@@ -76,15 +76,15 @@ TheTVDBProvider.prototype._updateEpisode = function(episodeToUpdate, tvdbEpisode
  * @return {promise}                 
  */
 TheTVDBProvider.prototype._fetchEpisodeImageAndUpdateReferance = function(episodeToUpdate, tvdbEpisode){
-	var urlForEpisodes = 'http://thetvdb.com/banners/episodes/%s/%s.jpg',
-		url = util.format(urlForEpisodes, tvdbEpisode.tvShowId,tvdbEpisode.id);
+	var urlForEpisodes = 'http://%s:%s/banners/%s',
+		c = this._client.options,
+		url = util.format(urlForEpisodes, c.initialHost, c.port, tvdbEpisode.image);
 	return new bluebird(function(resolve, reject){
 		imageController.uploadImageFromUrl(url, config.imageCollections.episodeImage).then(function(files){
 			episodeToUpdate.images.push(new mongoose.Types.ObjectId(files[0]._id));
 		})
 		.catch(function(err) {
 			winston.warn('Could not fetch image:', err);
-			resolve();
 		})
 		.finally(function(){
 			resolve();

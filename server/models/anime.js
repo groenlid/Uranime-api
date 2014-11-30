@@ -119,7 +119,12 @@ var AnimeSchema = new Schema({
             }
         }],
         connections: [connectionSchema.EpisodeSchema],
-        images: [ObjectId]
+        images: [ObjectId],
+
+        markedPrivateBy: [{
+            type: ObjectId,
+            ref: 'User'
+        }]
     })]
 }, {
 	collection: 'anime'

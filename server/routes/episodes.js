@@ -8,10 +8,12 @@ var authorization = require('./middlewares/authorization'),
 
 module.exports = function(app) {
 
-    app.route('/episodes/:id/socialInfo')
-        .get(episodes.getSocialInformation);
+    app.route('/episodes/:episodeId/socialInfo')
+        .get(episodes.getSocialInformation)
+        .put(authorization.requiresLogin, episodes.updateSocialInformation);
 
-    app.route('/episodes/:id')
+    app.route('/episodes/:episodeId')
         .put(authorization.requiresLogin, episodes.updateEpisode);
 
+    app.param('episodeId', episodes.episode);
 };
