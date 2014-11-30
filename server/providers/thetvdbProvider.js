@@ -76,9 +76,8 @@ TheTVDBProvider.prototype._updateEpisode = function(episodeToUpdate, tvdbEpisode
  * @return {promise}                 
  */
 TheTVDBProvider.prototype._fetchEpisodeImageAndUpdateReferance = function(episodeToUpdate, tvdbEpisode){
-	var urlForEpisodes = 'http://%s:%s/banners/%s',
-		c = this._client.options,
-		url = util.format(urlForEpisodes, c.initialHost, c.port, tvdbEpisode.image);
+	var urlForEpisodes = 'http://thetvdb.com/banners/%s',
+		url = util.format(urlForEpisodes, tvdbEpisode.image);
 	return new bluebird(function(resolve, reject){
 		imageController.uploadImageFromUrl(url, config.imageCollections.episodeImage).then(function(files){
 			episodeToUpdate.images.push(new mongoose.Types.ObjectId(files[0]._id));
