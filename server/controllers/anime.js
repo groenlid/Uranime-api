@@ -44,7 +44,6 @@ exports.anime = function(req, res, next, id) {
  * List of anime
  */
 exports.all = function(req, res) {
-    console.log(req.user);
     Anime.find({},
         {
             title: 1,
@@ -142,6 +141,7 @@ var updateEpisodeImageReferances = function(gfs, currentModel, givenModel){
 };
 
 var updateIdsOnNewEpisodes = function(givenAnime){
+    givenAnime.episodes = givenAnime.episodes || [];
     givenAnime.episodes = givenAnime.episodes.map(function(episode){
         if(typeof episode._id === 'undefined')
             episode._id = new mongoose.Types.ObjectId();

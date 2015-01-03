@@ -35,7 +35,7 @@ exports.fetchUserObjectFromToken = function(req, res, next) {
         if(err){
             return res.send(401, 'User is not authenticated');
         }
-        req.user = user.toJSON();
+        req.user = user;
         next();
     });
 };

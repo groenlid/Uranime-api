@@ -56,7 +56,6 @@ exports.create = function(req, res, next) {
 
             return res.status(400);
         }
-        console.log('saved');
         res.status(201).send('Created');
     });
 };
