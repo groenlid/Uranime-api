@@ -7,6 +7,7 @@ var mongoose = require('mongoose'),
     Anime = mongoose.model('Anime'),
     SocialEpisodeInfo = mongoose.model('SocialEpisodeInfo'),
     winston = require('winston'),
+    _ = require('lodash'),
     statuses = {
         currentlyWatching: 'currentlyWatching',
         cancelWatching: 'cancelWatching',
@@ -55,8 +56,8 @@ exports.episode = function(req, res, next, id){
         });
 };
 
-exports.getSocialInformation = function(req, res) {
-    var id = req.params.id;
+exports.getEpisode = function(req, res) {
+    var id = req.params.episodeId;
     SocialEpisodeInfo.findOne({
         _id: id
     }).exec(function(err, socialEpisodeInfo) {
@@ -66,14 +67,14 @@ exports.getSocialInformation = function(req, res) {
             });
             return;
         } 
-
+        
         var info = socialEpisodeInfo || new SocialEpisodeInfo(generateNewSocialInformation(req.episode, req.anime));
         info.removePrivateSeens(req.user);
-        res.json(info);
+        res.json(_.merge(info.toJSON(), req.episode.toJSON()));
     });
 };
 
-exports.updateSocialInformation = function(req, res){
+exports.updateEpisode = function(req, res){
     var socialInformation = req.body,
         markedStatus = socialInformation.status,
         client = req.get('User-Agent'),
@@ -92,10 +93,10 @@ exports.updateSocialInformation = function(req, res){
             operation = { $push: { currentlyWatching: { user: userid, client: client, private: animeIsPrivate } } };
             break;
         case statuses.unwatched:
-            operation = { $pull: { seenBy: { user: userid } } };
+            operation = { $pull: { watched: { user: userid } } };
             break;
         case statuses.watched:
-            operation = { $push: { seenBy: { user: userid, client: client, private: animeIsPrivate } } };
+            operation = { $push: { watched: { user: userid, client: client, private: animeIsPrivate } } };
             break;
     }
 
@@ -107,10 +108,9 @@ exports.updateSocialInformation = function(req, res){
             });
             return; 
         } 
-        res.send(modified);
+        
+        modified.removePrivateSeens(req.user);
+
+        res.json(modified);
     });
-};
-
-exports.updateEpisode = function(req, res){
-
 };

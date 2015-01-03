@@ -6,8 +6,6 @@ var users = require('../controllers/users'),
 
 module.exports = function(app, passport) {
 
-    app.route('/users/actions/logout')
-        .get(users.signout);
     app.route('/users/me')
         .get(authorization.requiresLogin, users.me);
 
@@ -21,8 +19,6 @@ module.exports = function(app, passport) {
     // Setting the local strategy route
     app.route('/users/actions/login')
         .post(passport.authenticate('local', {
-            session: true
-        }), function (req,res) {
-            res.send(req.user);
-        });
+            session: false
+        }), users.createToken);
 };

@@ -44,6 +44,7 @@ exports.anime = function(req, res, next, id) {
  * List of anime
  */
 exports.all = function(req, res) {
+    console.log(req.user);
     Anime.find({},
         {
             title: 1,

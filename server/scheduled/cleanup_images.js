@@ -11,7 +11,6 @@ module.exports = function(app, agenda, gfs) {
 
         ImageModel.imagesNotInUse(gfs).then(function(images){
             if(images.length === 0){
-                console.log('No unused images. Scheduled job finished');
                 done();
                 return;
             }

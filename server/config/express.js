@@ -3,42 +3,25 @@
 var favicon = require('static-favicon'), 
   	morgan = require('morgan'),
   	bodyParser = require('body-parser'),
-    express = require('express'),
   	methodOverride = require('method-override'),
   	expressValidator = require('express-validator'),
   	config = require('./config'),
   	appPath = process.cwd(),
     compression = require('compression'),
   	errorHandler = require('errorhandler'),
-    session = require('express-session'),
-    mongoStore = require('mean-connect-mongo')(session),
     cookieParser = require('cookie-parser'),
     mongoose = require('mongoose'),
     grid = require('gridfs-stream'),
   	util = require('./util'),
-    setupAgenda = require('./agenda');
+    setupAgenda = require('./agenda'),
+    expressJwt = require('express-jwt'),
+    authorization = require('../routes/middlewares/authorization');
 
 module.exports = function(app, passport, db){
 
 	app.set('showStackError', config.showStackError);
 
-	// TODO: set this to public folder
-	//app.set('views', config.root + '/server/views');
-
   app.use(cookieParser());
-
-  // Express/Mongo session storage
-    app.use(session({
-        secret: config.sessionSecret,
-        store: new mongoStore({
-            db: db.connection.db,
-            collection: config.sessionCollection
-        }),
-        cookie: config.sessionCookie,
-        name: config.sessionName,
-        resave: true,
-        saveUninitialized: true
-    }));
 
   // Gridfs
   var gfs = grid(db.connection.db, mongoose.mongo);
@@ -47,9 +30,14 @@ module.exports = function(app, passport, db){
   app.use(expressValidator());
 
   app.use(passport.initialize());
-  app.use(passport.session());
+  app.use(expressJwt({
+    secret: config.tokenSecret,
+    userProperty: config.tokenPath,
+    credentialsRequired: false
+  }));
+  app.use(authorization.fetchUserObjectFromToken);
 
-    app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
 
 	app.use(methodOverride());
@@ -66,12 +54,9 @@ module.exports = function(app, passport, db){
       require(path)(app, passport);
   });
 
-
   app.use(compression({
     level: 9
   }));
-  
-  app.use( express.static('../../client/config'));
   
   app.route('/').get();
 

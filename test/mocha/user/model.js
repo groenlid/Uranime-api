@@ -46,8 +46,8 @@ describe('<Unit Test>', function() {
                 });
             });
 
-            it('should show an error when try to save without name', function(done) {
-                user.name = '';
+            it('should show an error when try to save without username', function(done) {
+                user.username = '';
                 return user.save(function(err) {
                     should.exist(err);
                     done();

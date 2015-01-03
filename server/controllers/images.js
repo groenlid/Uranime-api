@@ -130,7 +130,6 @@ var uploadImageFromForm = function(req, collection){
         streamIsAllowedFileSize(part)
         .then(streamIsAllowedFileType)
         .then(function(stream){
-            console.log('stream is allowed');
             var writestream = gfs.createWriteStream({
                 filename: part.filename,
                 root: collection

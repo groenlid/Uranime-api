@@ -16,7 +16,7 @@ var SocialEpisodeInfoSchema = new Schema({
         type: ObjectId,
         ref: 'Anime'
     },
-    seenBy: [{
+    watched: [{
         user: {
             type: ObjectId,
             ref: 'User'
@@ -65,27 +65,32 @@ var SocialEpisodeInfoSchema = new Schema({
 });
 
 SocialEpisodeInfoSchema.index({ anime: 1, type: -1 });
-SocialEpisodeInfoSchema.index({ 'seenBy.user': 1, type: -1 });
+SocialEpisodeInfoSchema.index({ 'watched.user': 1, type: -1 });
 
 SocialEpisodeInfoSchema.methods = {
     removePrivateSeens: function(user){
-        this.seenBy = this.seenBy.filter(function(seenBy){
+
+        this.watched = this.watched.filter(function(watched){
             return user !== undefined ?
-                    seenBy.user.toString() === user._id.toString() || !seenBy.private :
-                    !seenBy.private;
+                    watched.user.toString() === user._id.toString() || !watched.private :
+                    !watched.private;
         });
     },
 
     toJSON: function(){
         return {
-            episode: this._id,
+            _id: this._id,
             anime: this.anime,
-            seenBy: this.seenBy,
+            watched: this.watched,
             comment: this.comment,
             rating: this.rating,
             currentlyWatching: this.currentlyWatching
         };
     }
+};
+
+SocialEpisodeInfoSchema.statics.currentlyWatching = function(callback) {
+    this.find({'currentlyWatching.1': {$exists: true}}, {currentlyWatching: true, anime: true}, callback);
 };
 
 mongoose.model('SocialEpisodeInfo', SocialEpisodeInfoSchema);
