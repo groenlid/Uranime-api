@@ -188,11 +188,11 @@ var loggCallback = function(err){
     winston.error('An error occurred during file-upload', err);
 };
 
-exports.uploadFanart = function(req, res){
+var uploadImage = function(req, res, imageType){
     var url = req.param('url'),
         action = typeof url !== 'undefined' ? 
-                uploadImageFromUrl(url, config.imageCollections.fanart) : 
-                uploadImageFromForm(req, config.imageCollections.fanart);
+                uploadImageFromUrl(url, imageType) : 
+                uploadImageFromForm(req, imageType);
     
     action.then(function(files){
         if(res) res.send(files);
@@ -201,30 +201,16 @@ exports.uploadFanart = function(req, res){
     }).then(null, loggCallback);
 };
 
-exports.uploadPoster = function(req, res){
-    var url = req.param('url'),
-        action = typeof url !== 'undefined' ? 
-                uploadImageFromUrl(url, config.imageCollections.poster) : 
-                uploadImageFromForm(req, config.imageCollections.poster);
+exports.uploadFanart = function(req, res){
+    uploadImage(req, res, config.imageCollections.fanart);
+};
 
-    action.then(function(files){
-        if(res) res.send(files);
-    },function(err){
-        if(res) res.send(500, err);
-    }).then(null, loggCallback);
+exports.uploadPoster = function(req, res){
+    uploadImage(req, res, config.imageCollections.poster);
 };
 
 exports.uploadEpisodeImage = function(req, res){
-    var url = req.param('url'),
-        action = typeof url !== 'undefined' ? 
-                uploadImageFromUrl(url, config.imageCollections.episodeImage) : 
-                uploadImageFromForm(req, config.imageCollections.episodeImage);
-
-    action.then(function(files){
-        if(res) res.send(files);
-    },function(err){
-        if(res) res.send(500, err);
-    }).then(null, loggCallback);
+    uploadImage(req, res, config.imageCollections.episodeImage);
 };
 
 exports.downloadFanart = function(req, res){
