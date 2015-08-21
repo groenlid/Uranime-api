@@ -3,8 +3,8 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
-    User = mongoose.model('User'),
+var models = require('../models'),
+    User = models.User,
     config = require('../config/config'),
     jwt = require('jwt-simple');
 
@@ -14,7 +14,8 @@ var mongoose = require('mongoose'),
 exports.createToken = function(req, res){
     var expires = new Date().getTime() + config.tokenDurationInMS,
         user = req.user;
-
+        console.log("User");
+        console.log(user);
     res.json({
         token : jwt.encode({
             iss: user._id,

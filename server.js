@@ -5,7 +5,7 @@
  */
 
 var express = require('express'),
-	mongoose = require('mongoose'),
+    thinky = require('./server/config/thinky'),
     passport = require('passport'),
     https   = require('https'),
     fs      = require('fs'),
@@ -16,11 +16,9 @@ var express = require('express'),
  */
 var config = require('./server/config/config');
 
-var db = mongoose.connect(config.db);
-
 var app = express();
 
-require('./server/config/bootstrap')(app, passport, db);
+require('./server/config/bootstrap')(app, passport, thinky);
 
 var options = {
   key: fs.readFileSync(config.ssl.key),

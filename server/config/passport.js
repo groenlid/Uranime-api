@@ -1,7 +1,6 @@
 'use strict';
 
-var mongoose = require('mongoose'),
-    User = mongoose.model('User');
+var User = require('../models/user');
 
  module.exports = function(passport) {
     // Use local strategy
@@ -11,17 +10,13 @@ var mongoose = require('mongoose'),
             passwordField: 'password'
         },
         function(username, password, done) {
-            User.findOne({
-                username: username
-            }, function(err, user) {
-                if (err) {
-                    return done(err);
-                }
-                if (!user) {
+          User.filter({username: username}).run().then(function(users) {
+                if (users.length === 0) {
                     return done(null, false, {
                         message: 'Invalid credentials. The username or password is wrong.'
                     });
                 }
+                var user = users[0];
                 user.authenticate(password, function(err, authenticated){
                     if(err || !authenticated){
                         return done(err, false, {
@@ -30,7 +25,9 @@ var mongoose = require('mongoose'),
                     }
                     return done(null, user);
                 });
+            }, function(err){
+              return done(err);
             });
-        }
+          }
     ));
  };

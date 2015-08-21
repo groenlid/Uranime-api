@@ -1,7 +1,11 @@
 'use strict';
 
 module.exports = {
-    db: 'mongodb://localhost/mean-dev',
+    db: {
+        host: 'localhost',
+        port: 28015,
+        db: 'anime_dev'
+    },
     app: {
         name: 'MEAN - FullStack JS - Development'
     },

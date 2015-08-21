@@ -3,9 +3,8 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
-    Anime = mongoose.model('Anime'),
-    SocialEpisodeInfo = mongoose.model('SocialEpisodeInfo'),
+var SocialEpisodeInfo = require('../models/socialEpisodeInfo'),
+    Anime = require('../models/anime'),
     bluebird = require('bluebird'),
     config = require('../config/config'),
     util = require('util'),
@@ -47,11 +46,11 @@ exports.all = function(req, res) {
     Anime.find({},
         {
             title: 1,
-            status: 1, 
-            classification: 1, 
-            fanart: 1, 
-            poster: 1, 
-            type: 1, 
+            status: 1,
+            classification: 1,
+            fanart: 1,
+            poster: 1,
+            type: 1,
             description: 1
         }).sort('-created').exec(function(err, anime) {
         if (err) {
@@ -76,7 +75,7 @@ var setAnimeFields = function(currentAnime, givenAnime){
     currentAnime.status         = givenAnime.status;
     currentAnime.classification = givenAnime.classification;
     currentAnime.type           = givenAnime.type;
-    currentAnime.description    = givenAnime.description;  
+    currentAnime.description    = givenAnime.description;
     currentAnime.connections    = givenAnime.connections;
 };
 
@@ -90,8 +89,8 @@ var setEpisodeFields = function(currentEpisode, givenEpisode){
 };
 
 var findImagefiles = function(gfs, collection, fileIds){
-    var ids = fileIds.map(function(id) { 
-        return new mongoose.Types.ObjectId(id); 
+    var ids = fileIds.map(function(id) {
+        return new mongoose.Types.ObjectId(id);
     });
 
     return new bluebird(function(resolve, reject){
@@ -102,7 +101,7 @@ var findImagefiles = function(gfs, collection, fileIds){
             if (err || files.length !== ids.length){
                 return reject({errors: 'Could not find image with ids: ' + fileIds});
             }
-            
+
             return resolve();
         });
     });
@@ -111,7 +110,7 @@ var findImagefiles = function(gfs, collection, fileIds){
 var updateImageReferances = function(gfs, currentModel, givenModel, collection, imagepathOnModel){
     var resolver = bluebird.pending(),
         imageIdsToAdd;
-    
+
     imageIdsToAdd = _.difference(givenModel[imagepathOnModel], currentModel[imagepathOnModel]);
 
     findImagefiles(gfs, collection, imageIdsToAdd)
@@ -153,7 +152,7 @@ var updateEpisodes = function(currentAnime, givenAnime){
     var currentIds, givenIds, operations;
 
     updateIdsOnNewEpisodes(givenAnime);
-    
+
     currentIds = currentAnime.episodes.map(function(e){return e._id.toString();});
     givenIds = givenAnime.episodes.map(function(e){return e._id.toString();});
 
@@ -180,22 +179,22 @@ var updateEpisodes = function(currentAnime, givenAnime){
     });
 
     console.log(util.format('Episodes to add: %d, Episodes to remove %d, Episodes to modify %d', operations.toAdd.length, operations.toRemove.length, operations.toModify.length));
-    
+
     // Add new episodes
     operations.toAdd.forEach(function(id){
-        var newEpisode = _.cloneDeep(_.find(givenAnime.episodes, function(ep){ 
-            return ep._id.toString() === id.toString(); 
+        var newEpisode = _.cloneDeep(_.find(givenAnime.episodes, function(ep){
+            return ep._id.toString() === id.toString();
         }));
 
         delete newEpisode.images;
-        
+
         currentAnime.episodes.push(newEpisode);
     });
 
 };
 
 /**
- * Create an anime 
+ * Create an anime
  * or
  * update one anime with a given id
  */

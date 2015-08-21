@@ -3,11 +3,10 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
-    Schema = mongoose.Schema,
-    version = require('mongoose-version'),
-    connectionSchema = require('./connection'),
-    ObjectId = mongoose.Schema.Types.ObjectId;
+var thinky = require('../config/thinky'),
+    type = thinky.type,
+    user = require('./user');
+    //connectionSchema = require('./connection');
 
 var statusStates = 'finished currently unaired'.split(' ');
 var classificationStates = 'G PG PG-13 R R+ Rx'.split(' ');
@@ -16,61 +15,24 @@ var typeStates = 'tv ova special ona movie other'.split(' ');
 /**
  * Anime Schema
  */
-var AnimeSchema = new Schema({
+var AnimeSchema = thinky.createModel('anime', {
     updated: {
-        date: {
-            type: Date,
-            default: Date.now,
-            required: true
-        },
-        by: {
-            type: ObjectId,
-            ref: 'User',
-            required: false
-        }
+        date: type.date().required().default(Date.now),
+        userId: type.string()
     },
-    title: {
-        type: String,
-        default: '',
-        trim: true,
-        required: true
-    },
-    description: {
-        type: String,
-        default: '',
-        trim: true
-    },
-    status: {
-    	type: String,
-    	enum: statusStates,
-        required: true
-    },
-    classification: {
-    	type: String,
-    	enum: classificationStates,
-        required: true
-    },
-    type: {
-    	type: String,
-    	enum: typeStates,
-        required: true
-    },
+    title: type.string().required(),
+    description: type.string(),
+    status: type.string().enum(statusStates).required(),
+    classification: type.string().enum(classificationStates).required(),
+    type: type.string().enum(typeStates).required(),
     titles: [{
-        title: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        lang: {
-            type: String
-        },
-        type: {
-            type: String
-        }
+        title: type.string().required(),
+        lang: type.string(),
+        type: type.string()
     }],
-    posters: [ObjectId],
-    fanarts: [ObjectId],
-    genres: [{
+    posters: [type.string()],
+    fanarts: [type.string()],
+    /*genres: [{
         type: String,
         ref: 'Genre'
     }],
@@ -119,37 +81,28 @@ var AnimeSchema = new Schema({
             }
         }],
         connections: [connectionSchema.EpisodeSchema],
-        images: [ObjectId],
+        images: [type.text()],
 
         markedPrivateBy: [{
             type: ObjectId,
             ref: 'User'
         }]
-    })]
-}, {
-	collection: 'anime'
+    })]*/
 });
+
+/*
+ * Relations
+ */
+
+AnimeSchema.belongsTo(user, 'user', 'updated.userid', 'id');
 
 /**
  * Indexes
  */
-AnimeSchema.index({ 
-    'title': 'text', 
-    'titles.title': 'text', 
-    'episodes.title': 'text',
-    'episodes.titles': 'text' 
-});
-
-AnimeSchema.plugin(version, {
-    collection: 'anime.versions'
-});
-
-/**
- * Validations
- */
-AnimeSchema.path('title').validate(function (title) {
-    return title && title.length;
-}, 'Title cannot be blank');
+AnimeSchema.ensureIndex('title');
+AnimeSchema.ensureIndex('titles.title');
+AnimeSchema.ensureIndex('episodes.title');
+AnimeSchema.ensureIndex('episodes.titles');
 
 /**
  * Pre/Post hooks
@@ -163,15 +116,13 @@ AnimeSchema.pre('save', function (next) {
  * Statics methods
  */
 
-AnimeSchema.statics.latests = function(limit, callback) {
+AnimeSchema.defineStatic('lastest', function(limit, callback) {
     this.aggregate([
         { $unwind: '$episodes'},
         { $sort: {'episodes.aired': -1}},
         { $limit: limit},
         { $project: {'_id': 1, 'name': 1, 'aired': '$episodes.aired', 'episode': '$episodes.number'}}
     ], callback);
-};
+});
 
-mongoose.model('Anime', AnimeSchema);
-
-exports.schema = AnimeSchema;
+module.exports = AnimeSchema;
